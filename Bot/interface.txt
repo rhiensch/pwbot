@@ -6,158 +6,6 @@ AbstractBot::AbstractBot()
 {
 }
 
-// My planets
-Planets AbstractBot::myStrongestPlanets(uint number) const
-{
-    return strongestPlanets(currentTurnData->MyPlanets(), number);
-}
-
-Planets AbstractBot::myWeakestPlanets(uint number) const
-{
-    return weakestPlanets(currentTurnData->MyPlanets(), number);
-}
-
-// Neutral planets
-Planets AbstractBot::neutralStrongestPlanets(uint number) const
-{
-    return strongestPlanets(currentTurnData->NeutralPlanets(), number);
-}
-
-Planets AbstractBot::neutralWeakestPlanets(uint number) const
-{
-    return weakestPlanets(currentTurnData->NeutralPlanets(), number);
-}
-
-// Opponents planets
-Planets AbstractBot::enemyStrongestPlanets(uint number, int opponentID) const
-{
-    Planets enemyPlanets = planetsWithGivenOwner(currentTurnData->EnemyPlanets(), opponentID);
-    return strongestPlanets(enemyPlanets, number);
-}
-
-Planets AbstractBot::enemyWeakestPlanets(uint number, int opponentID) const
-{
-    Planets enemyPlanets = planetsWithGivenOwner(currentTurnData->EnemyPlanets(), opponentID);
-    return weakestPlanets(enemyPlanets, number);
-}
-
-Planets AbstractBot::planetsWithGivenOwner(const Planets& planets, int ownerID) const
-{
-    if (ownerID == -1) {
-        return planets;
-    }
-    else {
-        Planets selectedPlanets;
-        selectedPlanets.clear();
-
-        uint size = planets.size();
-        for (uint i = 0; i < size; ++i) {
-            if (planets.at(i).Owner() == ownerID) {
-                selectedPlanets.push_back(planets.at(i));
-            }
-        }
-        return selectedPlanets;
-    }
-}
-
-Fleets AbstractBot::fleetsWithGivenOwner(const Fleets& fleets, int ownerID) const
-{
-    if (ownerID == -1) {
-        return fleets;
-    }
-    else {
-        Fleets selectedFleets;
-        selectedFleets.clear();
-
-        uint size = fleets.size();
-        for (uint i = 0; i < size; ++i) {
-            if (fleets.at(i).Owner() == ownerID) {
-                selectedFleets.push_back(fleets.at(i));
-            }
-        }
-        return selectedFleets;
-    }
-}
-
-// Any planets
-Planets AbstractBot::weakestPlanets(const Planets& planets, uint number)
-{
-    Planets weakestPlanets;
-    weakestPlanets.clear();
-
-    if (number == 1) {
-        Planet weakestPlanet = planets.at(0);
-
-        uint size = planets.size();
-        for (uint i = 1; i < size; ++i) {
-            if (planets.at(i).NumShips() < weakestPlanet.NumShips()) {
-                weakestPlanet = planets.at(i);
-            }
-        }
-
-        weakestPlanets.push_back(weakestPlanet);
-    }
-    else if (number != 0) {
-        weakestPlanets.reserve(number);
-
-        Planets sortedPlanets = planets;
-        std::sort(sortedPlanets.begin(), sortedPlanets.end(), compareNumberOfShipsLT);
-
-        if (number > sortedPlanets.size()) {
-            number = planets.size();
-        }
-        for (uint i = 0; i < number; ++i) {
-            weakestPlanets.push_back(sortedPlanets.at(i));
-        }
-    }
-
-    return weakestPlanets;
-}
-
-Planets AbstractBot::strongestPlanets(const Planets& planets, uint number)
-{
-
-    Planets strongestPlanets;
-    strongestPlanets.clear();
-
-    if (number == 1) {
-        Planet strongestPlanet = planets.at(0);
-
-        uint size = planets.size();
-        for (uint i = 1; i > size; ++i) {
-            if (planets.at(i).NumShips() < strongestPlanet.NumShips()) {
-                strongestPlanet = planets.at(i);
-            }
-        }
-
-        strongestPlanets.push_back(strongestPlanet);
-    }
-    else if (number != 0) {
-        strongestPlanets.reserve(number);
-
-        Planets sortedPlanets = planets;
-        std::sort(sortedPlanets.begin(), sortedPlanets.end(), compareNumberOfShipsGT);
-
-        if (number > sortedPlanets.size()) {
-            number = planets.size();
-        }
-        for (uint i = 0; i < number; ++i) {
-            strongestPlanets.push_back(sortedPlanets.at(i));
-        }
-    }
-
-    return strongestPlanets;
-}
-
-bool AbstractBot::compareNumberOfShipsLT(const Planet& planet1, const Planet& planet2)
-{
-    return (planet1.NumShips() < planet2.NumShips());
-}
-
-bool AbstractBot::compareNumberOfShipsGT(const Planet& planet1, const Planet& planet2)
-{
-    return (planet1.NumShips() > planet2.NumShips());
-}
 
 Planet AbstractBot::planetsFutureStatus(const Planet& planet, uint numberOfTurns) const
 {
@@ -265,6 +113,201 @@ Planets AbstractBot::myEndangeredPlanets(uint numberOfTurns, uint treshold) cons
     return endangeredPlanets;
 }
 
+
+bool AbstractBot::isPlanetUnderAttack(const Planet& planet)
+{
+    Fleets fleets = currentTurnData->Fleets();
+
+    uint size = fleets.size();
+    for (uint i = 0; i < size; ++i) {
+        if (fleets.at(i).DestinationPlanet() == planet.PlanetID()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+___________________________________________________________
+
+// My planets
+Planets AbstractBot::myStrongestPlanets(uint number) const
+{
+    return strongestPlanets(currentTurnData->MyPlanets(), number);
+}
+
+Planets AbstractBot::myWeakestPlanets(uint number) const
+{
+    return weakestPlanets(currentTurnData->MyPlanets(), number);
+}
+
+// Neutral planets
+Planets AbstractBot::neutralStrongestPlanets(uint number) const
+{
+    return strongestPlanets(currentTurnData->NeutralPlanets(), number);
+}
+
+Planets AbstractBot::neutralWeakestPlanets(uint number) const
+{
+    return weakestPlanets(currentTurnData->NeutralPlanets(), number);
+}
+
+// Opponents planets
+Planets AbstractBot::enemyStrongestPlanets(uint number, int opponentID) const
+{
+    Planets enemyPlanets = planetsWithGivenOwner(currentTurnData->EnemyPlanets(), opponentID);
+    return strongestPlanets(enemyPlanets, number);
+}
+
+Planets AbstractBot::enemyWeakestPlanets(uint number, int opponentID) const
+{
+    Planets enemyPlanets = planetsWithGivenOwner(currentTurnData->EnemyPlanets(), opponentID);
+    return weakestPlanets(enemyPlanets, number);
+}
+
+// Any planets
+Planets AbstractBot::weakestPlanets(const Planets& planets, uint number)
+{
+    Planets weakestPlanets;
+    weakestPlanets.clear();
+
+    if (number == 1) {
+        Planet weakestPlanet = planets.at(0);
+
+        uint size = planets.size();
+        for (uint i = 1; i < size; ++i) {
+            if (planets.at(i).NumShips() < weakestPlanet.NumShips()) {
+                weakestPlanet = planets.at(i);
+            }
+        }
+
+        weakestPlanets.push_back(weakestPlanet);
+    }
+    else if (number != 0) {
+        weakestPlanets.reserve(number);
+
+        Planets sortedPlanets = planets;
+        std::sort(sortedPlanets.begin(), sortedPlanets.end(), compareNumberOfShipsLT);
+
+        if (number > sortedPlanets.size()) {
+            number = planets.size();
+        }
+        for (uint i = 0; i < number; ++i) {
+            weakestPlanets.push_back(sortedPlanets.at(i));
+        }
+    }
+
+    return weakestPlanets;
+}
+
+Planets AbstractBot::strongestPlanets(const Planets& planets, uint number)
+{
+
+    Planets strongestPlanets;
+    strongestPlanets.clear();
+
+    if (number == 1) {
+        Planet strongestPlanet = planets.at(0);
+
+        uint size = planets.size();
+        for (uint i = 1; i > size; ++i) {
+            if (planets.at(i).NumShips() < strongestPlanet.NumShips()) {
+                strongestPlanet = planets.at(i);
+            }
+        }
+
+        strongestPlanets.push_back(strongestPlanet);
+    }
+    else if (number != 0) {
+        strongestPlanets.reserve(number);
+
+        Planets sortedPlanets = planets;
+        std::sort(sortedPlanets.begin(), sortedPlanets.end(), compareNumberOfShipsGT);
+
+        if (number > sortedPlanets.size()) {
+            number = planets.size();
+        }
+        for (uint i = 0; i < number; ++i) {
+            strongestPlanets.push_back(sortedPlanets.at(i));
+        }
+    }
+
+    return strongestPlanets;
+}
+
+bool AbstractBot::compareNumberOfShipsLT(const Planet& planet1, const Planet& planet2)
+{
+    return (planet1.NumShips() < planet2.NumShips());
+}
+
+bool AbstractBot::compareNumberOfShipsGT(const Planet& planet1, const Planet& planet2)
+{
+    return (planet1.NumShips() > planet2.NumShips());
+}
+
+Planets AbstractBot::planetsWithGivenOwner(const Planets& planets, int ownerID) const
+{
+    if (ownerID == -1) {
+        return planets;
+    }
+    else {
+        Planets selectedPlanets;
+        selectedPlanets.clear();
+
+        uint size = planets.size();
+        for (uint i = 0; i < size; ++i) {
+            if (planets.at(i).Owner() == ownerID) {
+                selectedPlanets.push_back(planets.at(i));
+            }
+        }
+        return selectedPlanets;
+    }
+}
+
+Fleets AbstractBot::fleetsWithGivenOwner(const Fleets& fleets, int ownerID) const
+{
+    if (ownerID == -1) {
+        return fleets;
+    }
+    else {
+        Fleets selectedFleets;
+        selectedFleets.clear();
+
+        uint size = fleets.size();
+        for (uint i = 0; i < size; ++i) {
+            if (fleets.at(i).Owner() == ownerID) {
+                selectedFleets.push_back(fleets.at(i));
+            }
+        }
+        return selectedFleets;
+    }
+}
+
+Fleets AbstractBot::myFleetsGoingToPlanet(const Planet& planet) const
+{
+    return fleetsGoingToPlanet(currentTurnData->MyFleets(), planet);
+}
+
+Fleets AbstractBot::enemyFleetsGoingToPlanet(const Planet& planet, int opponentID) const
+{
+    return fleetsGoingToPlanet(fleetsWithGivenOwner(currentTurnData->EnemyFleets(), opponentID), planet);
+}
+
+Fleets AbstractBot::fleetsGoingToPlanet(const Fleets& fleets, const Planet& planet) const
+{
+    Fleets attackingFleets;
+    attackingFleets.clear();
+
+    uint size = fleets.size();
+    for (uint i = 0; i < size; ++i) {
+        if (fleets.at(i).DestinationPlanet() == planet.PlanetID()) {
+            attackingFleets.push_back(fleets.at(i));
+        }
+    }
+
+    return attackingFleets;
+}
 Planets AbstractBot::myPlanetsUnderAttack() const
 {
     Fleets enemyFleets = currentTurnData->EnemyFleets();
@@ -299,31 +342,6 @@ Planets AbstractBot::neutralPlanetsUnderAttack() const
     return attackedPlanets;
 }
 
-Fleets AbstractBot::myFleetsGoingToPlanet(const Planet& planet) const
-{
-    return fleetsGoingToPlanet(currentTurnData->MyFleets(), planet);
-}
-
-Fleets AbstractBot::enemyFleetsGoingToPlanet(const Planet& planet, int opponentID) const
-{
-    return fleetsGoingToPlanet(fleetsWithGivenOwner(currentTurnData->EnemyFleets(), opponentID), planet);
-}
-
-Fleets AbstractBot::fleetsGoingToPlanet(const Fleets& fleets, const Planet& planet) const
-{
-    Fleets attackingFleets;
-    attackingFleets.clear();
-
-    uint size = fleets.size();
-    for (uint i = 0; i < size; ++i) {
-        if (fleets.at(i).DestinationPlanet() == planet.PlanetID()) {
-            attackingFleets.push_back(fleets.at(i));
-        }
-    }
-
-    return attackingFleets;
-}
-
 Planets AbstractBot::myPlanetsWithinProximityToPlanet(const Planet& planet, uint proximityTreshold) const
 {
     return planetsWithinProximityToPlanet(currentTurnData->MyPlanets(), planet, proximityTreshold);
@@ -353,18 +371,4 @@ Planets AbstractBot::planetsWithinProximityToPlanet(const Planets& planets, cons
     }
 
     return nearbyPlanets;
-}
-
-bool AbstractBot::isPlanetUnderAttack(const Planet& planet)
-{
-    Fleets fleets = currentTurnData->Fleets();
-
-    uint size = fleets.size();
-    for (uint i = 0; i < size; ++i) {
-        if (fleets.at(i).DestinationPlanet() == planet.PlanetID()) {
-            return true;
-        }
-    }
-
-    return false;
 }
