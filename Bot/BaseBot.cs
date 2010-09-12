@@ -78,5 +78,15 @@ namespace Bot
 
 			return weakestPlanets;
 		}
+
+		public List<Planet> MyWeakestPlanets(int number)
+		{
+			return WeakestPlanets(Context.MyPlanets(), number);
+		}
+
+		public List<Planet> MyStrongestPlanets(int number)
+		{
+			return StrongestPlanets(Context.MyPlanets(), number);
+		}
 	}
 }
