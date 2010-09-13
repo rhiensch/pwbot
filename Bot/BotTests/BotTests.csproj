@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />
+    <Content Include="interface.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bot.csproj">
