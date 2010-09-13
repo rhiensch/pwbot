@@ -49,6 +49,7 @@
     <Compile Include="BaseBot.cs" />
     <Compile Include="Fleet.cs" />
     <Compile Include="MyBot.cs" />
+    <Compile Include="Pair.cs" />
     <Compile Include="Planet.cs" />
     <Compile Include="PlanetWars.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

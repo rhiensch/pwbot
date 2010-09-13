@@ -1,4 +1,5 @@
-﻿using Planets = System.Collections.Generic.List<Bot.Planet>;
+﻿using System.Collections.Generic;
+using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
 namespace Bot
@@ -11,12 +12,12 @@ namespace Bot
 			Context = planetWars;
 		}
 
-		private int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
+		private static int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
 		{
 			return (planet1.NumShips() - planet2.NumShips());
 		}
 
-		private int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
+		private static int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
 		{
 			return (planet2.NumShips() - planet1.NumShips());
 		}
@@ -55,35 +56,34 @@ namespace Bot
 
 		public Planets StrongestPlanets(Planets planets, int number)
 		{
-			Planets weakestPlanets = new Planets(number);
+			Planets strongestPlanets = new Planets(number);
 			if (number == 1)
 			{
-				Planet weakestPlanet = planets[0];
+				Planet strongestPlanet = planets[0];
 
 				foreach (Planet planet in planets)
 				{
-					if (planet.NumShips() > weakestPlanet.NumShips())
+					if (planet.NumShips() > strongestPlanet.NumShips())
 					{
-						weakestPlanet = planet;
+						strongestPlanet = planet;
 					}
 				}
-				weakestPlanets.Add(weakestPlanet);
+				strongestPlanets.Add(strongestPlanet);
 			}
 			else if (number != 0)
 			{
 				Planets sortedPlanets = planets;
-				sortedPlanets.Sort(CompareNumberOfShipsLT);
-				sortedPlanets.Reverse();
+				sortedPlanets.Sort(CompareNumberOfShipsGT);
 
 				if (number > sortedPlanets.Count)
 				{
 					number = planets.Count;
 				}
 
-				weakestPlanets = sortedPlanets.GetRange(0, number);
+				strongestPlanets = sortedPlanets.GetRange(0, number);
 			}
 
-			return weakestPlanets;
+			return strongestPlanets;
 		}
 
 		//My Planets
@@ -179,11 +179,6 @@ namespace Bot
 			return FleetsGoingToPlanet(Context.EnemyFleets(), planet);
 		}
 
-		/*public Planet PlanetFutureStatus(Planet planet, int numberOfTurns)
-		{
-			
-		}*/
-
 		private Planets PlanetsUnderAttack(int ownerID)
 		{
 			Fleets enemyFleets = Context.EnemyFleets();
@@ -242,6 +237,114 @@ namespace Bot
 		public Planets EnemyPlanetsWithinProximityToPlanet(Planet thisPlanet, int proximityTreshold)
 		{
 			return PlanetsWithinProximityToPlanet(Context.EnemyPlanets(), thisPlanet, proximityTreshold);
+		}
+
+		private static int CompareSecondOfPair(Pair<int, int> pair1, Pair<int, int> pair2)
+		{
+			return pair2.Second - pair1.Second;
+		}
+
+		public Planet PlanetFutureStatus(Planet planet, int numberOfTurns)
+		{
+			Planet planetInFuture = planet;
+
+			// All fleets heading to this planet
+			Fleets thisPlanetFleets = FleetsGoingToPlanet(Context.Fleets(), planet);
+
+			for (uint turn = 1; turn <= numberOfTurns; turn++)
+			{
+				PlanetGrowth(planetInFuture);
+
+				// First is ownerID, second is number of ships
+				List<Pair<int, int>> ships = new List<Pair<int, int>>();
+
+				// Get all fleets whic will arrive at the planet in this turn
+				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
+
+				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets, ships);
+			}
+			return planetInFuture;
+		}
+
+		private static Fleets GetThisTurnFleets(uint turn, Fleets thisPlanetFleets)
+		{
+			Fleets thisTurnFleets = new Fleets();
+			foreach (Fleet fleet in thisPlanetFleets)
+			{
+				if (fleet.TurnsRemaining() == turn)
+				{
+					thisTurnFleets.Add(fleet);
+				}
+			}
+			return thisTurnFleets;
+		}
+
+		private void CalcFleetsOnPlanet(Planet planetInFuture, Fleets thisTurnFleets, List<Pair<int, int>> ships)
+		{
+			if (thisTurnFleets.Count > 0)
+			{
+				const int owners = 2;
+
+				for (int id = 1; id <= owners; ++id)
+				{
+					Fleets ownerFleets = FleetsWithGivenOwner(thisTurnFleets, id);
+					Pair<int, int> ownerShips = new Pair<int, int>(id, 0);
+
+					// Add up fleets with the same owner
+					foreach (Fleet ownerFleet in ownerFleets)
+					{
+						ownerShips.Second += ownerFleet.NumShips();
+					}
+
+					// Add the ships from the planet to the corresponding fleet
+					if (planetInFuture.Owner() == id)
+					{
+						ownerShips.Second += planetInFuture.NumShips();
+					}
+
+					ships.Add(ownerShips);
+				}
+
+				// If the planet was neutral, it has it's own fleet
+				if (planetInFuture.Owner() == 0)
+				{
+					ships.Add(new Pair<int, int>(0, planetInFuture.NumShips()));
+				}
+
+				BattleForPlanet(planetInFuture, ships);
+			}
+		}
+
+		private static void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
+		{
+			// Were there any fleets other than the one on the planet?
+			if (ships.Count > 1)
+			{
+				// Sorts the fleets in descending order by the number of ships in the fleet
+				ships.Sort(CompareSecondOfPair);
+
+				Pair<int, int> winner = ships[0];
+				Pair<int, int> secondToWinner = ships[1];
+
+				if (winner.Second == secondToWinner.Second)
+				{
+					planetInFuture.Owner(0);
+					planetInFuture.NumShips(0);
+				}
+				else
+				{
+					planetInFuture.Owner(winner.First);
+					planetInFuture.NumShips(winner.Second - secondToWinner.Second);
+				}
+			}
+		}
+
+		private static void PlanetGrowth(Planet planetInFuture)
+		{
+			if (planetInFuture.Owner() != 0)
+			{
+				planetInFuture.NumShips(planetInFuture.NumShips() + planetInFuture.GrowthRate());
+			}
 		}
 	}
 }
