@@ -56,14 +56,14 @@ namespace BotTests
 		{
 			return 
 				"P 11.6135908004 11.6587374197 0 119 0#0\n" +
-				"P 1.2902863101 9.04078582767 1 100 5#1\n" +
+				"P 1.2902863101 9.04078582767 1 40 5#1\n" +
 				"P 21.9368952907 14.2766890117 2 100 5#2\n" +
 				"P 5.64835767563 18.2659924733 1 21 4#3\n" +
 				"P 17.5788239251 5.05148236609 0 21 4#4\n" +
 				"F 1 25 1 4 5 3\n" +
 				"F 1 50 1 2 10 1\n" +
 				"F 2 30 2 4 5 2\n" +
-				"F 2 10 2 1 15 10\n" +
+				"F 2 60 2 1 15 1\n" +
 				"go\n";
 		}
 
@@ -257,21 +257,20 @@ namespace BotTests
 			Assert.AreEqual(12, futurePlanet.NumShips());
 			Assert.AreEqual(1, futurePlanet.Owner());
 
-			/*futurePlanet = bot.PlanetFutureStatus(bot.Context.GetPlanet(4), 2);
+			futurePlanet = bot.PlanetFutureStatus(bot.Context.GetPlanet(4), 2);
 
 			Assert.AreEqual(9, futurePlanet.NumShips());
-			Assert.AreEqual(2, futurePlanet.Owner());*/
+			Assert.AreEqual(2, futurePlanet.Owner());
 		}
 
-		/*[TestMethod]
+		[TestMethod]
 		public void TestMyEndangeredPlanets()
 		{
 			BaseBot bot = new BaseBot(CreateTestContextForSort());
-			Planets planets = bot.MyEndangeredPlanets(bot.Context.Planets(), bot.Context.GetPlanet(1), 11);
+			Planets planets = bot.MyEndangeredPlanets(1, 10);
 
-			Assert.AreEqual(2, planets.Count);
-			Assert.IsTrue((planets[0].PlanetID() == 0) || (planets[0].PlanetID() == 3));
-			Assert.IsTrue((planets[1].PlanetID() == 0) || (planets[1].PlanetID() == 3));
-		}*/
+			Assert.AreEqual(1, planets.Count);
+			Assert.AreEqual(1, planets[0].PlanetID());
+		}
 	}
 }

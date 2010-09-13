@@ -246,7 +246,7 @@ namespace Bot
 
 		public Planet PlanetFutureStatus(Planet planet, int numberOfTurns)
 		{
-			Planet planetInFuture = planet;
+			Planet planetInFuture = new Planet(planet);
 
 			// All fleets heading to this planet
 			Fleets thisPlanetFleets = FleetsGoingToPlanet(Context.Fleets(), planet);
@@ -345,6 +345,23 @@ namespace Bot
 			{
 				planetInFuture.NumShips(planetInFuture.NumShips() + planetInFuture.GrowthRate());
 			}
+		}
+
+		public Planets MyEndangeredPlanets(int numberOfTurns, int treshold)
+		{
+			Planets planets = Context.MyPlanets();
+			Planets endangeredPlanets = new Planets();
+
+			foreach (Planet planet in planets)
+			{
+				Planet planeInFuture = PlanetFutureStatus(planet, numberOfTurns);
+				if ((planeInFuture.Owner() != 1) || (planeInFuture.NumShips() <= treshold))
+				{
+					endangeredPlanets.Add(planet);
+				}
+			}
+
+			return endangeredPlanets;
 		}
 	}
 }
