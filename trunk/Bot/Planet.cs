@@ -77,7 +77,7 @@ namespace Bot
 		private readonly double x;
 		private readonly double y;
 
-		private Planet(Planet p)
+		public Planet(Planet p)
 		{
 			planetID = p.planetID;
 			owner = p.owner;
