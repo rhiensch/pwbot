@@ -12,7 +12,7 @@
     <AssemblyName>Bot</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <StartupObject>MyBot</StartupObject>
+    <StartupObject>Bot.MyBot</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,7 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttackAdviser.cs" />
     <Compile Include="BaseBot.cs" />
+    <Compile Include="DefendAdviser.cs" />
     <Compile Include="Fleet.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="Pair.cs" />

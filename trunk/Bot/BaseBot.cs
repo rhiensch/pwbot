@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
@@ -6,10 +7,17 @@ namespace Bot
 {
 	public class BaseBot
 	{
+		public DefendAdviser MyDefendAdviser { get; private set; }
+
 		public PlanetWars Context { get; private set; }
 		public BaseBot(PlanetWars planetWars)
 		{
 			Context = planetWars;
+		}
+
+		protected BaseBot(PlanetWars planetWars, DefendAdviser defendAdviser) : this(planetWars)
+		{
+			MyDefendAdviser = defendAdviser;
 		}
 
 		private static int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
