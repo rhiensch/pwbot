@@ -38,6 +38,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttackAdviserTests.cs" />
+    <Compile Include="DefendAdviserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BaseBotTest.cs" />
   </ItemGroup>
