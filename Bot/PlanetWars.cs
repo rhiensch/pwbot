@@ -5,17 +5,22 @@
 
 using System;
 using System.Collections.Generic;
+using Planets = System.Collections.Generic.List<Bot.Planet>;
+using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
 namespace Bot
 {
 	public class PlanetWars
 	{
+		private const int GROWS_RATE_KOEF = 1;
+		private const int DISTANCE_KOEF = -1;
+
 		// Constructs a PlanetWars object instance, given a string containing a
 		// description of a game state.
 		public PlanetWars(string gameStatestring)
 		{
 			planets = new List<Planet>();
-			fleets = new List<Fleet>();
+			fleets = new Fleets();
 			ParseGameState(gameStatestring);
 		}
 
@@ -112,9 +117,9 @@ namespace Bot
 		}
 
 		// Return a list of all the fleets.
-		public List<Fleet> Fleets()
+		public Fleets Fleets()
 		{
-			List<Fleet> r = new List<Fleet>();
+			Fleets r = new Fleets();
 			foreach (Fleet f in fleets)
 			{
 				r.Add(f);
@@ -123,9 +128,9 @@ namespace Bot
 		}
 
 		// Return a list of all the fleets owned by the current player.
-		public List<Fleet> MyFleets()
+		public Fleets MyFleets()
 		{
-			List<Fleet> r = new List<Fleet>();
+			Fleets r = new Fleets();
 			foreach (Fleet f in fleets)
 			{
 				if (f.Owner() == 1)
@@ -137,9 +142,9 @@ namespace Bot
 		}
 
 		// Return a list of all the fleets owned by enemy players.
-		public List<Fleet> EnemyFleets()
+		public Fleets EnemyFleets()
 		{
-			List<Fleet> r = new List<Fleet>();
+			Fleets r = new Fleets();
 			foreach (Fleet f in fleets)
 			{
 				if (f.Owner() != 1)
@@ -172,12 +177,9 @@ namespace Bot
 		//   * you can't move more ships than are currently on the source planet.
 		//   * the ships will take a few turns to reach their destination. Travel
 		//     is not instant. See the Distance() function for more info.
-		public void IssueOrder(int sourcePlanet,
-		                       int destinationPlanet,
-		                       int numShips)
+		public void IssueOrder(int sourcePlanet, int destinationPlanet, int numShips)
 		{
-			Console.WriteLine("" + sourcePlanet + " " + destinationPlanet + " " +
-			                  numShips);
+			Console.WriteLine("" + sourcePlanet + " " + destinationPlanet + " " + numShips);
 			Console.Out.Flush();
 		}
 
@@ -194,7 +196,7 @@ namespace Bot
 		public void IssueOrder(Planet source, Planet dest, int numShips)
 		{
 			Console.WriteLine("" + source.PlanetID() + " " + dest.PlanetID() +
-			                  " " + numShips);
+				" " + numShips);
 			Console.Out.Flush();
 		}
 
@@ -312,11 +314,11 @@ namespace Bot
 					{
 						return 0;
 					}
-					double x = double.Parse(tokens[1]);
-					double y = double.Parse(tokens[2]);
-					int owner = int.Parse(tokens[3]);
-					int numShips = int.Parse(tokens[4]);
-					int growthRate = int.Parse(tokens[5]);
+					double x = Double.Parse(tokens[1]);
+					double y = Double.Parse(tokens[2]);
+					int owner = Int32.Parse(tokens[3]);
+					int numShips = Int32.Parse(tokens[4]);
+					int growthRate = Int32.Parse(tokens[5]);
 					Planet p = new Planet(planetID++,
 					                      owner,
 					                      numShips,
@@ -330,12 +332,12 @@ namespace Bot
 					{
 						return 0;
 					}
-					int owner = int.Parse(tokens[1]);
-					int numShips = int.Parse(tokens[2]);
-					int source = int.Parse(tokens[3]);
-					int destination = int.Parse(tokens[4]);
-					int totalTripLength = int.Parse(tokens[5]);
-					int turnsRemaining = int.Parse(tokens[6]);
+					int owner = Int32.Parse(tokens[1]);
+					int numShips = Int32.Parse(tokens[2]);
+					int source = Int32.Parse(tokens[3]);
+					int destination = Int32.Parse(tokens[4]);
+					int totalTripLength = Int32.Parse(tokens[5]);
+					int turnsRemaining = Int32.Parse(tokens[6]);
 					Fleet f = new Fleet(owner,
 					                    numShips,
 					                    source,
@@ -354,7 +356,423 @@ namespace Bot
 
 		// Store all the planets and fleets. OMG we wouldn't wanna lose all the
 		// planets and fleets, would we!?
-		private List<Planet> planets;
-		private List<Fleet> fleets;
+		private readonly Planets planets;
+		private readonly Fleets fleets;
+
+		private static int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
+		{
+			return (planet1.NumShips() - planet2.NumShips());
+		}
+
+		private static int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
+		{
+			return (planet2.NumShips() - planet1.NumShips());
+		}
+
+		private static int CompareSecondOfPair(Pair<int, int> pair1, Pair<int, int> pair2)
+		{
+			return pair2.Second - pair1.Second;
+		}
+
+		private static Fleets GetThisTurnFleets(uint turn, IEnumerable<Fleet> thisPlanetFleets)
+		{
+			Fleets thisTurnFleets = new Fleets();
+			foreach (Fleet fleet in thisPlanetFleets)
+			{
+				if (fleet.TurnsRemaining() == turn)
+				{
+					thisTurnFleets.Add(fleet);
+				}
+			}
+			return thisTurnFleets;
+		}
+
+		private static void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
+		{
+			// Were there any fleets other than the one on the planet?
+			if (ships.Count > 1)
+			{
+				// Sorts the fleets in descending order by the number of ships in the fleet
+				ships.Sort(CompareSecondOfPair);
+
+				Pair<int, int> winner = ships[0];
+				Pair<int, int> secondToWinner = ships[1];
+
+				if (winner.Second == secondToWinner.Second)
+				{
+					planetInFuture.Owner(0);
+					planetInFuture.NumShips(0);
+				}
+				else
+				{
+					planetInFuture.Owner(winner.First);
+					planetInFuture.NumShips(winner.Second - secondToWinner.Second);
+				}
+			}
+		}
+
+		private static void PlanetGrowth(Planet planetInFuture)
+		{
+			if (planetInFuture.Owner() != 0)
+			{
+				planetInFuture.NumShips(planetInFuture.NumShips() + planetInFuture.GrowthRate());
+			}
+		}
+
+		//Any planets
+		public Planets WeakestPlanets(Planets planetList, int number)
+		{
+			Planets weakestPlanets = new Planets(number);
+			if (number == 1)
+			{
+				Planet weakestPlanet = planetList[0];
+
+				foreach (Planet planet in planetList)
+				{
+					if (planet.NumShips() < weakestPlanet.NumShips())
+					{
+						weakestPlanet = planet;
+					}
+				}
+				weakestPlanets.Add(weakestPlanet);
+			}
+			else if (number != 0)
+			{
+				Planets sortedPlanets = planetList;
+				sortedPlanets.Sort(CompareNumberOfShipsLT);
+
+				if (number > sortedPlanets.Count)
+				{
+					number = planetList.Count;
+				}
+
+				weakestPlanets = sortedPlanets.GetRange(0, number);
+			}
+			return weakestPlanets;
+		}
+
+		public Planets StrongestPlanets(Planets planetList, int number)
+		{
+			Planets strongestPlanets = new Planets(number);
+			if (number == 1)
+			{
+				Planet strongestPlanet = planetList[0];
+
+				foreach (Planet planet in planetList)
+				{
+					if (planet.NumShips() > strongestPlanet.NumShips())
+					{
+						strongestPlanet = planet;
+					}
+				}
+				strongestPlanets.Add(strongestPlanet);
+			}
+			else if (number != 0)
+			{
+				Planets sortedPlanets = planetList;
+				sortedPlanets.Sort(CompareNumberOfShipsGT);
+
+				if (number > sortedPlanets.Count)
+				{
+					number = planetList.Count;
+				}
+
+				strongestPlanets = sortedPlanets.GetRange(0, number);
+			}
+
+			return strongestPlanets;
+		}
+
+		//My Planets
+		public Planets MyWeakestPlanets(int number)
+		{
+			return WeakestPlanets(MyPlanets(), number);
+		}
+
+		public Planets MyStrongestPlanets(int number)
+		{
+			return StrongestPlanets(MyPlanets(), number);
+		}
+
+		//Neutral Planets
+		public Planets NeutralWeakestPlanets(int number)
+		{
+			return WeakestPlanets(NeutralPlanets(), number);
+		}
+
+		public Planets NeutralStrongestPlanets(int number)
+		{
+			return StrongestPlanets(NeutralPlanets(), number);
+		}
+
+		//Opponents Planets
+		public Planets EnemyWeakestPlanets(int number)
+		{
+			return WeakestPlanets(EnemyPlanets(), number);
+		}
+
+		public Planets EnemyStrongestPlanets(int number)
+		{
+			return StrongestPlanets(EnemyPlanets(), number);
+		}
+
+		public Planets PlanetsWithGivenOwner(Planets planetList, int ownerID)
+		{
+			if (ownerID == -1)
+			{
+				return planetList;
+			}
+
+			Planets selectedPlanets = new Planets();
+
+			foreach (Planet planet in planetList)
+			{
+				if (planet.Owner() == ownerID)
+				{
+					selectedPlanets.Add(planet);
+				}
+			}
+			return selectedPlanets;
+		}
+
+		public Fleets FleetsWithGivenOwner(Fleets fleetList, int ownerID)
+		{
+			if (ownerID == -1)
+			{
+				return fleetList;
+			}
+			Fleets selectedFleets = new Fleets();
+
+			foreach (Fleet fleet in fleetList)
+			{
+				if (fleet.Owner() == ownerID)
+				{
+					selectedFleets.Add(fleet);
+				}
+			}
+			return selectedFleets;
+		}
+
+		public Fleets FleetsGoingToPlanet(Fleets fleetList, Planet planet)
+		{
+			Fleets attackingFleets = new Fleets();
+			foreach (Fleet fleet in fleetList)
+			{
+				if (fleet.DestinationPlanet() == planet.PlanetID())
+				{
+					attackingFleets.Add(fleet);
+				}
+			}
+			return attackingFleets;
+		}
+
+		public Fleets MyFleetsGoingToPlanet(Planet planet)
+		{
+			return FleetsGoingToPlanet(MyFleets(), planet);
+		}
+
+		public Fleets EnemyFleetsGoingToPlanet(Planet planet)
+		{
+			return FleetsGoingToPlanet(EnemyFleets(), planet);
+		}
+
+		private Planets PlanetsUnderAttack(int ownerID)
+		{
+			Fleets enemyFleets = EnemyFleets();
+			Planets attackedPlanets = new Planets();
+
+			foreach (Fleet enemyFleet in enemyFleets)
+			{
+				Planet planet = GetPlanet(enemyFleet.DestinationPlanet());
+				if (planet.Owner() == ownerID)
+				{
+					attackedPlanets.Add(planet);
+				}
+			}
+			return attackedPlanets;
+		}
+
+		public Planets MyPlanetsUnderAttack()
+		{
+			return PlanetsUnderAttack(1);
+		}
+
+		public Planets NeutralPlanetsUnderAttack()
+		{
+			return PlanetsUnderAttack(0);
+		}
+
+		public Planets PlanetsWithinProximityToPlanet(Planets planetList, Planet thisPlanet, int proximityTreshold)
+		{
+			Planets nearbyPlanets = new Planets();
+
+			foreach (Planet planet in planetList)
+			{
+				if (planet.PlanetID() == thisPlanet.PlanetID())
+				{
+					continue;
+				}
+				int distance = Distance(planet.PlanetID(), thisPlanet.PlanetID());
+				if (distance <= proximityTreshold)
+				{
+					nearbyPlanets.Add(planet);
+				}
+			}
+			return nearbyPlanets;
+		}
+
+		public Planets MyPlanetsWithinProximityToPlanet(Planet thisPlanet, int proximityTreshold)
+		{
+			return PlanetsWithinProximityToPlanet(MyPlanets(), thisPlanet, proximityTreshold);
+		}
+
+		public Planets NeutralPlanetsWithinProximityToPlanet(Planet thisPlanet, int proximityTreshold)
+		{
+			return PlanetsWithinProximityToPlanet(NeutralPlanets(), thisPlanet, proximityTreshold);
+		}
+
+		public Planets EnemyPlanetsWithinProximityToPlanet(Planet thisPlanet, int proximityTreshold)
+		{
+			return PlanetsWithinProximityToPlanet(EnemyPlanets(), thisPlanet, proximityTreshold);
+		}
+
+		public Planet PlanetFutureStatus(Planet planet, int numberOfTurns)
+		{
+			Planet planetInFuture = new Planet(planet);
+
+			// All fleets heading to this planet
+			Fleets thisPlanetFleets = FleetsGoingToPlanet(Fleets(), planet);
+
+			for (uint turn = 1; turn <= numberOfTurns; turn++)
+			{
+				PlanetGrowth(planetInFuture);
+
+				// First is ownerID, second is number of ships
+				List<Pair<int, int>> ships = new List<Pair<int, int>>();
+
+				// Get all fleets whic will arrive at the planet in this turn
+				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
+
+				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets, ships);
+			}
+			return planetInFuture;
+		}
+
+		private void CalcFleetsOnPlanet(Planet planetInFuture, Fleets thisTurnFleets, List<Pair<int, int>> ships)
+		{
+			if (thisTurnFleets.Count > 0)
+			{
+				const int owners = 2;
+
+				for (int id = 1; id <= owners; ++id)
+				{
+					Fleets ownerFleets = FleetsWithGivenOwner(thisTurnFleets, id);
+					Pair<int, int> ownerShips = new Pair<int, int>(id, 0);
+
+					// Add up fleets with the same owner
+					foreach (Fleet ownerFleet in ownerFleets)
+					{
+						ownerShips.Second += ownerFleet.NumShips();
+					}
+
+					// Add the ships from the planet to the corresponding fleet
+					if (planetInFuture.Owner() == id)
+					{
+						ownerShips.Second += planetInFuture.NumShips();
+					}
+
+					ships.Add(ownerShips);
+				}
+
+				// If the planet was neutral, it has it's own fleet
+				if (planetInFuture.Owner() == 0)
+				{
+					ships.Add(new Pair<int, int>(0, planetInFuture.NumShips()));
+				}
+
+				BattleForPlanet(planetInFuture, ships);
+			}
+		}
+
+		public Planets MyEndangeredPlanets(int numberOfTurns, int treshold)
+		{
+			Planets allMyPlanets = MyPlanets();
+			Planets endangeredPlanets = new Planets();
+
+			foreach (Planet planet in allMyPlanets)
+			{
+				Planet planeInFuture = PlanetFutureStatus(planet, numberOfTurns);
+				if ((planeInFuture.Owner() != 1) || (planeInFuture.NumShips() <= treshold))
+				{
+					endangeredPlanets.Add(planet);
+				}
+			}
+
+			return endangeredPlanets;
+		}
+
+		public int GetPlanetSummaryDistance(Planets planetList, Planet thisPlanet)
+		{
+			int distance = 0;
+			foreach (Planet planet in planetList)
+			{
+				if (planet.PlanetID() == thisPlanet.PlanetID())
+				{
+					continue;
+				}
+				distance += Distance(planet.PlanetID(), thisPlanet.PlanetID());
+			}
+			return distance;
+		}
+
+		private int CompareImportanceOfPlanetsGT(Planet planet1, Planet planet2)
+		{
+			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
+
+			Planets myPlanets = MyPlanets();
+
+			int growthDifference =
+				(planet1.GrowthRate() -
+				 planet2.GrowthRate())
+				*GROWS_RATE_KOEF;
+			int distanceDifference = 0;
+				/*(GetPlanetSummaryDistance(myPlanets, planet1) -
+				 GetPlanetSummaryDistance(myPlanets, planet2))
+				*DISTANCE_KOEF;*/
+
+			return growthDifference + distanceDifference;
+		}
+
+		public Planets MostImportantPlanets(Planets planetList, int number)
+		{
+			Planets mostImportantPlanets = new Planets(number);
+			if (number == 1)
+			{
+				Planet mostImportantPlanet = planetList[0];
+
+				foreach (Planet planet in planetList)
+				{
+					if (CompareImportanceOfPlanetsGT(planet, mostImportantPlanet) > 0)
+					{
+						mostImportantPlanet = planet;
+					}
+				}
+				mostImportantPlanets.Add(mostImportantPlanet);
+			}
+			else if (number != 0)
+			{
+				Planets sortedPlanets = planetList;
+				sortedPlanets.Sort(CompareImportanceOfPlanetsGT);
+
+				if (number > sortedPlanets.Count)
+				{
+					number = planetList.Count;
+				}
+
+				mostImportantPlanets = sortedPlanets.GetRange(0, number);
+			}
+
+			return mostImportantPlanets;
+		}
 	}
 }
