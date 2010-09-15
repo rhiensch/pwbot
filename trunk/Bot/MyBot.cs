@@ -4,14 +4,12 @@ using System.Threading;
 
 namespace Bot
 {
-	public class MyBot : BaseBot
+	public class MyBot
 	{
-		public MyBot(PlanetWars planetWars) : base(planetWars)
+		public PlanetWars Context { get; private set; }
+		public MyBot(PlanetWars planetWars)
 		{
-		}
-
-		public MyBot(PlanetWars planetWars, DefendAdviser defendAdviser) : base(planetWars, defendAdviser)
-		{
+			Context = planetWars;
 		}
 
 		public static void DoTurn(PlanetWars pw)

@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttackAdviser.cs" />
-    <Compile Include="BaseBot.cs" />
     <Compile Include="DefendAdviser.cs" />
     <Compile Include="Fleet.cs" />
     <Compile Include="MyBot.cs" />

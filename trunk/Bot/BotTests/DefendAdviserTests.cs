@@ -80,8 +80,9 @@ namespace BotTests
 				"F 2 30 2 4 5 2\n" +
 				"go\n");
 
-			BaseBot bot = new MyBot(planetWars, defendAdviser);
 			//TODO
+			//MyBot bot = new MyBot(planetWars, defendAdviser);
+			
 		}
 	}
 }

@@ -41,10 +41,7 @@
     <Compile Include="AttackAdviserTests.cs" />
     <Compile Include="DefendAdviserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BaseBotTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="AuthoringTests.txt" />
+    <Compile Include="PlanetWarsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bot.csproj">
