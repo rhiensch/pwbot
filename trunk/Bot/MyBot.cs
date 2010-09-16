@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Threading;
+using Moves = System.Collections.Generic.List<Bot.Move>;
 
 namespace Bot
 {
@@ -12,9 +13,16 @@ namespace Bot
 			Context = planetWars;
 		}
 
-		public static void DoTurn(PlanetWars pw)
+		public void DoTurn()
 		{
+			IAdviser adviser = new DefendAdviser(Context);
+			Moves moves = adviser.Run();
 
+			foreach (Move move in moves)
+			{
+				Context.IssueOrder(move);
+			}
+			Context.FinishTurn();
 
 			/*
 				// (1) If we currently have a fleet in flight, just do nothing.
@@ -87,9 +95,8 @@ namespace Bot
 							{
 								//Log(message);
 								//Console.WriteLine("Start");
-								PlanetWars pw = new PlanetWars(message);
-								DoTurn(pw);
-								pw.FinishTurn();
+								MyBot bot = new MyBot(new PlanetWars(message));
+								bot.DoTurn();
 								message = "";
 							}
 							else
