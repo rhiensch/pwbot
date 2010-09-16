@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
+using Moves = System.Collections.Generic.List<Bot.Move>;
 
 namespace Bot
 {
@@ -200,6 +201,13 @@ namespace Bot
 			Console.Out.Flush();
 		}
 
+		public void IssueOrder(Move move)
+		{
+			Console.WriteLine("" + move.SourceID + " " + move.DestinationID +
+				" " + move.NumSheeps);
+			Console.Out.Flush();
+		}
+
 		// Sends the game engine a message to let it know that we're done sending
 		// orders. This signifies the end of our turn.
 		public void FinishTurn()
@@ -359,12 +367,12 @@ namespace Bot
 		private readonly Planets planets;
 		private readonly Fleets fleets;
 
-		private static int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
+		public int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
 		{
 			return (planet1.NumShips() - planet2.NumShips());
 		}
 
-		private static int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
+		public int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
 		{
 			return (planet2.NumShips() - planet1.NumShips());
 		}
@@ -701,8 +709,8 @@ namespace Bot
 
 			foreach (Planet planet in allMyPlanets)
 			{
-				Planet planeInFuture = PlanetFutureStatus(planet, numberOfTurns);
-				if ((planeInFuture.Owner() != 1) || (planeInFuture.NumShips() <= treshold))
+				Planet planetInFuture = PlanetFutureStatus(planet, numberOfTurns);
+				if ((planetInFuture.Owner() != 1) || (planetInFuture.NumShips() <= treshold))
 				{
 					endangeredPlanets.Add(planet);
 				}
@@ -725,7 +733,7 @@ namespace Bot
 			return distance;
 		}
 
-		private int CompareImportanceOfPlanetsGT(Planet planet1, Planet planet2)
+		public int CompareImportanceOfPlanetsGT(Planet planet1, Planet planet2)
 		{
 			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
 
@@ -735,10 +743,10 @@ namespace Bot
 				(planet1.GrowthRate() -
 				 planet2.GrowthRate())
 				*GROWS_RATE_KOEF;
-			int distanceDifference = 0;
-				/*(GetPlanetSummaryDistance(myPlanets, planet1) -
+			int distanceDifference = 
+				(GetPlanetSummaryDistance(myPlanets, planet1) -
 				 GetPlanetSummaryDistance(myPlanets, planet2))
-				*DISTANCE_KOEF;*/
+				*DISTANCE_KOEF;
 
 			return growthDifference + distanceDifference;
 		}
@@ -773,6 +781,29 @@ namespace Bot
 			}
 
 			return mostImportantPlanets;
+		}
+
+		public int GetFleetsShipNum(Fleets fleetList)
+		{
+			int num = 0;
+			foreach (Fleet fleet in fleetList)
+			{
+				num += fleet.NumShips();
+			}
+			return num;
+		}
+
+		internal int GetClosestFleetDistance(Fleets fleetList)
+		{
+			int distance = int.MaxValue;
+			foreach (Fleet fleet in fleetList)
+			{
+				if (fleet.TurnsRemaining() < distance)
+				{
+					distance = fleet.TurnsRemaining();
+				}
+			}
+			return distance;
 		}
 	}
 }

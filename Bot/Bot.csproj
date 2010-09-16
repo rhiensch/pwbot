@@ -47,8 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttackAdviser.cs" />
+    <Compile Include="BaseAdviser.cs" />
     <Compile Include="DefendAdviser.cs" />
     <Compile Include="Fleet.cs" />
+    <Compile Include="IAdviser.cs" />
+    <Compile Include="Move.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="Pair.cs" />
     <Compile Include="Planet.cs" />

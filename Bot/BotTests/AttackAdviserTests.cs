@@ -11,19 +11,6 @@ namespace BotTests
 	[TestClass]
 	public class AttackAdviserTests
 	{
-		public AttackAdviserTests()
-		{
-			//
-			// TODO: Add constructor logic here
-			//
-		}
-
-		/// <summary>
-		///Gets or sets the test context which provides
-		///information about and functionality for the current test run.
-		///</summary>
-		public TestContext TestContext { get; set; }
-
 		#region Additional test attributes
 		//
 		// You can use the following additional attributes as you write your tests:
@@ -42,8 +29,6 @@ namespace BotTests
 		{
 			CultureInfo myCulture = new CultureInfo("en-US");
 			Thread.CurrentThread.CurrentCulture = myCulture;
-
-			attackerAdviser = new AttackAdviser();
 		}
 		//
 		// Use TestCleanup to run code after each test has run
@@ -51,8 +36,6 @@ namespace BotTests
 		// public void MyTestCleanup() { }
 		//
 		#endregion
-
-		private AttackAdviser attackerAdviser;
 
 		[TestMethod]
 		public void TestMethod1()

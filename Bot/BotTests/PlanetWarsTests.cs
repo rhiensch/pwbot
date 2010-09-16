@@ -268,6 +268,14 @@ namespace BotTests
 		}
 
 		[TestMethod]
+		public void TestCompareImportanceOfPlanets()
+		{
+			int res = Context.CompareImportanceOfPlanetsGT(Context.GetPlanet(1), Context.GetPlanet(3));
+
+			Assert.IsTrue(res > 0);
+		}
+		
+		[TestMethod]
 		public void TestMostImportantPlanets()
 		{
 			Planets planets = Context.MostImportantPlanets(Context.MyPlanets(), 1);
