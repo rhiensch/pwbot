@@ -1,12 +1,9 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moves = System.Collections.Generic.List<Bot.Move>;
-using Planets = System.Collections.Generic.List<Bot.Planet>;
-using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
 namespace BotTests
 {
@@ -45,11 +42,11 @@ namespace BotTests
 		public void TestInvadeNeutralPlanet()
 		{
 			PlanetWars planetWars = new PlanetWars(
-				"P 11.6135908004 11.6587374197 0 119 0#0\n" +
-				"P 1.2902863101 9.04078582767 1 40 5#1\n" +
-				"P 21.9368952907 14.2766890117 2 100 5#2\n" +
-				"P 2.64835767563 10.2659924733 1 21 4#3\n" +
-				"P 11.5788239251 10.05148236609 0 21 0#4\n" +
+				"P 1 1 0 119 0#0\n" +
+				"P 2 2 1 40 5#1\n" +
+				"P 3 3 2 100 5#2\n" +
+				"P 4 4 1 21 4#3\n" +
+				"P 5 5 0 21 0#4\n" +
 				"go\n");
 			
 			IAdviser adviser = new InvadeAdviser(planetWars);
@@ -102,7 +99,7 @@ namespace BotTests
 			Assert.IsTrue(moves.Count > 0);
 			Assert.IsTrue(planetWars.GetPlanet(moves[0].SourceID).Owner() == 1);
 			Assert.IsTrue(planetWars.GetPlanet(moves[0].DestinationID).Owner() == 0);
-			Assert.IsTrue(planetWars.GetPlanet(moves[0].SourceID).NumShips() + moves[0].NumSheeps > moves[0].NumSheeps);
+			Assert.IsTrue(planetWars.GetPlanet(moves[0].SourceID).NumShips() > moves[0].NumSheeps);
 		}
 	}
 }

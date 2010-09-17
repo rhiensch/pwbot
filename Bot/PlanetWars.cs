@@ -160,6 +160,11 @@ namespace Bot
 		{
 			Planet source = planets[sourcePlanet];
 			Planet destination = planets[destinationPlanet];
+			return Distance(source, destination);
+		}
+
+		public int Distance(Planet source, Planet destination)
+		{
 			double dx = source.X() - destination.X();
 			double dy = source.Y() - destination.Y();
 			return (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy));
@@ -616,7 +621,7 @@ namespace Bot
 				{
 					continue;
 				}
-				int distance = Distance(planet.PlanetID(), thisPlanet.PlanetID());
+				int distance = Distance(planet, thisPlanet);
 				if (distance <= proximityTreshold)
 				{
 					nearbyPlanets.Add(planet);
@@ -724,7 +729,7 @@ namespace Bot
 				{
 					continue;
 				}
-				distance += Distance(planet.PlanetID(), thisPlanet.PlanetID());
+				distance += Distance(planet, thisPlanet);
 			}
 			return distance;
 		}
@@ -783,6 +788,17 @@ namespace Bot
 				}
 			}
 			return distance;
+		}
+
+		public int Production(int playerID)
+		{
+			if (playerID == 0) return 0;
+			int production = 0;
+			foreach (Planet planet in planets)
+			{
+				if (planet.Owner() == playerID) production += planet.GrowthRate();
+			}
+			return production;
 		}
 	}
 }

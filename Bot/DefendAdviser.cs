@@ -16,8 +16,7 @@ namespace Bot
 		{
 			Moves moves = new Moves();
 
-			//TODO replace hardcode parameters
-			Planets myEndangeredPlanets = Context.MyEndangeredPlanets(5, 10);
+			Planets myEndangeredPlanets = Context.MyEndangeredPlanets(Config.StartDefendDistance, Config.MinShipsOnMyPlanetsAfterDefend);
 
 			if (myEndangeredPlanets.Count == 0) return moves;
 
@@ -34,14 +33,14 @@ namespace Bot
 			int enemyShipsNum = Context.GetFleetsShipNum(enemyFleets);
 			int turnsBeforeAttack = Context.GetClosestFleetDistance(enemyFleets);
 
-			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, turnsBeforeAttack + 3);
+			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForDefend);
 			nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
 
 			//Planet planetNow = Context.GetPlanet(planet.PlanetID());
 			int sendedShipsNum = planet.NumShips() + planet.GrowthRate() * turnsBeforeAttack;
 			foreach (Planet nearPlanet in nearestPlanets)
 			{
-				int canSend = Math.Min(enemyShipsNum - sendedShipsNum, nearPlanet.NumShips() - 10);
+				int canSend = Math.Min(enemyShipsNum - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterDefend);
 				if (canSend <= 0) continue;
 				moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
 				sendedShipsNum += canSend;

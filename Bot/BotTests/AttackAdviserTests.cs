@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bot;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moves = System.Collections.Generic.List<Bot.Move>;
+
 
 namespace BotTests
 {
@@ -11,18 +13,6 @@ namespace BotTests
 	[TestClass]
 	public class AttackAdviserTests
 	{
-		#region Additional test attributes
-		//
-		// You can use the following additional attributes as you write your tests:
-		//
-		// Use ClassInitialize to run code before running the first test in the class
-		// [ClassInitialize()]
-		// public static void MyClassInitialize(TestContext testContext) { }
-		//
-		// Use ClassCleanup to run code after all tests in a class have run
-		// [ClassCleanup()]
-		// public static void MyClassCleanup() { }
-		//
 		// Use TestInitialize to run code before running each test 
 		[TestInitialize()]
 		public void MyTestInitialize()
@@ -30,19 +20,22 @@ namespace BotTests
 			CultureInfo myCulture = new CultureInfo("en-US");
 			Thread.CurrentThread.CurrentCulture = myCulture;
 		}
-		//
-		// Use TestCleanup to run code after each test has run
-		// [TestCleanup()]
-		// public void MyTestCleanup() { }
-		//
-		#endregion
 
 		[TestMethod]
-		public void TestMethod1()
+		public void TestDoNothingWhenNoSuitablePlanets()
 		{
-			//
-			// TODO: Add test logic	here
-			//
+			PlanetWars planetWars = new PlanetWars(
+				"P 11.6135908004 11.6587374197 0 119 0#0\n" +
+				"P 1.2902863101 9.04078582767 1 40 5#1\n" +
+				"P 21.9368952907 14.2766890117 2 100 5#2\n" +
+				"P 2.64835767563 10.2659924733 1 21 4#3\n" +
+				"P 17.5788239251 5.05148236609 0 21 4#4\n" +
+				"go\n");
+
+			IAdviser adviser = new AttackAdviser(planetWars);
+			Moves moves = adviser.Run();
+
+			Assert.AreEqual(0, moves.Count);
 		}
 	}
 }
