@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -13,25 +14,62 @@ namespace Bot
 			Context = planetWars;
 		}
 
+		private bool CheckTime(Stopwatch stopwatch)
+		{
+			if (stopwatch.ElapsedMilliseconds > 950) return false;
+			return true;
+		}
+
 		public void DoTurn()
 		{
-			IAdviser defendAdviser = new DefendAdviser(Context);
-			Moves moves = defendAdviser.Run();
-
-			foreach (Move move in moves)
+			try
 			{
-				Context.IssueOrder(move);
+				Stopwatch stopwatch = new Stopwatch();
+				stopwatch.Start();
+
+				IAdviser defendAdviser = new DefendAdviser(Context);
+				IAdviser invadeAdviser = new InvadeAdviser(Context);
+				IAdviser attackAdviser = new AttackAdviser(Context);
+
+				while (true)
+				{
+					bool doBreak = true;
+
+					Moves moves = defendAdviser.Run();
+					if (!CheckTime(stopwatch)) return;
+					foreach (Move move in moves)
+					{
+						Context.IssueOrder(move);
+						if (!CheckTime(stopwatch)) return;
+					}
+					if (moves.Count > 0) doBreak = false;
+
+					moves = invadeAdviser.Run();
+					if (!CheckTime(stopwatch)) return;
+					foreach (Move move in moves)
+					{
+						Context.IssueOrder(move);
+						if (!CheckTime(stopwatch)) return;
+					}
+					if (moves.Count > 0) doBreak = false;
+
+					moves = attackAdviser.Run();
+					if (!CheckTime(stopwatch)) return;
+					foreach (Move move in moves)
+					{
+						Context.IssueOrder(move);
+						if (!CheckTime(stopwatch)) return;
+					}
+					if (moves.Count > 0) doBreak = false;
+
+					if (doBreak) break;
+				}
+				stopwatch.Stop();
 			}
-
-			IAdviser invadeAdviser = new InvadeAdviser(Context);
-			moves = invadeAdviser.Run();
-
-			foreach (Move move in moves)
+			finally
 			{
-				Context.IssueOrder(move);
+				Context.FinishTurn();
 			}
-
-			Context.FinishTurn();
 
 			/*
 				// (1) If we currently have a fleet in flight, just do nothing.

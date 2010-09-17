@@ -19,26 +19,45 @@ namespace Bot
 			Planets neutralPlanets = Context.NeutralPlanets();
 			if (neutralPlanets.Count == 0) return moves;
 
-			neutralPlanets.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
+			if (neutralPlanets.Count > 1)
+				neutralPlanets.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
 
 			foreach (Planet planet in neutralPlanets)
 			{
-				//TODO hardcode
-				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, 20);
+				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 				if (nearestPlanets.Count == 0) continue;
 
-				nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
+				if (nearestPlanets.Count > 1)
+					nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
 
-				int needToSend = planet.NumShips() + 10;
+				
 				int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
+				int maxNeedToSend = 0;
 				foreach (Planet nearPlanet in nearestPlanets)
 				{
-					int canSend = Math.Min(needToSend - sendedShipsNum, nearPlanet.NumShips() - 10);
+					int distance = Context.Distance(planet, nearPlanet);
+					Planet futurePlanet = Context.PlanetFutureStatus(planet, distance + Config.ExtraTurns);
+					int needToSend = Config.MinShipsOnMyPlanetsAfterInvade;
+					if (futurePlanet.Owner() != 1)
+					{
+						needToSend += futurePlanet.NumShips();
+					}
+					else
+					{
+						needToSend -= futurePlanet.NumShips();
+					}
+
+					//TODO maybe check for endangared?
+					if (Context.EnemyFleetsGoingToPlanet(nearPlanet).Count > 0) continue;
+
+					int canSend = Math.Min(needToSend - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterInvade);
 					if (canSend <= 0) continue;
 					moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
 					sendedShipsNum += canSend;
+
+					if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
 				}
-				if (sendedShipsNum < planet.NumShips()) moves.Clear();
+				if (sendedShipsNum < maxNeedToSend) moves.Clear(); else break;
 			}
 
 			return moves;

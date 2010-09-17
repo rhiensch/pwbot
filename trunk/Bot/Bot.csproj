@@ -49,6 +49,7 @@
     <Compile Include="AttackAdviser.cs" />
     <Compile Include="BaseAdviser.cs" />
     <Compile Include="Comparer.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="DefendAdviser.cs" />
     <Compile Include="Fleet.cs" />
     <Compile Include="IAdviser.cs" />
