@@ -15,13 +15,22 @@ namespace Bot
 
 		public void DoTurn()
 		{
-			IAdviser adviser = new DefendAdviser(Context);
-			Moves moves = adviser.Run();
+			IAdviser defendAdviser = new DefendAdviser(Context);
+			Moves moves = defendAdviser.Run();
 
 			foreach (Move move in moves)
 			{
 				Context.IssueOrder(move);
 			}
+
+			IAdviser invadeAdviser = new InvadeAdviser(Context);
+			moves = invadeAdviser.Run();
+
+			foreach (Move move in moves)
+			{
+				Context.IssueOrder(move);
+			}
+
 			Context.FinishTurn();
 
 			/*

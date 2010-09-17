@@ -13,9 +13,6 @@ namespace Bot
 {
 	public class PlanetWars
 	{
-		private const int GROWS_RATE_KOEF = 1;
-		private const int DISTANCE_KOEF = -1;
-
 		// Constructs a PlanetWars object instance, given a string containing a
 		// description of a game state.
 		public PlanetWars(string gameStatestring)
@@ -180,8 +177,8 @@ namespace Bot
 		//     is not instant. See the Distance() function for more info.
 		public void IssueOrder(int sourcePlanet, int destinationPlanet, int numShips)
 		{
-			Console.WriteLine("" + sourcePlanet + " " + destinationPlanet + " " + numShips);
-			Console.Out.Flush();
+			Move move = new Move(sourcePlanet, destinationPlanet, numShips);
+			IssueOrder(move);
 		}
 
 		// Sends an order to the game engine. An order is composed of a source
@@ -196,9 +193,8 @@ namespace Bot
 		//     is not instant. See the Distance() function for more info.
 		public void IssueOrder(Planet source, Planet dest, int numShips)
 		{
-			Console.WriteLine("" + source.PlanetID() + " " + dest.PlanetID() +
-				" " + numShips);
-			Console.Out.Flush();
+			Move move = new Move(source.PlanetID(), dest.PlanetID(), numShips);
+			IssueOrder(move);
 		}
 
 		public void IssueOrder(Move move)
@@ -206,6 +202,23 @@ namespace Bot
 			Console.WriteLine("" + move.SourceID + " " + move.DestinationID +
 				" " + move.NumSheeps);
 			Console.Out.Flush();
+
+			MakeMove(move);
+		}
+
+		private void MakeMove(Move move)
+		{
+			int distance = Distance(move.SourceID, move.DestinationID);
+			Fleet newFleet = new Fleet(
+				1,
+				move.NumSheeps,
+				move.SourceID,
+				move.DestinationID,
+				distance,
+				distance);
+
+			fleets.Add(newFleet);
+			GetPlanet(move.SourceID).NumShips(GetPlanet(move.SourceID).NumShips() - move.NumSheeps);
 		}
 
 		// Sends the game engine a message to let it know that we're done sending
@@ -293,7 +306,7 @@ namespace Bot
 
 		// Parses a game state from a string. On success, returns 1. On failure,
 		// returns 0.
-		private int ParseGameState(string s)
+		private void ParseGameState(string s)
 		{
 			planets.Clear();
 			fleets.Clear();
@@ -318,9 +331,11 @@ namespace Bot
 				}
 				if (tokens[0].Equals("P"))
 				{
+					
 					if (tokens.Length != 6)
 					{
-						return 0;
+						throw new ArgumentException("Planet must have 6 parameters (actual: " +
+							Convert.ToString(tokens.Length) + ")");
 					}
 					double x = Double.Parse(tokens[1]);
 					double y = Double.Parse(tokens[2]);
@@ -338,7 +353,8 @@ namespace Bot
 				{
 					if (tokens.Length != 7)
 					{
-						return 0;
+						throw new ArgumentException("Fleet must have 7 parameters (actual: " +
+							Convert.ToString(tokens.Length) + ")");
 					}
 					int owner = Int32.Parse(tokens[1]);
 					int numShips = Int32.Parse(tokens[2]);
@@ -354,33 +370,13 @@ namespace Bot
 					                    turnsRemaining);
 					fleets.Add(f);
 				}
-				else
-				{
-					return 0;
-				}
 			}
-			return 1;
 		}
 
 		// Store all the planets and fleets. OMG we wouldn't wanna lose all the
 		// planets and fleets, would we!?
 		private readonly Planets planets;
 		private readonly Fleets fleets;
-
-		public int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
-		{
-			return (planet1.NumShips() - planet2.NumShips());
-		}
-
-		public int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
-		{
-			return (planet2.NumShips() - planet1.NumShips());
-		}
-
-		private static int CompareSecondOfPair(Pair<int, int> pair1, Pair<int, int> pair2)
-		{
-			return pair2.Second - pair1.Second;
-		}
 
 		private static Fleets GetThisTurnFleets(uint turn, IEnumerable<Fleet> thisPlanetFleets)
 		{
@@ -395,13 +391,13 @@ namespace Bot
 			return thisTurnFleets;
 		}
 
-		private static void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
+		private void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
 		{
 			// Were there any fleets other than the one on the planet?
 			if (ships.Count > 1)
 			{
 				// Sorts the fleets in descending order by the number of ships in the fleet
-				ships.Sort(CompareSecondOfPair);
+				ships.Sort(new Comparer(this).CompareSecondOfPair);
 
 				Pair<int, int> winner = ships[0];
 				Pair<int, int> secondToWinner = ships[1];
@@ -447,7 +443,7 @@ namespace Bot
 			else if (number != 0)
 			{
 				Planets sortedPlanets = planetList;
-				sortedPlanets.Sort(CompareNumberOfShipsLT);
+				sortedPlanets.Sort(new Comparer(this).CompareNumberOfShipsLT);
 
 				if (number > sortedPlanets.Count)
 				{
@@ -478,7 +474,7 @@ namespace Bot
 			else if (number != 0)
 			{
 				Planets sortedPlanets = planetList;
-				sortedPlanets.Sort(CompareNumberOfShipsGT);
+				sortedPlanets.Sort(new Comparer(this).CompareNumberOfShipsGT);
 
 				if (number > sortedPlanets.Count)
 				{
@@ -733,26 +729,9 @@ namespace Bot
 			return distance;
 		}
 
-		public int CompareImportanceOfPlanetsGT(Planet planet1, Planet planet2)
-		{
-			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
-
-			Planets myPlanets = MyPlanets();
-
-			int growthDifference =
-				(planet1.GrowthRate() -
-				 planet2.GrowthRate())
-				*GROWS_RATE_KOEF;
-			int distanceDifference = 
-				(GetPlanetSummaryDistance(myPlanets, planet1) -
-				 GetPlanetSummaryDistance(myPlanets, planet2))
-				*DISTANCE_KOEF;
-
-			return growthDifference + distanceDifference;
-		}
-
 		public Planets MostImportantPlanets(Planets planetList, int number)
 		{
+			Comparer comparer = new Comparer(this);
 			Planets mostImportantPlanets = new Planets(number);
 			if (number == 1)
 			{
@@ -760,7 +739,7 @@ namespace Bot
 
 				foreach (Planet planet in planetList)
 				{
-					if (CompareImportanceOfPlanetsGT(planet, mostImportantPlanet) > 0)
+					if (comparer.CompareImportanceOfPlanetsGT(planet, mostImportantPlanet) > 0)
 					{
 						mostImportantPlanet = planet;
 					}
@@ -770,7 +749,7 @@ namespace Bot
 			else if (number != 0)
 			{
 				Planets sortedPlanets = planetList;
-				sortedPlanets.Sort(CompareImportanceOfPlanetsGT);
+				sortedPlanets.Sort(comparer.CompareImportanceOfPlanetsGT);
 
 				if (number > sortedPlanets.Count)
 				{
