@@ -35,7 +35,7 @@ namespace Bot
 			int turnsBeforeAttack = Context.GetClosestFleetDistance(enemyFleets);
 
 			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, turnsBeforeAttack + 3);
-			nearestPlanets.Sort(Context.CompareNumberOfShipsGT);
+			nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
 
 			//Planet planetNow = Context.GetPlanet(planet.PlanetID());
 			int sendedShipsNum = planet.NumShips() + planet.GrowthRate() * turnsBeforeAttack;

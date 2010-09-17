@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -48,9 +48,11 @@
   <ItemGroup>
     <Compile Include="AttackAdviser.cs" />
     <Compile Include="BaseAdviser.cs" />
+    <Compile Include="Comparer.cs" />
     <Compile Include="DefendAdviser.cs" />
     <Compile Include="Fleet.cs" />
     <Compile Include="IAdviser.cs" />
+    <Compile Include="InvadeAdviser.cs" />
     <Compile Include="Move.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="Pair.cs" />

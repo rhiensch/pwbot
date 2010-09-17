@@ -268,20 +268,26 @@ namespace BotTests
 		}
 
 		[TestMethod]
-		public void TestCompareImportanceOfPlanets()
-		{
-			int res = Context.CompareImportanceOfPlanetsGT(Context.GetPlanet(1), Context.GetPlanet(3));
-
-			Assert.IsTrue(res > 0);
-		}
-		
-		[TestMethod]
 		public void TestMostImportantPlanets()
 		{
 			Planets planets = Context.MostImportantPlanets(Context.MyPlanets(), 1);
 
 			Assert.AreEqual(1, planets.Count);
 			Assert.AreEqual(1, planets[0].PlanetID());
+		}
+
+		[TestMethod]
+		public void TestMakeMove()
+		{
+			Move move = new Move(1, 2, 20);
+
+			Context.IssueOrder(move);
+
+			Assert.AreEqual(5, Context.Fleets().Count);
+			Assert.AreEqual(3, Context.MyFleets().Count);
+			Assert.AreEqual(40-20, Context.GetPlanet(1).NumShips());
+			Assert.AreEqual(Context.Distance(1, 2), Context.MyFleetsGoingToPlanet(Context.GetPlanet(2))[1].TotalTripLength());
+			Assert.AreEqual(Context.Distance(1, 2), Context.MyFleetsGoingToPlanet(Context.GetPlanet(2))[1].TurnsRemaining());
 		}
 	}
 }

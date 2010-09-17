@@ -39,7 +39,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttackAdviserTests.cs" />
+    <Compile Include="ComparerTests.cs" />
     <Compile Include="DefendAdviserTests.cs" />
+    <Compile Include="InvadeAdviserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PlanetWarsTests.cs" />
   </ItemGroup>
