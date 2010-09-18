@@ -54,6 +54,7 @@
     <Compile Include="Fleet.cs" />
     <Compile Include="IAdviser.cs" />
     <Compile Include="InvadeAdviser.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Move.cs" />
     <Compile Include="MyBot.cs" />
     <Compile Include="Pair.cs" />

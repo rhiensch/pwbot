@@ -1,4 +1,6 @@
-﻿namespace Bot
+﻿using System;
+
+namespace Bot
 {
 	public class Move
 	{
@@ -11,6 +13,14 @@
 			SourceID = sourceID;
 			DestinationID = destID;
 			NumSheeps = numSheeps;
+		}
+
+		public override string ToString()
+		{
+			return
+				"from " + Convert.ToString(SourceID) + 
+				" to " + Convert.ToString(DestinationID) +
+				" num " + Convert.ToString(NumSheeps);
 		}
 	}
 }

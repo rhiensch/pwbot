@@ -790,7 +790,34 @@ namespace Bot
 			return distance;
 		}
 
-		public int Production(int playerID)
+		private int myProduction = -1;
+		private int enemyProduction = -1;
+
+		public int MyProduction
+		{
+			get
+			{
+				if (myProduction == -1)
+				{
+					myProduction = CalcProduction(1);
+				}
+				return myProduction;
+			}
+		}
+
+		public int EnemyProduction
+		{
+			get
+			{
+				if (enemyProduction == -1)
+				{
+					enemyProduction = CalcProduction(2);
+				}
+				return enemyProduction;
+			}
+		}
+
+		private int CalcProduction(int playerID)
 		{
 			if (playerID == 0) return 0;
 			int production = 0;
@@ -799,6 +826,76 @@ namespace Bot
 				if (planet.Owner() == playerID) production += planet.GrowthRate();
 			}
 			return production;
+		}
+
+		public int Production(int playerID)
+		{
+			switch (playerID)
+			{
+				case 1:
+					return MyProduction;
+				case 2:
+					return EnemyProduction;
+				default:
+					return 0;
+			}
+		}
+
+		private int myTotalShipCount = -1;
+		private int enemyTotalShipCount = -1;
+
+		public int MyTotalShipCount
+		{
+			get
+			{
+				if (myTotalShipCount == -1)
+				{
+					myTotalShipCount = CalcTotalShipCount(1);
+				}
+				return myTotalShipCount;
+			}
+		}
+
+		public int EnemyTotalShipCount
+		{
+			get
+			{
+				if (enemyProduction == -1)
+				{
+					enemyTotalShipCount = CalcTotalShipCount(2);
+				}
+				return enemyTotalShipCount;
+			}
+		}
+
+		private int CalcTotalShipCount(int playerID)
+		{
+			int shipCount = 0;
+			foreach (Planet planet in planets)
+			{
+				if (planet.Owner() == playerID) shipCount += planet.NumShips();
+			}
+			if (playerID > 0)
+			{
+				foreach (Fleet fleet in fleets)
+				{
+					if (fleet.Owner() == playerID) shipCount += fleet.NumShips();
+				}
+			}
+			return shipCount;
+		}
+
+		public int TotalShipCount(int playerID)
+		{
+			switch (playerID)
+			{
+				case 1:
+					return MyTotalShipCount;
+				case 2:
+					return EnemyTotalShipCount;
+				default:
+					return CalcTotalShipCount(0);
+			}
 		}
 	}
 }
