@@ -294,8 +294,20 @@ namespace BotTests
 		public void TestProduction()
 		{
 			Assert.AreEqual(9, Context.Production(1));
+			Assert.AreEqual(9, Context.MyProduction);
 			Assert.AreEqual(5, Context.Production(2));
+			Assert.AreEqual(5, Context.EnemyProduction);
 			Assert.AreEqual(0, Context.Production(0));
+		}
+
+		[TestMethod]
+		public void TestTotalShipCount()
+		{
+			Assert.AreEqual(40 + 21 + 25 + 50, Context.TotalShipCount(1));
+			Assert.AreEqual(40 + 21 + 25 + 50, Context.MyTotalShipCount);
+			Assert.AreEqual(100 + 30 + 60, Context.TotalShipCount(2));
+			Assert.AreEqual(100 + 30 + 60, Context.EnemyTotalShipCount);
+			Assert.AreEqual(119 + 21, Context.TotalShipCount(0));
 		}
 	}
 }
