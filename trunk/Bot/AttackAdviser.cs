@@ -51,5 +51,10 @@ namespace Bot
 
 			return moves;
 		}
+
+		public override string GetAdviserName()
+		{
+			return "Attack";
+		}
 	}
 }

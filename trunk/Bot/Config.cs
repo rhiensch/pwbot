@@ -2,16 +2,20 @@
 {
 	public static class Config
 	{
-		public static int MinShipsOnMyPlanetsAfterDefend { get { return 5; } }
+		private static int _invokeDistanceForDefend = 15;
+		private static int _invokeDistanceForInvade = 10;
+		private static int _invokeDistanceForAttack = 15;
+		public static int InvokeDistanceForDefend { get { return _invokeDistanceForDefend; } set { _invokeDistanceForDefend = value; } }
+		public static int InvokeDistanceForInvade { get { return _invokeDistanceForInvade; } set { _invokeDistanceForInvade = value; } }
+		public static int InvokeDistanceForAttack { get { return _invokeDistanceForAttack; } set { _invokeDistanceForAttack = value; } }
+
+		public static int MinShipsOnMyPlanetsAfterDefend { get { return 0; } }
 		public static int MinShipsOnMyPlanetsAfterInvade { get { return 1; } }
-		public static int MinShipsOnMyPlanetsAfterAttack { get { return 10; } }
-		public static int InvokeDistanceForDefend { get { return 15; } }
-		public static int InvokeDistanceForInvade { get { return 10; } }
-		public static int InvokeDistanceForAttack { get { return 15; } }
+		public static int MinShipsOnMyPlanetsAfterAttack { get { return 1; } }
 		public static int StartDefendDistance { get { return 15; } }
 		public static int ExtraTurns { get { return 3; } }
 		public static int GrowsRateKoef { get { return 4; } }
-		public static int DistanceFoef { get { return -1; } }
+		public static int DistanceKoef { get { return -2; } }
 		public static int NumShipsKoef { get { return 1; } }
 	}
 }
