@@ -16,7 +16,7 @@ namespace Bot
 			Context = planetWars;
 		}
 
-		private bool CheckTime(Stopwatch stopwatch)
+		private static bool CheckTime(Stopwatch stopwatch)
 		{
 			if (stopwatch.ElapsedMilliseconds > 950) return false;
 			return true;
@@ -29,6 +29,7 @@ namespace Bot
 
 		public void DoTurn()
 		{
+			if (_turn > 20) return;
 			try
 			{
 				Stopwatch stopwatch = new Stopwatch();
@@ -40,45 +41,19 @@ namespace Bot
 
 				while (true)
 				{
-					bool doBreak = true;
-
-					Moves moves = defendAdviser.Run();
+					if (!RunAdviser(invadeAdviser)) break;
 					if (!CheckTime(stopwatch)) return;
-					foreach (Move move in moves)
-					{
-						Context.IssueOrder(move);
-						if (!CheckTime(stopwatch)) return;
-						#if DEBUG
-						LogMove("Defend", move);
-						#endif
-					}
-					if (moves.Count > 0) doBreak = false;
 
-					moves = invadeAdviser.Run();
+					/*bool doBreak = !RunAdviser(defendAdviser);
 					if (!CheckTime(stopwatch)) return;
-					foreach (Move move in moves)
-					{
-						Context.IssueOrder(move);
-						if (!CheckTime(stopwatch)) return;
-						#if DEBUG
-						LogMove("Invade", move);
-						#endif
-					}
-					if (moves.Count > 0) doBreak = false;
 
-					moves = attackAdviser.Run();
+					doBreak = doBreak && !RunAdviser(invadeAdviser);
 					if (!CheckTime(stopwatch)) return;
-					foreach (Move move in moves)
-					{
-						Context.IssueOrder(move);
-						if (!CheckTime(stopwatch)) return;
-						#if DEBUG
-						LogMove("Attack", move);
-						#endif
-					}
-					if (moves.Count > 0) doBreak = false;
 
-					if (doBreak) break;
+					doBreak = doBreak && !RunAdviser(attackAdviser);
+					if (!CheckTime(stopwatch)) return;
+
+					if (doBreak) break;*/
 				}
 				stopwatch.Stop();
 			}
@@ -88,13 +63,29 @@ namespace Bot
 			}
 		}
 
+		private bool RunAdviser(IAdviser adviser)
+		{
+			Moves moves = adviser.Run();
+			foreach (Move move in moves)
+			{
+				Context.IssueOrder(move);
+				#if DEBUG
+				LogMove(adviser.GetAdviserName(), move);
+				#endif
+			}
+			return moves.Count > 0;
+		}
+
+		private static int _turn;
+
 		public static void Main()
 		{
 			CultureInfo myCulture = new CultureInfo("en-US");
 			Thread.CurrentThread.CurrentCulture = myCulture;
+
+			_turn = 0;
 			string line = "";
 			string message = "";
-			int turnNumber = 0;
 			#if DEBUG
 			Logger.Log("\n\n\nNew Game\n\n\n");
 			#endif
@@ -112,7 +103,7 @@ namespace Bot
 								PlanetWars pw = new PlanetWars(message);
 								#if DEBUG
 								Logger.Log(
-									"Turn " + Convert.ToString(++turnNumber) + 
+									"Turn " + Convert.ToString(++_turn) + 
 									"(" +
 									"ships " + 
 									Convert.ToString(pw.MyTotalShipCount) + "/" + Convert.ToString(pw.EnemyTotalShipCount) + " " +

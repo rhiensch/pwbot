@@ -44,7 +44,7 @@ namespace Bot
 			int distanceDifference =
 				(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
 				 Context.GetPlanetSummaryDistance(myPlanets, planet2))
-				* Config.DistanceFoef;
+				* Config.DistanceKoef;
 
 			return growthDifference + distanceDifference;
 		}
@@ -66,7 +66,7 @@ namespace Bot
 			int distanceDifference =
 				(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
 				 Context.GetPlanetSummaryDistance(myPlanets, planet2))
-				* Config.DistanceFoef;
+				* Config.DistanceKoef;
 
 			return growthDifference + numFleetsDifference + distanceDifference;
 		}

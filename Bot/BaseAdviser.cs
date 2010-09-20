@@ -10,5 +10,6 @@ namespace Bot
 		}
 		public PlanetWars Context { get; set; }
 		public abstract Moves Run();
+		public abstract string GetAdviserName();
 	}
 }

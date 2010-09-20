@@ -17,7 +17,7 @@ namespace Bot
 		// description of a game state.
 		public PlanetWars(string gameStatestring)
 		{
-			planets = new List<Planet>();
+			planets = new List<Planet>(); 
 			fleets = new Fleets();
 			ParseGameState(gameStatestring);
 		}
