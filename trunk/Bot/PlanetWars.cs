@@ -167,7 +167,13 @@ namespace Bot
 		{
 			double dx = source.X() - destination.X();
 			double dy = source.Y() - destination.Y();
-			return (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy));
+			double squared = dx * dx + dy * dy;
+			double rooted = Math.Sqrt(squared);
+			return (int)Math.Ceiling(rooted);
+
+			/*double dx = source.X() - destination.X();
+			double dy = source.Y() - destination.Y();
+			return (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy));*/
 		}
 
 		// Sends an order to the game engine. An order is composed of a source
@@ -367,13 +373,16 @@ namespace Bot
 					int destination = Int32.Parse(tokens[4]);
 					int totalTripLength = Int32.Parse(tokens[5]);
 					int turnsRemaining = Int32.Parse(tokens[6]);
-					Fleet f = new Fleet(owner,
-					                    numShips,
-					                    source,
-					                    destination,
-					                    totalTripLength,
-					                    turnsRemaining);
-					fleets.Add(f);
+					if (numShips > 0)
+					{
+						Fleet f = new Fleet(owner,
+						                    numShips,
+						                    source,
+						                    destination,
+						                    totalTripLength,
+						                    turnsRemaining);
+						fleets.Add(f);
+					}
 				}
 			}
 		}
