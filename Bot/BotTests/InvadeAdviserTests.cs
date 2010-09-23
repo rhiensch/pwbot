@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

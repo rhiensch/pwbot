@@ -1,4 +1,6 @@
-﻿#if DEBUG
+﻿#define DEBUG
+
+#if DEBUG
 
 using System;
 using System.IO;
