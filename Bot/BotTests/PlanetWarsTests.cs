@@ -295,10 +295,9 @@ namespace BotTests
 				"P 0 0 1 10 4#3\n" +
 				"P 2 5 2 10 4#4\n" +
 				"P 3 3 2 10 4#5\n";
-			PlanetWars pw = new PlanetWars(message);
 			Config.InvokeDistanceForFront = 3;
-
-			pw.FillMyPlanetsFrontLevel();
+			PlanetWars pw = new PlanetWars(message);
+			
 
 			Assert.AreEqual(20, pw.GetPlanet(0).FrontLevel);
 			Assert.AreEqual(10, pw.GetPlanet(1).FrontLevel);
