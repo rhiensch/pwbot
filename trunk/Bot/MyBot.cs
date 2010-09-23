@@ -35,7 +35,7 @@ namespace Bot
 
 		public void DoTurn()
 		{
-			if (_turn > 20) return;
+			//if (_turn > 20) return;
 			try
 			{
 				Stopwatch stopwatch = new Stopwatch();
@@ -44,22 +44,27 @@ namespace Bot
 				IAdviser defendAdviser = new DefendAdviser(Context);
 				IAdviser invadeAdviser = new InvadeAdviser(Context);
 				IAdviser attackAdviser = new AttackAdviser(Context);
+				SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
 
 				while (true)
 				{
-					if (!RunAdviser(invadeAdviser)) break;
-					if (!CheckTime(stopwatch)) return;
-
-					/*bool doBreak = !RunAdviser(defendAdviser);
+					bool doBreak = !RunAdviser(defendAdviser);
 					if (!CheckTime(stopwatch)) return;
 
 					doBreak = doBreak && !RunAdviser(invadeAdviser);
 					if (!CheckTime(stopwatch)) return;
 
 					doBreak = doBreak && !RunAdviser(attackAdviser);
-					if (!CheckTime(stopwatch)) return;
+					if (!CheckTime(stopwatch)) return; 
 
-					if (doBreak) break;*/
+					foreach (Planet planet in Context.MyPlanets())
+					{
+						supplyAdviser.SupplyPlanet = planet;
+						RunAdviser(supplyAdviser);
+						if (!CheckTime(stopwatch)) return;
+					}
+					
+					if (doBreak) break;
 				}
 				stopwatch.Stop();
 			}

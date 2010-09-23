@@ -20,6 +20,7 @@ namespace Bot
 			planets = new List<Planet>(); 
 			fleets = new Fleets();
 			ParseGameState(gameStatestring);
+			FillMyPlanetsFrontLevel();
 		}
 
 		// Returns the number of planets. Planets are numbered starting with 0.
@@ -50,7 +51,7 @@ namespace Bot
 		}
 
 		// Returns a list of all the planets.
-		public List<Planet> Planets()
+		public Planets Planets()
 		{
 			return planets;
 		}
@@ -58,7 +59,7 @@ namespace Bot
 		// Return a list of all the planets owned by the current player. By
 		// convention, the current player is always player number 1.
 		private Planets myPlanets;
-		public List<Planet> MyPlanets()
+		public Planets MyPlanets()
 		{
 			if (myPlanets != null) return myPlanets;
 			myPlanets = new Planets();
@@ -74,7 +75,7 @@ namespace Bot
 
 		// Return a list of all neutral planets.
 		private Planets neutralPlanets;
-		public List<Planet> NeutralPlanets()
+		public Planets NeutralPlanets()
 		{
 			if (neutralPlanets != null) return neutralPlanets;
 			neutralPlanets = new Planets();
@@ -915,29 +916,39 @@ namespace Bot
 			}
 		}
 
-		private bool isFrontLevelFilled;
-		public void FillMyPlanetsFrontLevel()
+		public Planets FrontPlanets { get; private set; }
+		public Planets NotFrontPlanets { get; private set; }
+		
+		private void FillMyPlanetsFrontLevel()
 		{
-			if (isFrontLevelFilled) return;
-
-			Planets enemyPlanets = EnemyPlanets();
-			foreach (Planet enemyPlanet in enemyPlanets)
+			if (FrontPlanets == null) FrontPlanets = new Planets(); else FrontPlanets.Clear();
+			if (NotFrontPlanets == null) NotFrontPlanets = new Planets(); else NotFrontPlanets.Clear();
+			foreach (Planet planet in planets)
 			{
-				Planets frontPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), enemyPlanet, Config.InvokeDistanceForFront);
-				foreach (Planet frontPlanet in frontPlanets) frontPlanet.FrontLevel += 10;
+				planet.FrontLevel = 0;
 			}
 
-			Planets myPlanets = MyPlanets();
-			foreach (Planet myPlanet in myPlanets)
+			foreach (Planet enemyPlanet in EnemyPlanets())
+			{
+				Planets nearFrontPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), enemyPlanet, Config.InvokeDistanceForFront);
+				foreach (Planet frontPlanet in nearFrontPlanets)
+				{
+					FrontPlanets.Add(frontPlanet);
+					frontPlanet.FrontLevel += 10;
+				}
+			}
+
+			foreach (Planet myPlanet in MyPlanets())
 			{
 				if (myPlanet.FrontLevel > 0) continue;
+				
 				Planets nearPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), myPlanet, Config.InvokeDistanceForFront);
 				foreach (Planet nearPlanet in nearPlanets)
 				{
 					if (nearPlanet.FrontLevel > 0) myPlanet.FrontLevel += nearPlanet.FrontLevel / 10;
 				}
+				NotFrontPlanets.Add(myPlanet);
 			}
-			isFrontLevelFilled = true;
 		}
 	}
 }

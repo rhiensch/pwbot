@@ -9,7 +9,7 @@
 		public static int InvokeDistanceForInvade { get { return _invokeDistanceForInvade; } set { _invokeDistanceForInvade = value; } }
 		public static int InvokeDistanceForAttack { get { return _invokeDistanceForAttack; } set { _invokeDistanceForAttack = value; } }
 
-		private static int _invokeDistanceForFront = 15;
+		private static int _invokeDistanceForFront = 10;
 		public static int InvokeDistanceForFront { get { return _invokeDistanceForFront; } set { _invokeDistanceForFront = value; } }
 
 		public static int MinShipsOnMyPlanetsAfterDefend { get { return 0; } }
