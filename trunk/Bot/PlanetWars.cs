@@ -57,61 +57,69 @@ namespace Bot
 
 		// Return a list of all the planets owned by the current player. By
 		// convention, the current player is always player number 1.
+		private Planets myPlanets;
 		public List<Planet> MyPlanets()
 		{
-			List<Planet> r = new List<Planet>();
+			if (myPlanets != null) return myPlanets;
+			myPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() == 1)
 				{
-					r.Add(p);
+					myPlanets.Add(p);
 				}
 			}
-			return r;
+			return myPlanets;
 		}
 
 		// Return a list of all neutral planets.
+		private Planets neutralPlanets;
 		public List<Planet> NeutralPlanets()
 		{
-			List<Planet> r = new List<Planet>();
+			if (neutralPlanets != null) return neutralPlanets;
+			neutralPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() == 0)
 				{
-					r.Add(p);
+					neutralPlanets.Add(p);
 				}
 			}
-			return r;
+			return neutralPlanets;
 		}
 
 		// Return a list of all the planets owned by rival players. This excludes
 		// planets owned by the current player, as well as neutral planets.
-		public List<Planet> EnemyPlanets()
+		private Planets enemyPlanets;
+		public Planets EnemyPlanets()
 		{
-			List<Planet> r = new List<Planet>();
+			if (enemyPlanets != null) return enemyPlanets;
+			enemyPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() >= 2)
 				{
-					r.Add(p);
+					enemyPlanets.Add(p);
 				}
 			}
-			return r;
+			return enemyPlanets;
 		}
 
 		// Return a list of all the planets that are not owned by the current
 		// player. This includes all enemy planets and neutral planets.
-		public List<Planet> NotMyPlanets()
+		private Planets notMyPlanets;
+		public Planets NotMyPlanets()
 		{
-			List<Planet> r = new List<Planet>();
+			if (notMyPlanets != null) return notMyPlanets;
+			notMyPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() != 1)
 				{
-					r.Add(p);
+					notMyPlanets.Add(p);
 				}
 			}
-			return r;
+			return notMyPlanets;
 		}
 
 		// Return a list of all the fleets.
@@ -905,6 +913,31 @@ namespace Bot
 				default:
 					return CalcTotalShipCount(0);
 			}
+		}
+
+		private bool isFrontLevelFilled;
+		public void FillMyPlanetsFrontLevel()
+		{
+			if (isFrontLevelFilled) return;
+
+			Planets enemyPlanets = EnemyPlanets();
+			foreach (Planet enemyPlanet in enemyPlanets)
+			{
+				Planets frontPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), enemyPlanet, Config.InvokeDistanceForFront);
+				foreach (Planet frontPlanet in frontPlanets) frontPlanet.FrontLevel += 10;
+			}
+
+			Planets myPlanets = MyPlanets();
+			foreach (Planet myPlanet in myPlanets)
+			{
+				if (myPlanet.FrontLevel > 0) continue;
+				Planets nearPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), myPlanet, Config.InvokeDistanceForFront);
+				foreach (Planet nearPlanet in nearPlanets)
+				{
+					if (nearPlanet.FrontLevel > 0) myPlanet.FrontLevel += nearPlanet.FrontLevel / 10;
+				}
+			}
+			isFrontLevelFilled = true;
 		}
 	}
 }

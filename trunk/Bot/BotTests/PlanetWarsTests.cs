@@ -13,25 +13,6 @@ namespace BotTests
 	{
 		public PlanetWars Context { get; set; }
 
-		// Use ClassInitialize to run code before running the first test in the class
-		/*[ClassInitialize()]
-		public static void MyClassInitialize(TestContext testContext)
-		{
-			CultureInfo myCulture = new CultureInfo("en-US");
-			Thread.CurrentThread.CurrentCulture = myCulture;
-		}*/
-
-		#region Additional test attributes
-		//
-		// You can use the following additional attributes as you write your tests:
-		//
-		
-		//
-		// Use ClassCleanup to run code after all tests in a class have run
-		// [ClassCleanup()]
-		// public static void MyClassCleanup() { }
-		//
-		// Use TestInitialize to run code before running each test 
 		[TestInitialize]
 		public void MyTestInitialize()
 		{
@@ -40,12 +21,6 @@ namespace BotTests
 
 			CreateTestContextForSort();
 		}
-		//
-		// Use TestCleanup to run code after each test has run
-		// [TestCleanup()]
-		// public void MyTestCleanup() { }
-		//
-		#endregion
 
 		private const string PLANETS =
 			"P 11.6135908004 11.6587374197 0 119 0#0\n" +
@@ -308,6 +283,27 @@ namespace BotTests
 			Assert.AreEqual(100 + 30 + 60, Context.TotalShipCount(2));
 			Assert.AreEqual(100 + 30 + 60, Context.EnemyTotalShipCount);
 			Assert.AreEqual(119 + 21, Context.TotalShipCount(0));
+		}
+
+		[TestMethod]
+		public void TestFillMyPlanetsFrontLevel()
+		{
+			const string message =
+				"P 2 2 1 10 0#0\n" +
+				"P 4 1 1 10 5#1\n" +
+				"P 5 6 1 10 5#2\n" +
+				"P 0 0 1 10 4#3\n" +
+				"P 2 5 2 10 4#4\n" +
+				"P 3 3 2 10 4#5\n";
+			PlanetWars pw = new PlanetWars(message);
+			Config.InvokeDistanceForFront = 3;
+
+			pw.FillMyPlanetsFrontLevel();
+
+			Assert.AreEqual(20, pw.GetPlanet(0).FrontLevel);
+			Assert.AreEqual(10, pw.GetPlanet(1).FrontLevel);
+			Assert.AreEqual(0, pw.GetPlanet(2).FrontLevel);
+			Assert.AreEqual(20 / 10, pw.GetPlanet(3).FrontLevel);
 		}
 	}
 }

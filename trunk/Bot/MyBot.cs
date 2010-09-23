@@ -22,10 +22,16 @@ namespace Bot
 			return true;
 		}
 
+#if DEBUG
 		private void LogMove(string prefix, Move move)
 		{
-			Logger.Log("  " + prefix + " " + move + " distance " + Convert.ToString(Context.Distance(move.SourceID, move.DestinationID)));
+			Logger.Log(
+				"  " + prefix + 
+				" " + move + 
+				" distance " + 
+				Convert.ToString(Context.Distance(move.SourceID, move.DestinationID)));
 		}
+#endif
 
 		public void DoTurn()
 		{

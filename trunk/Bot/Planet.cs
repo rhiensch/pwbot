@@ -1,3 +1,5 @@
+using System;
+
 namespace Bot
 {
 	public class Planet
@@ -17,6 +19,8 @@ namespace Bot
 			this.x = x;
 			this.y = y;
 		}
+
+		public int FrontLevel { get; set; }
 
 		// Accessors and simple modification functions. These should be mostly
 		// self-explanatory.
