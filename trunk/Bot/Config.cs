@@ -3,7 +3,7 @@
 	public static class Config
 	{
 		private static int _invokeDistanceForDefend = 15;
-		private static int _invokeDistanceForInvade = 10;
+		private static int _invokeDistanceForInvade = 5;
 		private static int _invokeDistanceForAttack = 15;
 		public static int InvokeDistanceForDefend { get { return _invokeDistanceForDefend; } set { _invokeDistanceForDefend = value; } }
 		public static int InvokeDistanceForInvade { get { return _invokeDistanceForInvade; } set { _invokeDistanceForInvade = value; } }
@@ -20,5 +20,6 @@
 		public static int GrowsRateKoef { get { return 4; } }
 		public static int DistanceKoef { get { return -2; } }
 		public static int NumShipsKoef { get { return 1; } }
+		public static int CriticalTimeInMilliseconds { get { return 500; } }
 	}
 }

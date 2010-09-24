@@ -4,7 +4,10 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using System.Timers;
 using Moves = System.Collections.Generic.List<Bot.Move>;
+using Planets = System.Collections.Generic.List<Bot.Planet>;
+using Timer = System.Timers.Timer;
 
 namespace Bot
 {
@@ -18,7 +21,13 @@ namespace Bot
 
 		private static bool CheckTime(Stopwatch stopwatch)
 		{
-			if (stopwatch.ElapsedMilliseconds > 950) return false;
+			if (stopwatch.ElapsedMilliseconds > Config.CriticalTimeInMilliseconds)
+			{
+#if DEBUG
+				Logger.Log("Attention! Timeout is close! (" + stopwatch.ElapsedMilliseconds + ")");
+#endif
+				return false;
+			}
 			return true;
 		}
 
@@ -38,9 +47,6 @@ namespace Bot
 			//if (_turn > 20) return;
 			try
 			{
-				Stopwatch stopwatch = new Stopwatch();
-				stopwatch.Start();
-
 				IAdviser defendAdviser = new DefendAdviser(Context);
 				IAdviser invadeAdviser = new InvadeAdviser(Context);
 				IAdviser attackAdviser = new AttackAdviser(Context);
@@ -49,24 +55,22 @@ namespace Bot
 				while (true)
 				{
 					bool doBreak = !RunAdviser(defendAdviser);
-					if (!CheckTime(stopwatch)) return;
 
 					doBreak = doBreak && !RunAdviser(invadeAdviser);
-					if (!CheckTime(stopwatch)) return;
 
 					doBreak = doBreak && !RunAdviser(attackAdviser);
-					if (!CheckTime(stopwatch)) return; 
 
-					foreach (Planet planet in Context.MyPlanets())
+					//TODO Bug is here! Do Logging
+					Planets myPlanets = Context.MyPlanets();
+					foreach (Planet planet in myPlanets)
 					{
 						supplyAdviser.SupplyPlanet = planet;
 						RunAdviser(supplyAdviser);
-						if (!CheckTime(stopwatch)) return;
 					}
 					
 					if (doBreak) break;
 				}
-				stopwatch.Stop();
+				
 			}
 			finally
 			{
@@ -88,6 +92,9 @@ namespace Bot
 		}
 
 		private static int _turn;
+		private static MyBot bot;
+		private static readonly Timer timer = new Timer(Config.CriticalTimeInMilliseconds);
+		private static readonly Stopwatch stopWatch = new Stopwatch();
 
 		public static void Main()
 		{
@@ -100,6 +107,7 @@ namespace Bot
 			#if DEBUG
 			Logger.Log("\n\n\nNew Game\n\n\n");
 			#endif
+			timer.Elapsed += OnTimedEvent;
 			try
 			{
 				int c;
@@ -125,8 +133,24 @@ namespace Bot
 									")");
 								#endif
 								//Logger.Log(message);
-								MyBot bot = new MyBot(pw);
-								bot.DoTurn();
+								if (bot == null)
+									bot = new MyBot(pw);
+								else
+									bot.Context = pw;
+								try
+								{
+									bot.DoTurn();
+								}
+								catch(TimeoutException e)
+								{
+#if DEBUG
+									Logger.Log(e.Message);
+#endif
+								}
+#if DEBUG
+								Logger.Log("  Turn time: " + stopWatch.ElapsedMilliseconds);
+								stopWatch.Stop();
+#endif
 								message = "";
 							}
 							else
@@ -136,6 +160,15 @@ namespace Bot
 							line = "";
 							break;
 						default:
+							if (line == "")
+							{
+								//start reading data
+								timer.Enabled = true;
+#if DEBUG
+								stopWatch.Reset();
+								stopWatch.Start();
+#endif
+							}
 							line += (char) c;
 							break;
 					}
@@ -146,6 +179,14 @@ namespace Bot
 				// Owned.
 			}
 		}
+
+		private static void OnTimedEvent(object source, ElapsedEventArgs e)
+		{
+			bot.Context.FinishTurn();
+			//turnInterrupted = true;
+			throw new TimeoutException("  !Turn finished by timer!");
+		}
+
 	}
 }
 

@@ -3,6 +3,8 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
+#define DEBUG
+
 using System;
 using System.Collections.Generic;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
@@ -185,32 +187,32 @@ namespace Bot
 			return (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy));*/
 		}
 
-		// Sends an order to the game engine. An order is composed of a source
-		// planet number, a destination planet number, and a number of ships. A
-		// few things to keep in mind:
-		//   * you can issue many orders per turn if you like.
-		//   * the planets are numbered starting at zero, not one.
-		//   * you must own the source planet. If you break this rule, the game
-		//     engine kicks your bot out of the game instantly.
-		//   * you can't move more ships than are currently on the source planet.
-		//   * the ships will take a few turns to reach their destination. Travel
-		//     is not instant. See the Distance() function for more info.
+		private bool IsValid(int sourcePlanetID, int destPlanetID, int numShips)
+		{
+			Planet source = GetPlanet(sourcePlanetID);
+			Planet dest = GetPlanet(destPlanetID);
+			return IsValid(source, dest, numShips);
+		}
+
+		private bool IsValid(Planet source, Planet dest, int numShips)
+		{
+			if (source.Owner() != 1) return false;
+			if (numShips > source.NumShips()) return false;
+			if (source.PlanetID() == dest.PlanetID()) return false;
+			return true;
+		}
+
+		private bool IsValid(Move move)
+		{
+			return IsValid(move.SourceID, move.DestinationID, move.NumSheeps);
+		}
+
 		public void IssueOrder(int sourcePlanet, int destinationPlanet, int numShips)
 		{
 			Move move = new Move(sourcePlanet, destinationPlanet, numShips);
 			IssueOrder(move);
 		}
 
-		// Sends an order to the game engine. An order is composed of a source
-		// planet number, a destination planet number, and a number of ships. A
-		// few things to keep in mind:
-		//   * you can issue many orders per turn if you like.
-		//   * the planets are numbered starting at zero, not one.
-		//   * you must own the source planet. If you break this rule, the game
-		//     engine kicks your bot out of the game instantly.
-		//   * you can't move more ships than are currently on the source planet.
-		//   * the ships will take a few turns to reach their destination. Travel
-		//     is not instant. See the Distance() function for more info.
 		public void IssueOrder(Planet source, Planet dest, int numShips)
 		{
 			Move move = new Move(source.PlanetID(), dest.PlanetID(), numShips);
@@ -219,6 +221,14 @@ namespace Bot
 
 		public void IssueOrder(Move move)
 		{
+			if (!IsValid(move))
+			{
+			#if DEBUG
+				Logger.Log("  !Invalid move: from " + move.SourceID + " to " + move.DestinationID + " num " + move.NumSheeps);
+			#endif
+				return;
+			}
+
 			Console.WriteLine("" + move.SourceID + " " + move.DestinationID +
 				" " + move.NumSheeps);
 			Console.Out.Flush();
@@ -934,7 +944,7 @@ namespace Bot
 				foreach (Planet frontPlanet in nearFrontPlanets)
 				{
 					FrontPlanets.Add(frontPlanet);
-					frontPlanet.FrontLevel += 10;
+					frontPlanet.FrontLevel += 10 + (Config.InvokeDistanceForFront = Distance(enemyPlanet, frontPlanet));
 				}
 			}
 

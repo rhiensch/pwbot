@@ -1,7 +1,6 @@
 ﻿#define DEBUG
 
 #if DEBUG
-
 using System;
 using System.IO;
 using System.Text;
