@@ -28,10 +28,10 @@ namespace Bot
 			//TODO check if planet is in danger and how many ships we can supply
 			if (Context.EnemyFleetsGoingToPlanet(SupplyPlanet).Count > 0) return moves;
 
+			if (SupplyPlanet.NumShips() == 0) return moves;
+
 			Planets nearPlanets = Context.MyPlanetsWithinProximityToPlanet(SupplyPlanet, Config.InvokeDistanceForFront);
 			if (nearPlanets.Count == 0) return moves;
-
-			Logger.Log("    " + nearPlanets.Count.ToString());
 
 			Planet dest = nearPlanets[0];
 			foreach (Planet nearPlanet in nearPlanets)
