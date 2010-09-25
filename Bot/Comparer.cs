@@ -6,7 +6,13 @@ namespace Bot
 {
 	public class Comparer
 	{
-		public PlanetWars Context { get; private set; }
+		private PlanetWars context;
+		public PlanetWars Context
+		{
+			get { return context; }
+			private set { context = value; }
+		}
+
 		public Comparer(PlanetWars context)
 		{
 			Context = context;

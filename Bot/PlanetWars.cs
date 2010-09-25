@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace Bot
 			planets = new List<Planet>(); 
 			fleets = new Fleets();
 			ParseGameState(gameStatestring);
-			FillMyPlanetsFrontLevel();
+			//FillMyPlanetsFrontLevel();
 		}
 
 		// Returns the number of planets. Planets are numbered starting with 0.
@@ -194,7 +194,7 @@ namespace Bot
 			return IsValid(source, dest, numShips);
 		}
 
-		private bool IsValid(Planet source, Planet dest, int numShips)
+		private static bool IsValid(Planet source, Planet dest, int numShips)
 		{
 			if (source.Owner() != 1) return false;
 			if (numShips > source.NumShips()) return false;
@@ -232,6 +232,9 @@ namespace Bot
 			Console.WriteLine("" + move.SourceID + " " + move.DestinationID +
 				" " + move.NumSheeps);
 			Console.Out.Flush();
+#if DEBUG
+			//Logger.Log("" + move.SourceID + " " + move.DestinationID +" " + move.NumSheeps);
+#endif
 
 			MakeMove(move);
 		}
@@ -257,6 +260,9 @@ namespace Bot
 		{
 			Console.WriteLine("go");
 			Console.Out.Flush();
+#if DEBUG
+			Logger.Log("go");
+#endif
 		}
 
 		// Returns true if the named player owns at least one planet or fleet.
@@ -926,10 +932,21 @@ namespace Bot
 			}
 		}
 
-		public Planets FrontPlanets { get; private set; }
-		public Planets NotFrontPlanets { get; private set; }
-		
-		private void FillMyPlanetsFrontLevel()
+		private Planets frontPlanets;
+		public Planets FrontPlanets
+		{
+			get { return frontPlanets; }
+			private set { frontPlanets = value; }
+		}
+
+		private Planets notFrontPlanets;
+		public Planets NotFrontPlanets
+		{
+			get { return notFrontPlanets; }
+			private set { notFrontPlanets = value; }
+		}
+
+		/*private void FillMyPlanetsFrontLevel()
 		{
 			if (FrontPlanets == null) FrontPlanets = new Planets(); else FrontPlanets.Clear();
 			if (NotFrontPlanets == null) NotFrontPlanets = new Planets(); else NotFrontPlanets.Clear();
@@ -959,6 +976,6 @@ namespace Bot
 				}
 				NotFrontPlanets.Add(myPlanet);
 			}
-		}
+		}*/
 	}
 }

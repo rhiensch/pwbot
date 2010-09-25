@@ -8,7 +8,14 @@ namespace Bot
 		{
 			Context = context;
 		}
-		public PlanetWars Context { get; set; }
+
+		private PlanetWars context;
+		public PlanetWars Context
+		{
+			get { return context; }
+			set { context = value; }
+		}
+
 		public abstract Moves Run();
 		public abstract string GetAdviserName();
 	}

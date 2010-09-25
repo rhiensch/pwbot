@@ -37,7 +37,7 @@ namespace Bot
 					nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
 
 #if DEBUG
-				Logger.Log("      Trying to send to planet " + planet.PlanetID() + "...");
+				//Logger.Log("      Trying to invade planet " + planet.PlanetID() + "...");
 #endif
 
 				int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
@@ -69,10 +69,14 @@ namespace Bot
 				if (sendedShipsNum < maxNeedToSend)
 				{
 					moves.Clear();
+#if DEBUG
 					//Logger.Log("      failed");
+#endif
 				} else
 				{
+#if DEBUG
 					//Logger.Log(moves.Count == 0 ? "      no need to send" : "      accepted!");
+#endif
 					usedPlanets.Add(planet);
 					break;
 				}
