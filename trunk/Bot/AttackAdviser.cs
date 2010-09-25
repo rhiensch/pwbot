@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#undef DEBUG
+
+using System;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
-using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
 namespace Bot
 {
@@ -13,9 +13,13 @@ namespace Bot
 		{
 		}
 
+		private Planets usedPlanets;
+
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
+
+			if (usedPlanets == null) usedPlanets = new Planets();
 
 			Planets enemyPlanets = Context.EnemyPlanets();
 			if (enemyPlanets.Count == 0) return moves;
@@ -24,6 +28,11 @@ namespace Bot
 
 			foreach (Planet planet in enemyPlanets)
 			{
+				if (usedPlanets.IndexOf(planet) != -1) continue;
+
+#if DEBUG
+				Logger.Log("    Trying to attack " + planet.PlanetID() + "...");
+#endif
 				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForAttack);
 				if (nearestPlanets.Count == 0) continue;
 
@@ -46,7 +55,21 @@ namespace Bot
 
 					if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
 				}
-				if (sendedShipsNum < maxNeedToSend) moves.Clear(); else break;
+				if (sendedShipsNum < maxNeedToSend)
+				{
+					moves.Clear();
+#if DEBUG
+					Logger.Log("    ...failed");
+#endif
+				} 
+				else
+				{
+#if DEBUG
+					Logger.Log(moves.Count == 0 ? "    no need to send" : "    accepted!");
+#endif
+					usedPlanets.Add(planet);
+					return moves;
+				}
 			}
 
 			return moves;

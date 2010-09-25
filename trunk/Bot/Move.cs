@@ -1,12 +1,13 @@
-﻿using System;
-
-namespace Bot
+﻿namespace Bot
 {
 	public class Move
 	{
-		public int SourceID { get; private set; }
-		public int DestinationID { get; private set; }
-		public int NumSheeps { get; private set; }
+		private int sourceID;
+		private int destinationID;
+		private int numSheeps;
+		public int SourceID { get { return sourceID; } private set { sourceID = value; } }
+		public int DestinationID { get { return destinationID; } private set { destinationID = value; } }
+		public int NumSheeps { get { return numSheeps; } private set { numSheeps = value; } }
 
 		public Move(int sourceID, int destID, int numSheeps)
 		{
@@ -18,9 +19,9 @@ namespace Bot
 		public override string ToString()
 		{
 			return
-				"from " + Convert.ToString(SourceID) + 
-				" to " + Convert.ToString(DestinationID) +
-				" num " + Convert.ToString(NumSheeps);
+				"from " + SourceID + 
+				" to " + DestinationID +
+				" num " + NumSheeps;
 		}
 	}
 }

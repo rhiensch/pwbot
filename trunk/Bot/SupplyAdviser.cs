@@ -1,13 +1,16 @@
-﻿using System;
-using Moves = System.Collections.Generic.List<Bot.Move>;
+﻿using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
-using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
 namespace Bot
 {
 	public class SupplyAdviser : BaseAdviser
 	{
-		public Planet SupplyPlanet { get; set; }
+		private Planet supplyPlanet;
+		public Planet SupplyPlanet
+		{
+			get { return supplyPlanet; }
+			set { supplyPlanet = value; }
+		}
 
 		public SupplyAdviser(PlanetWars context)
 			: base(context)
@@ -30,16 +33,27 @@ namespace Bot
 
 			if (SupplyPlanet.NumShips() == 0) return moves;
 
+			int supplyPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), SupplyPlanet);
+
 			Planets nearPlanets = Context.MyPlanetsWithinProximityToPlanet(SupplyPlanet, Config.InvokeDistanceForFront);
 			if (nearPlanets.Count == 0) return moves;
 
 			Planet dest = nearPlanets[0];
+			int minSumDistance = int.MaxValue;
 			foreach (Planet nearPlanet in nearPlanets)
 			{
-				if (nearPlanet.FrontLevel > dest.FrontLevel) dest = nearPlanet;
+				int nearPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
+
+				if (nearPlanetSumDistance < minSumDistance)
+				{
+					dest = nearPlanet;
+					minSumDistance = nearPlanetSumDistance;
+				}
+				//if (nearPlanet.FrontLevel > dest.FrontLevel) dest = nearPlanet;
 			}
 
-			if (dest.FrontLevel > SupplyPlanet.FrontLevel)
+			//if (dest.FrontLevel > SupplyPlanet.FrontLevel)
+			if (minSumDistance < supplyPlanetSumDistance)
 				moves.Add(new Move(SupplyPlanet.PlanetID(), dest.PlanetID(), SupplyPlanet.NumShips()));
 			return moves;
 		}

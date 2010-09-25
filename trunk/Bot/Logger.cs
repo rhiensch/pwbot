@@ -1,4 +1,4 @@
-﻿#define DEBUG
+﻿#undef DEBUG
 
 #if DEBUG
 using System;
@@ -25,9 +25,7 @@ namespace Bot
 			if (!Enabled) return;
 			if (_fileStream == null)
 			{
-				FileMode fileMode = FileMode.Append;
-				if (!File.Exists(FileName)) fileMode = FileMode.CreateNew;
-				_fileStream = new FileStream(FileName, fileMode, FileAccess.Write);
+				_fileStream = new FileStream(FileName, FileMode.Create, FileAccess.Write);
 			}
 			int length = message.IndexOf("\n");
 			string modifiedMessage = length > 0 ? message.Substring(0, length) : message;
