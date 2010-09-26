@@ -284,25 +284,5 @@ namespace BotTests
 			Assert.AreEqual(100 + 30 + 60, Context.EnemyTotalShipCount);
 			Assert.AreEqual(119 + 21, Context.TotalShipCount(0));
 		}
-
-		[TestMethod]
-		public void TestFillMyPlanetsFrontLevel()
-		{
-			const string message =
-				"P 2 2 1 10 0#0\n" +
-				"P 4 1 1 10 5#1\n" +
-				"P 5 6 1 10 5#2\n" +
-				"P 0 0 1 10 4#3\n" +
-				"P 2 5 2 10 4#4\n" +
-				"P 3 3 2 10 4#5\n";
-			Config.InvokeDistanceForFront = 3;
-			PlanetWars pw = new PlanetWars(message);
-			
-
-			Assert.AreEqual(20, pw.GetPlanet(0).FrontLevel);
-			Assert.AreEqual(10, pw.GetPlanet(1).FrontLevel);
-			Assert.AreEqual(0, pw.GetPlanet(2).FrontLevel);
-			Assert.AreEqual(20 / 10, pw.GetPlanet(3).FrontLevel);
-		}
 	}
 }

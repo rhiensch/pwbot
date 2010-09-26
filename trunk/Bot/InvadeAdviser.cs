@@ -26,12 +26,14 @@ namespace Bot
 			if (neutralPlanets.Count > 1)
 				neutralPlanets.Sort(new Comparer(Context).CompareImportanceOfNeutralPlanetsGT);
 
+			bool noNearPlanets = true;
 			foreach (Planet planet in neutralPlanets)
 			{
 				if (usedPlanets.IndexOf(planet) != -1) continue;
 
 				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 				if (nearestPlanets.Count == 0) continue;
+				noNearPlanets = false;
 
 				if (nearestPlanets.Count > 1)
 					nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
@@ -80,6 +82,14 @@ namespace Bot
 					usedPlanets.Add(planet);
 					break;
 				}
+			}
+			if (noNearPlanets)
+			{
+				Config.IncInvadeDistance();
+			}
+			else
+			{
+				Config.ResetInvadeDistance();
 			}
 
 			return moves;

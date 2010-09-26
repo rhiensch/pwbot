@@ -31,7 +31,7 @@ namespace Bot
 				return moves; //if we return here, then something is wrong
 
 			int enemyShipsNum = Context.GetFleetsShipNum(enemyFleets);
-			int turnsBeforeAttack = Context.GetClosestFleetDistance(enemyFleets);
+			int turnsBeforeAttack = Context.GetFarestFleetDistance(enemyFleets);
 
 			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForDefend);
 			nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);

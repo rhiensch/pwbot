@@ -1,0 +1,41 @@
+<Configuration>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="21799" fromTop="24" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="1038" fromTop="7" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="22011" fromTop="12" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="21426" fromTop="19" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="22011" fromTop="18" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="18970" fromTop="7" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="18308" fromTop="30" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="21799" fromTop="31" />
+      <File id="189DD0A2-6C65-4488-B142-84B2F78B1B62/f:Program.cs" caret="21541" fromTop="18" />
+    </RecentEdits>
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir IsNull="False">
+    </NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="Default">
+      <Item value="true" priority="0" />
+      <Item value="max_turns" priority="0" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>
