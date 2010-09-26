@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 
 #if DEBUG
 using System;
@@ -27,10 +27,10 @@ namespace Bot
 			{
 				_fileStream = new FileStream(FileName, FileMode.Create, FileAccess.Write);
 			}
-			int length = message.IndexOf("\n");
+			int length = message.IndexOf("\n\r");
 			string modifiedMessage = length > 0 ? message.Substring(0, length) : message;
 
-			byte[] byteData = Encoding.ASCII.GetBytes(DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss ") + modifiedMessage + "\n");
+			byte[] byteData = Encoding.ASCII.GetBytes(DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss ") + modifiedMessage + "\n\r");
 			_fileStream.Write(byteData, 0, byteData.Length);
 			_fileStream.Flush();
 

@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 
 using System;
 using Moves = System.Collections.Generic.List<Bot.Move>;

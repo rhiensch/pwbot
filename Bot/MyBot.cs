@@ -1,4 +1,4 @@
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Globalization;
@@ -135,7 +135,7 @@ namespace Bot
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
 								#endif
-								//Logger.Log(message);
+								Logger.Log(message);
 								if (bot == null)
 									bot = new MyBot(pw);
 								else

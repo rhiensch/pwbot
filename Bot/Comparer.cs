@@ -94,5 +94,6 @@ namespace Bot
 
 			return growthDifference + numFleetsDifference + distanceDifference;
 		}
+
 	}
 }

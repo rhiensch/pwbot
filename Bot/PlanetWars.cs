@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -813,10 +813,20 @@ namespace Bot
 
 		internal int GetClosestFleetDistance(Fleets fleetList)
 		{
-			int distance = int.MaxValue;
+			return GetLimitFleetDistance(fleetList, -1);
+		}
+
+		internal int GetFarestFleetDistance(Fleets fleetList)
+		{
+			return GetLimitFleetDistance(fleetList, 1);
+		}
+
+		private static int GetLimitFleetDistance(Fleets fleetList, int limitType)
+		{
+			int distance = Math.Sign(limitType) > 0 ? 0 : int.MaxValue;
 			foreach (Fleet fleet in fleetList)
 			{
-				if (fleet.TurnsRemaining() < distance)
+				if (Math.Sign(fleet.TurnsRemaining() - distance) == Math.Sign(limitType))
 				{
 					distance = fleet.TurnsRemaining();
 				}

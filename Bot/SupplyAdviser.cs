@@ -35,25 +35,32 @@ namespace Bot
 
 			int supplyPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), SupplyPlanet);
 
-			Planets nearPlanets = Context.MyPlanetsWithinProximityToPlanet(SupplyPlanet, Config.InvokeDistanceForFront);
+			Planets nearPlanets = Context.MyPlanets();
 			if (nearPlanets.Count == 0) return moves;
 
-			Planet dest = nearPlanets[0];
-			int minSumDistance = int.MaxValue;
+			Planets frontPlanets = new Planets();
 			foreach (Planet nearPlanet in nearPlanets)
 			{
 				int nearPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
 
-				if (nearPlanetSumDistance < minSumDistance)
-				{
-					dest = nearPlanet;
-					minSumDistance = nearPlanetSumDistance;
-				}
-				//if (nearPlanet.FrontLevel > dest.FrontLevel) dest = nearPlanet;
+				if (nearPlanetSumDistance < supplyPlanetSumDistance) frontPlanets.Add(nearPlanet);
 			}
 
-			//if (dest.FrontLevel > SupplyPlanet.FrontLevel)
-			if (minSumDistance < supplyPlanetSumDistance)
+			if (frontPlanets.Count == 0) return moves;
+
+			int minDistance = int.MaxValue;
+			Planet dest = null;
+			foreach (Planet frontPlanet in frontPlanets)
+			{
+				int distance = Context.Distance(frontPlanet, SupplyPlanet);
+				if (minDistance > distance)
+				{
+					minDistance = distance;
+					dest = frontPlanet;
+				}
+			}
+
+			if (dest != null)
 				moves.Add(new Move(SupplyPlanet.PlanetID(), dest.PlanetID(), SupplyPlanet.NumShips()));
 			return moves;
 		}
