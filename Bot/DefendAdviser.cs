@@ -13,11 +13,10 @@ namespace Bot
 		{
 		}
 
-		private Planets usedPlanets;
-		private Planet SelectPlanetForDefend()
+		private Planet SelectPlanetForAdvise()
 		{
 			Planets myPlanetsUnderAttack = Context.MyPlanetsUnderAttack();
-			if (usedPlanets == null) usedPlanets = new Planets();
+			myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
 
 			if (usedPlanets.Count > 0)
 			{
@@ -38,8 +37,8 @@ namespace Bot
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
-			
-			Planet planet = SelectPlanetForDefend();
+
+			Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
 			usedPlanets.Add(planet);

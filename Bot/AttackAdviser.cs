@@ -13,11 +13,9 @@ namespace Bot
 		{
 		}
 
-		private Planets usedPlanets;
 		private Planet SelectPlanetForAttack()
 		{
 			Planets enemyPlanets = Context.EnemyPlanets();
-			if (usedPlanets == null) usedPlanets = new Planets();
 
 			if (usedPlanets.Count > 0)
 			{

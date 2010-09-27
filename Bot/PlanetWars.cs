@@ -415,7 +415,7 @@ namespace Bot
 		// Store all the planets and fleets. OMG we wouldn't wanna lose all the
 		// planets and fleets, would we!?
 		private readonly Planets planets;
-		private readonly Fleets fleets;
+		private Fleets fleets;
 
 		private static Fleets GetThisTurnFleets(uint turn, IEnumerable<Fleet> thisPlanetFleets)
 		{
@@ -628,10 +628,7 @@ namespace Bot
 			foreach (Fleet enemyFleet in enemyFleets)
 			{
 				Planet planet = GetPlanet(enemyFleet.DestinationPlanet());
-				if (planet.Owner() == ownerID)
-				{
-					attackedPlanets.Add(planet);
-				}
+				if (planet.Owner() == ownerID && attackedPlanets.IndexOf(planet) == -1) attackedPlanets.Add(planet);
 			}
 			return attackedPlanets;
 		}
@@ -644,6 +641,22 @@ namespace Bot
 		public Planets NeutralPlanetsUnderAttack()
 		{
 			return PlanetsUnderAttack(0);
+		}
+
+		public Planets MyInvasionNeutralPlanetsUnderAttack()
+		{
+			Planets neutralPlanetsUnderAttack = NeutralPlanetsUnderAttack();
+			Planets myInvasionNeutralPlanetsUnderAttack = new Planets();
+			Fleets myFleets = MyFleets();
+			foreach (Fleet fleet in myFleets)
+			{
+				Planet planet = GetPlanet(fleet.DestinationPlanet());
+				if (neutralPlanetsUnderAttack.IndexOf(planet) != -1 && myInvasionNeutralPlanetsUnderAttack.IndexOf(planet) == -1)
+				{
+					myInvasionNeutralPlanetsUnderAttack.Add(planet);
+				}
+			}
+			return myInvasionNeutralPlanetsUnderAttack;
 		}
 
 		public Planets PlanetsWithinProximityToPlanet(Planets planetList, Planet thisPlanet, int proximityTreshold)
@@ -1001,35 +1014,44 @@ namespace Bot
 
 			thisPlanetFleets.Sort(new Comparer(this).CompareTurnsRemainingLT);
 
-			int lastTurn = -1;
-			foreach (Fleet thisPlanetFleet in thisPlanetFleets)
+			Fleets allFleetsBackup = fleets;
+
+			try
 			{
-				int turn = thisPlanetFleet.TurnsRemaining();
-				if (turn == lastTurn) continue;
+				int lastTurn = -1;
+				foreach (Fleet thisPlanetFleet in thisPlanetFleets)
+				{
+					int turn = thisPlanetFleet.TurnsRemaining();
+					if (turn == lastTurn) continue;
 
-				Pair<int, int> step = null;
-				Planet planetInFuture = PlanetFutureStatus(modelPlanet, turn);
-				if (planetInFuture.Owner() != 1)
-				{
-					step = new Pair<int, int>(turn, planetInFuture.NumShips() + treshold);
-				}
-				else if (planetInFuture.NumShips() < treshold)
-				{
-					step = new Pair<int, int>(turn, treshold - planetInFuture.NumShips());
-				}
-
-				if (step != null)
-				{
-					saveSteps.Add(step);
-					modelPlanet.AddShips(step.Second);
-					Planet planetInFuture2 = PlanetFutureStatus(modelPlanet, turn);
-					if ((planetInFuture2.Owner() != 1) || (planetInFuture2.NumShips() != Config.MinShipsOnMyPlanetsAfterDefend))
+					Pair<int, int> step = null;
+					Planet planetInFuture = PlanetFutureStatus(modelPlanet, turn);
+					if (planetInFuture.Owner() != 1)
 					{
-						throw new ApplicationException();
+						step = new Pair<int, int>(turn, planetInFuture.NumShips() + treshold);
 					}
-				}
+					else if (planetInFuture.NumShips() < treshold)
+					{
+						step = new Pair<int, int>(turn, treshold - planetInFuture.NumShips());
+					}
 
-				lastTurn = turn;
+					if (step != null)
+					{
+						saveSteps.Add(step);
+						fleets.Add(new Fleet(1, step.Second, 0, planet.PlanetID(), step.First-1, step.First-1));
+						Planet planetInFuture2 = PlanetFutureStatus(modelPlanet, turn);
+						if ((planetInFuture2.Owner() != 1) || (planetInFuture2.NumShips() != Config.MinShipsOnMyPlanetsAfterDefend))
+						{
+							throw new ApplicationException();
+						}
+					}
+
+					lastTurn = turn;
+				}
+			}
+			finally
+			{
+				fleets = allFleetsBackup;
 			}
 
 			return saveSteps;
