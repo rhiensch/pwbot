@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define DEBUG
+using System;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
@@ -91,6 +92,9 @@ namespace Bot
 			{
 				Config.ResetInvadeDistance();
 			}
+#if DEBUG
+			Logger.Log("      InvadeDistance " + Config.InvokeDistanceForInvade);
+#endif
 
 			return moves;
 		}

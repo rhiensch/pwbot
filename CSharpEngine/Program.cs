@@ -524,7 +524,7 @@ namespace CSharpEngine
 			if (!File.Exists(playerSplit[0]))
 			{
 				Console.Error.Write("\tFailed to start player " + (playerID + 1) + "\n");
-				throw new System.ArgumentException("Invalid player command \"" + playerSplit[0] + "\"");
+				//throw new System.ArgumentException("Invalid player command \"" + playerSplit[0] + "\"");
 			}
 
 			for (int i = 1; i < playerSplit.Length; i++)

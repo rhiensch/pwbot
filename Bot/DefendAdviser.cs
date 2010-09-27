@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
@@ -12,38 +13,55 @@ namespace Bot
 		{
 		}
 
+		private Planets usedPlanets;
+		private Planet SelectPlanetForDefend()
+		{
+			Planets myPlanetsUnderAttack = Context.MyPlanetsUnderAttack();
+			if (usedPlanets == null) usedPlanets = new Planets();
+
+			if (usedPlanets.Count > 0)
+			{
+				foreach (Planet usedPlanet in usedPlanets)
+				{
+					int index = myPlanetsUnderAttack.IndexOf(usedPlanet);
+					if (index != -1) myPlanetsUnderAttack.RemoveAt(index);
+				}
+			}
+
+			if (myPlanetsUnderAttack.Count == 0) return null;
+			if (myPlanetsUnderAttack.Count == 1) return myPlanetsUnderAttack[0];
+
+			myPlanetsUnderAttack.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
+			return myPlanetsUnderAttack[0];
+		}
+
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
+			
+			Planet planet = SelectPlanetForDefend();
+			if (planet == null) return moves;
 
-			Planets myEndangeredPlanets = Context.MyEndangeredPlanets(Config.StartDefendDistance, Config.MinShipsOnMyPlanetsAfterDefend);
+			usedPlanets.Add(planet);
 
-			if (myEndangeredPlanets.Count == 0) return moves;
+			List<Pair<int, int>> saveSteps =
+					Context.GetMyPlanetSaveSteps(planet, Config.MinShipsOnMyPlanetsAfterDefend);
 
-			Planets planets = Context.MostImportantPlanets(myEndangeredPlanets, 1);
+			if (saveSteps.Count == 0) return moves;
 
-			if (planets.Count == 0) return moves;
-
-			Planet planet = planets[0];
-
-			Fleets enemyFleets = Context.EnemyFleetsGoingToPlanet(planet);
-			if (enemyFleets.Count == 0) 
-				return moves; //if we return here, then something is wrong
-
-			int enemyShipsNum = Context.GetFleetsShipNum(enemyFleets);
-			int turnsBeforeAttack = Context.GetFarestFleetDistance(enemyFleets);
-
-			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForDefend);
-			nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
-
-			//Planet planetNow = Context.GetPlanet(planet.PlanetID());
-			int sendedShipsNum = planet.NumShips() + planet.GrowthRate() * turnsBeforeAttack;
-			foreach (Planet nearPlanet in nearestPlanets)
+			for (int i = 0; i < saveSteps.Count; i++)
 			{
-				int canSend = Math.Min(enemyShipsNum - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterDefend);
-				if (canSend <= 0) continue;
-				moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
-				sendedShipsNum += canSend;
+				Planets planetsCanHelp = Context.MyPlanetsWithinProximityToPlanet(planet, saveSteps[i].First);
+				planetsCanHelp.Sort(new Comparer(Context).CompareNumberOfShipsGT);
+
+				int sendedShipsNum = 0;
+				foreach (Planet nearPlanet in planetsCanHelp)
+				{
+					int canSend = Math.Min(saveSteps[i].Second - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterDefend);
+					if (canSend <= 0) continue;
+					moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
+					sendedShipsNum += canSend;
+				}
 			}
 
 			return moves;
