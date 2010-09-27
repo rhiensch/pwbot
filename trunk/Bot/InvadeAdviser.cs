@@ -13,13 +13,9 @@ namespace Bot
 		{
 		}
 
-		private Planets usedPlanets;
-
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
-
-			if (usedPlanets == null) usedPlanets = new Planets();
 
 			Planets neutralPlanets = Context.NeutralPlanets();
 			if (neutralPlanets.Count == 0) return moves;

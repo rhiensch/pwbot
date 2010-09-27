@@ -93,7 +93,6 @@ namespace BotTests
 		[TestMethod]
 		public void TestNoDoubleDefence()
 		{
-			//TODO map41.txt DualBot
 			PlanetWars planetWars = new PlanetWars(
 				"P 10.619331099 20.0028830106 1 122 5#0\n" +
 				"P 10.6897926 1.87550420275 2 18 5#1\n" +
@@ -111,6 +110,36 @@ namespace BotTests
 			Moves moves = adviser.Run();
 
 			Assert.AreEqual(0, moves.Count);
+		}
+
+		[TestMethod]
+		public void TestDefendMyInvasion()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 10.619331099 20.0028830106 1 122 5#0\n" +
+				"P 10.6897926 1.87550420275 2 18 5#1\n" +
+				"P 6.42926362386 21.4118201349 0 5 4#2\n" +
+				"F 2 50 1 2 20 14\n" +
+				"F 2 27 1 2 20 15\n" +
+				"F 2 16 1 2 20 16\n" +
+				"F 2 11 1 2 20 17\n" +
+				"F 2 8 1 2 20 18\n" +
+				"F 1 6 0 2 5 2\n" +
+				"go\n");
+
+
+			IAdviser adviser = new DefendAdviser(planetWars);
+			Moves moves = adviser.Run();
+
+			int totalCount = 0;
+			foreach (Move move in moves)
+			{
+				Assert.AreEqual(2, moves[0].DestinationID);
+				totalCount = totalCount + move.NumSheeps;
+			}
+
+			//todo check 47
+			Assert.AreEqual(47 + Config.MinShipsOnMyPlanetsAfterDefend, totalCount);
 		}
 	}
 }
