@@ -95,5 +95,10 @@ namespace Bot
 			return growthDifference + numFleetsDifference + distanceDifference;
 		}
 
+		public int CompareTurnsRemainingLT(Fleet fleet1, Fleet fleet2)
+		{
+			return (fleet1.TurnsRemaining() - fleet2.TurnsRemaining());
+		}
+
 	}
 }

@@ -60,7 +60,7 @@ namespace BotTests
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(3, moves[0].SourceID);
 			Assert.AreEqual(1, moves[0].DestinationID);
-			Assert.AreEqual(15, moves[0].NumSheeps);
+			Assert.AreEqual(15 + Config.MinShipsOnMyPlanetsAfterDefend, moves[0].NumSheeps);
 		}
 
 		[TestMethod]
@@ -80,10 +80,14 @@ namespace BotTests
 			IAdviser adviser = new DefendAdviser(planetWars);
 			Moves moves = adviser.Run();
 
-			Assert.AreEqual(1, moves.Count);
-			Assert.AreEqual(0, moves[0].SourceID);
-			Assert.AreEqual(2, moves[0].DestinationID);
-			Assert.AreEqual(35, moves[0].NumSheeps);
+			int totalCount = 0;
+			foreach (Move move in moves)
+			{
+				Assert.AreEqual(2, moves[0].DestinationID);
+				totalCount = totalCount + move.NumSheeps;
+			}
+			
+			Assert.AreEqual(35 + Config.MinShipsOnMyPlanetsAfterDefend, totalCount);
 		}
 
 		[TestMethod]
@@ -94,13 +98,14 @@ namespace BotTests
 				"P 10.619331099 20.0028830106 1 122 5#0\n" +
 				"P 10.6897926 1.87550420275 2 18 5#1\n" +
 				"P 6.42926362386 21.4118201349 1 5 4#2\n" +
-				"F 2 50 1 2 20 11\n" +
-				"F 2 27 1 2 20 12\n" +
-				"F 2 16 1 2 20 13\n" +
-				"F 2 11 1 2 20 14\n" +
-				"F 2 8 1 2 20 15\n" +
-				"F 1 35 1 11 5 2\n" +
+				"F 2 50 1 2 20 14\n" +
+				"F 2 27 1 2 20 15\n" +
+				"F 2 16 1 2 20 16\n" +
+				"F 2 11 1 2 20 17\n" +
+				"F 2 8 1 2 20 18\n" +
+				"F 1 35 0 2 5 2\n" +
 				"go\n");
+
 
 			IAdviser adviser = new DefendAdviser(planetWars);
 			Moves moves = adviser.Run();

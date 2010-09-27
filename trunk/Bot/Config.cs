@@ -5,7 +5,7 @@
 		static Config()
 		{
 			_invokeDistanceForDefend = 15;
-			_invokeDistanceForInvade = 5;
+			_invokeDistanceForInvade = 15;
 			_invokeDistanceForAttack = 15;
 			_invokeDistanceForFront = 10;
 		}

@@ -251,7 +251,7 @@ namespace Bot
 				distance);
 
 			fleets.Add(newFleet);
-			GetPlanet(move.SourceID).NumShips(GetPlanet(move.SourceID).NumShips() - move.NumSheeps);
+			GetPlanet(move.SourceID).RemoveShips(move.NumSheeps);
 		}
 
 		// Sends the game engine a message to let it know that we're done sending
@@ -443,7 +443,8 @@ namespace Bot
 
 				if (winner.Second == secondToWinner.Second)
 				{
-					planetInFuture.Owner(0);
+					//old owner stays
+					//planetInFuture.Owner(0);
 					planetInFuture.NumShips(0);
 				}
 				else
@@ -690,19 +691,19 @@ namespace Bot
 			{
 				PlanetGrowth(planetInFuture);
 
-				// First is ownerID, second is number of ships
-				List<Pair<int, int>> ships = new List<Pair<int, int>>();
-
 				// Get all fleets whic will arrive at the planet in this turn
 				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
 
-				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets, ships);
+				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
 			}
 			return planetInFuture;
 		}
 
-		private void CalcFleetsOnPlanet(Planet planetInFuture, Fleets thisTurnFleets, List<Pair<int, int>> ships)
+		private void CalcFleetsOnPlanet(Planet planetInFuture, Fleets thisTurnFleets)
 		{
+			// First is ownerID, second is number of ships
+			List<Pair<int, int>> ships = new List<Pair<int, int>>();
+
 			if (thisTurnFleets.Count > 0)
 			{
 				const int owners = 2;
@@ -942,7 +943,7 @@ namespace Bot
 			}
 		}
 
-		private Planets frontPlanets;
+		/*private Planets frontPlanets;
 		public Planets FrontPlanets
 		{
 			get { return frontPlanets; }
@@ -956,7 +957,7 @@ namespace Bot
 			private set { notFrontPlanets = value; }
 		}
 
-		/*private void FillMyPlanetsFrontLevel()
+		private void FillMyPlanetsFrontLevel()
 		{
 			if (FrontPlanets == null) FrontPlanets = new Planets(); else FrontPlanets.Clear();
 			if (NotFrontPlanets == null) NotFrontPlanets = new Planets(); else NotFrontPlanets.Clear();
@@ -987,5 +988,51 @@ namespace Bot
 				NotFrontPlanets.Add(myPlanet);
 			}
 		}*/
+
+		//Pair: turnsBefore, numShips
+		public List<Pair<int, int>> GetMyPlanetSaveSteps(Planet planet, int treshold)
+		{
+			List<Pair<int, int>> saveSteps = new List<Pair<int, int>>();
+
+			Planet modelPlanet = new Planet(planet);
+
+			Fleets thisPlanetFleets = EnemyFleetsGoingToPlanet(planet);
+			if (thisPlanetFleets.Count == 0) return saveSteps;
+
+			thisPlanetFleets.Sort(new Comparer(this).CompareTurnsRemainingLT);
+
+			int lastTurn = -1;
+			foreach (Fleet thisPlanetFleet in thisPlanetFleets)
+			{
+				int turn = thisPlanetFleet.TurnsRemaining();
+				if (turn == lastTurn) continue;
+
+				Pair<int, int> step = null;
+				Planet planetInFuture = PlanetFutureStatus(modelPlanet, turn);
+				if (planetInFuture.Owner() != 1)
+				{
+					step = new Pair<int, int>(turn, planetInFuture.NumShips() + treshold);
+				}
+				else if (planetInFuture.NumShips() < treshold)
+				{
+					step = new Pair<int, int>(turn, treshold - planetInFuture.NumShips());
+				}
+
+				if (step != null)
+				{
+					saveSteps.Add(step);
+					modelPlanet.AddShips(step.Second);
+					Planet planetInFuture2 = PlanetFutureStatus(modelPlanet, turn);
+					if ((planetInFuture2.Owner() != 1) || (planetInFuture2.NumShips() != Config.MinShipsOnMyPlanetsAfterDefend))
+					{
+						throw new ApplicationException();
+					}
+				}
+
+				lastTurn = turn;
+			}
+
+			return saveSteps;
+		}
 	}
 }
