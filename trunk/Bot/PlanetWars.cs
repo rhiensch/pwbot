@@ -705,7 +705,7 @@ namespace Bot
 			{
 				PlanetGrowth(planetInFuture);
 
-				// Get all fleets whic will arrive at the planet in this turn
+				// Get all fleets which will arrive at the planet in this turn
 				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
 
 				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
@@ -1056,6 +1056,38 @@ namespace Bot
 			}
 
 			return saveSteps;
+		}
+
+		public int CanSend(Planet planet)
+		{
+			if (planet.Owner() != 1) return 0;
+
+			int canSend = planet.NumShips();
+			Fleets enemyFleets = EnemyFleetsGoingToPlanet(planet);
+			if (enemyFleets.Count == 0) return canSend;
+
+			Planet planetInFuture = new Planet(planet);
+
+			// All fleets heading to this planet
+			Fleets thisPlanetFleets = FleetsGoingToPlanet(Fleets(), planet);
+
+			int numberOfTurns = GetFarestFleetDistance(enemyFleets);
+			for (uint turn = 1; turn <= numberOfTurns; turn++)
+			{
+				PlanetGrowth(planetInFuture);
+
+				// Get all fleets which will arrive at the planet in this turn
+				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
+				if ((planet.PlanetID() == 5))
+				{
+				}
+
+				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
+				if (planetInFuture.Owner() != 1) return 0;
+				if (planetInFuture.NumShips() < canSend) canSend = planetInFuture.NumShips();
+
+			}
+			return canSend;
 		}
 	}
 }

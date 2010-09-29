@@ -49,7 +49,7 @@ namespace BotTests
 
 			Comparer comparer = new Comparer(planetWars);
 			Planets planets = planetWars.MyPlanets();
-			planets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+			planets.Sort(comparer.CompareDistanceToTargetPlanetGT);
 
 			Assert.AreEqual(2, planets[0].PlanetID());
 		}

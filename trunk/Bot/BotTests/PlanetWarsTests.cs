@@ -284,5 +284,25 @@ namespace BotTests
 			Assert.AreEqual(100 + 30 + 60, Context.EnemyTotalShipCount);
 			Assert.AreEqual(119 + 21, Context.TotalShipCount(0));
 		}
+
+		[TestMethod]
+		public void TestCanSend()
+		{
+			int canSend = Context.CanSend(Context.GetPlanet(3));
+			Assert.AreEqual(Context.GetPlanet(3).NumShips(), canSend);
+
+			canSend = Context.CanSend(Context.GetPlanet(1));
+			Assert.AreEqual(0, canSend);
+
+			PlanetWars planetWars = new PlanetWars(
+				"P 1 1 1 30 5#0\n" +
+				"F 2 20 1 0 5 1\n" +
+				"F 2 18 1 0 5 2\n" +
+				"F 2 3 1 0 5 3\n" +
+				"go\n");
+			canSend = planetWars.CanSend(planetWars.GetPlanet(0));
+
+			Assert.AreEqual(2, canSend);
+		}
 	}
 }

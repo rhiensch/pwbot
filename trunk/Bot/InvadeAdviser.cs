@@ -27,6 +27,7 @@ namespace Bot
 			foreach (Planet planet in neutralPlanets)
 			{
 				if (usedPlanets.IndexOf(planet) != -1) continue;
+				usedPlanets.Add(planet);
 
 				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 				if (nearestPlanets.Count == 0) continue;
@@ -36,7 +37,7 @@ namespace Bot
 					nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
 
 #if DEBUG
-				//Logger.Log("      Trying to invade planet " + planet.PlanetID() + "...");
+				Logger.Log("      Trying to invade planet " + planet.PlanetID() + "...");
 #endif
 
 				int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
@@ -45,7 +46,7 @@ namespace Bot
 				{
 					int distance = Context.Distance(planet, nearPlanet);
 					Planet futurePlanet = Context.PlanetFutureStatus(planet, distance + Config.ExtraTurns);
-					int needToSend = Config.MinShipsOnMyPlanetsAfterInvade;
+					int needToSend = Config.MinShipsOnPlanetsAfterInvade;
 					if (futurePlanet.Owner() != 1)
 					{
 						needToSend += futurePlanet.NumShips();
@@ -57,10 +58,7 @@ namespace Bot
 
 					if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
 
-					//TODO maybe check for endangared?
-					if (Context.EnemyFleetsGoingToPlanet(nearPlanet).Count > 0) continue;
-
-					int canSend = Math.Min(maxNeedToSend - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterInvade);
+					int canSend = Math.Min(maxNeedToSend - sendedShipsNum, Context.CanSend(nearPlanet));
 					if (canSend <= 0) continue;
 					moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
 					sendedShipsNum += canSend;
@@ -76,7 +74,6 @@ namespace Bot
 #if DEBUG
 					//Logger.Log(moves.Count == 0 ? "      no need to send" : "      accepted!");
 #endif
-					usedPlanets.Add(planet);
 					break;
 				}
 			}
@@ -89,7 +86,7 @@ namespace Bot
 				Config.ResetInvadeDistance();
 			}
 #if DEBUG
-			Logger.Log("      InvadeDistance " + Config.InvokeDistanceForInvade);
+			//Logger.Log("      InvadeDistance " + Config.InvokeDistanceForInvade);
 #endif
 
 			return moves;

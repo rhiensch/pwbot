@@ -60,7 +60,7 @@ namespace BotTests
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(3, moves[0].SourceID);
 			Assert.AreEqual(1, moves[0].DestinationID);
-			Assert.AreEqual(15 + Config.MinShipsOnMyPlanetsAfterDefend, moves[0].NumSheeps);
+			Assert.AreEqual(15 + Config.MinShipsOnPlanetsAfterDefend, moves[0].NumSheeps);
 		}
 
 		[TestMethod]
@@ -87,7 +87,7 @@ namespace BotTests
 				totalCount = totalCount + move.NumSheeps;
 			}
 			
-			Assert.AreEqual(35 + Config.MinShipsOnMyPlanetsAfterDefend, totalCount);
+			Assert.AreEqual(35 + Config.MinShipsOnPlanetsAfterDefend, totalCount);
 		}
 
 		[TestMethod]
