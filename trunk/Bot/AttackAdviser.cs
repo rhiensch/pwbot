@@ -39,14 +39,16 @@ namespace Bot
 			Planet planet = SelectPlanetForAttack();
 			if (planet == null) return moves;
 
-			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForAttack);
-			if (nearestPlanets.Count == 0) return moves;
+			Planets myPlanets = Context.MyPlanets();
+			if (myPlanets.Count == 0) return moves;
 
-			nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
+			Comparer comparer = new Comparer(Context);
+			comparer.TargetPlanet = planet;
+			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 			int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
 			int maxNeedToSend = 0;
-			foreach (Planet nearPlanet in nearestPlanets)
+			foreach (Planet nearPlanet in myPlanets)
 			{
 				//TODO maybe check for endangered?
 				if (Context.EnemyFleetsGoingToPlanet(nearPlanet).Count > 0) continue;
@@ -60,6 +62,8 @@ namespace Bot
 				sendedShipsNum += canSend;
 
 				if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
+
+				if (sendedShipsNum >= maxNeedToSend) break;
 			}
 			if (sendedShipsNum < maxNeedToSend)
 			{

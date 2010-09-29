@@ -37,5 +37,21 @@ namespace BotTests
 
 			Assert.AreEqual(4, planets[0].PlanetID());
 		}
+
+		[TestMethod]
+		public void TestCompareDistanceToTargetPlanet()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 1 1 0 119 0#0\n" +
+				"P 5 5 1 40 5#1\n" +
+				"P 2 2 1 100 5#2\n" +
+				"go\n");
+
+			Comparer comparer = new Comparer(planetWars);
+			Planets planets = planetWars.MyPlanets();
+			planets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
+			Assert.AreEqual(2, planets[0].PlanetID());
+		}
 	}
 }
