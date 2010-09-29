@@ -31,9 +31,9 @@
 		private static int _invokeDistanceForFront;
 		public static int InvokeDistanceForFront { get { return _invokeDistanceForFront; } set { _invokeDistanceForFront = value; } }
 
-		public static int MinShipsOnMyPlanetsAfterDefend { get { return 0; } }
-		public static int MinShipsOnMyPlanetsAfterInvade { get { return 1; } }
-		public static int MinShipsOnMyPlanetsAfterAttack { get { return 1; } }
+		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }
+		public static int MinShipsOnPlanetsAfterInvade { get { return 1; } }
+		public static int MinShipsOnPlanetsAfterAttack { get { return 1; } }
 		public static int StartDefendDistance { get { return 15; } }
 		public static int ExtraTurns { get { return 3; } }
 		public static int GrowsRateKoef { get { return 4; } }

@@ -13,7 +13,7 @@ namespace BotTests
 	public class InvadeAdviserTests
 	{
 		// Use TestInitialize to run code before running each test 
-		[TestInitialize()]
+		[TestInitialize]
 		public void MyTestInitialize()
 		{
 			CultureInfo myCulture = new CultureInfo("en-US");
@@ -53,7 +53,7 @@ namespace BotTests
 
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(4, moves[0].DestinationID);
-			Assert.AreEqual(21 + Config.MinShipsOnMyPlanetsAfterInvade, moves[0].NumSheeps);
+			Assert.AreEqual(21 + Config.MinShipsOnPlanetsAfterInvade, moves[0].NumSheeps);
 		}
 	}
 }

@@ -44,21 +44,18 @@ namespace Bot
 
 			Comparer comparer = new Comparer(Context);
 			comparer.TargetPlanet = planet;
-			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetGT);
 
 			int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
 			int maxNeedToSend = 0;
-			foreach (Planet nearPlanet in myPlanets)
+			foreach (Planet myPlanet in myPlanets)
 			{
-				//TODO maybe check for endangered?
-				if (Context.EnemyFleetsGoingToPlanet(nearPlanet).Count > 0) continue;
+				int distance = Context.Distance(planet, myPlanet);
+				int needToSend = Context.PlanetFutureStatus(planet, distance).NumShips() + Config.MinShipsOnPlanetsAfterAttack;
 
-				int distance = Context.Distance(planet, nearPlanet);
-				int needToSend = Context.PlanetFutureStatus(planet, distance).NumShips() + Config.MinShipsOnMyPlanetsAfterAttack;
-
-				int canSend = Math.Min(needToSend - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterAttack);
+				int canSend = Math.Min(needToSend - sendedShipsNum, Context.CanSend(myPlanet));
 				if (canSend <= 0) continue;
-				moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
+				moves.Add(new Move(myPlanet.PlanetID(), planet.PlanetID(), canSend));
 				sendedShipsNum += canSend;
 
 				if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
@@ -69,13 +66,13 @@ namespace Bot
 			{
 				moves.Clear();
 #if DEBUG
-				Logger.Log("    ...failed");
+				//Logger.Log("    ...failed");
 #endif
 			} 
 			else
 			{
 #if DEBUG
-				Logger.Log(moves.Count == 0 ? "    no need to send" : "    accepted!");
+				//Logger.Log(moves.Count == 0 ? "    no need to send" : "    accepted!");
 #endif
 				usedPlanets.Add(planet);
 				return moves;

@@ -77,10 +77,10 @@ namespace Bot
 		private bool RunAdviser(IAdviser adviser)
 		{
 			Moves moves = adviser.Run();
-#if DEBUG
-			Logger.Log("  " + adviser.GetAdviserName() + ": " + moves.Count + " moves");
-#endif
 			if (moves.Count == 0) return false;
+#if DEBUG
+			//Logger.Log("  " + adviser.GetAdviserName() + ": " + moves.Count + " moves");
+#endif
 			foreach (Move move in moves)
 			{
 #if DEBUG
@@ -134,8 +134,9 @@ namespace Bot
 									"prod " +
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
+								if (turn == 12) Logger.Log(message);
 								#endif
-								Logger.Log(message);
+								
 								if (bot == null)
 									bot = new MyBot(pw);
 								else

@@ -44,7 +44,7 @@ namespace Bot
 			usedPlanets.Add(planet);
 
 			List<Pair<int, int>> saveSteps =
-					Context.GetMyPlanetSaveSteps(planet, Config.MinShipsOnMyPlanetsAfterDefend);
+					Context.GetMyPlanetSaveSteps(planet, Config.MinShipsOnPlanetsAfterDefend);
 
 			if (saveSteps.Count == 0) return moves;
 
@@ -56,7 +56,7 @@ namespace Bot
 				int sendedShipsNum = 0;
 				foreach (Planet nearPlanet in planetsCanHelp)
 				{
-					int canSend = Math.Min(saveSteps[i].Second - sendedShipsNum, nearPlanet.NumShips() - Config.MinShipsOnMyPlanetsAfterDefend);
+					int canSend = Math.Min(saveSteps[i].Second - sendedShipsNum, Context.CanSend(nearPlanet));
 					if (canSend <= 0) continue;
 					moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
 					sendedShipsNum += canSend;

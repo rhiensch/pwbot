@@ -28,8 +28,8 @@ namespace Bot
 			Moves moves = new Moves();
 			if (SupplyPlanet == null) return moves;
 
-			//TODO check if planet is in danger and how many ships we can supply
-			if (Context.EnemyFleetsGoingToPlanet(SupplyPlanet).Count > 0) return moves;
+			int canSend = Context.CanSend(SupplyPlanet);
+			if (canSend == 0) return moves;
 
 			if (SupplyPlanet.NumShips() == 0) return moves;
 
@@ -61,7 +61,7 @@ namespace Bot
 			}
 
 			if (dest != null)
-				moves.Add(new Move(SupplyPlanet.PlanetID(), dest.PlanetID(), SupplyPlanet.NumShips()));
+				moves.Add(new Move(SupplyPlanet.PlanetID(), dest.PlanetID(), canSend));
 			return moves;
 		}
 
