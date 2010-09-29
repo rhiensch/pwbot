@@ -643,7 +643,7 @@ namespace Bot
 			return PlanetsUnderAttack(0);
 		}
 
-		public Planets MyInvasionNeutralPlanetsUnderAttack()
+		/*public Planets MyInvasionNeutralPlanetsUnderAttack()
 		{
 			Planets neutralPlanetsUnderAttack = NeutralPlanetsUnderAttack();
 			Planets myInvasionNeutralPlanetsUnderAttack = new Planets();
@@ -651,13 +651,14 @@ namespace Bot
 			foreach (Fleet fleet in myFleets)
 			{
 				Planet planet = GetPlanet(fleet.DestinationPlanet());
-				if (neutralPlanetsUnderAttack.IndexOf(planet) != -1 && myInvasionNeutralPlanetsUnderAttack.IndexOf(planet) == -1)
+				if (neutralPlanetsUnderAttack.IndexOf(planet) != -1 &&
+					myInvasionNeutralPlanetsUnderAttack.IndexOf(planet) == -1)
 				{
 					myInvasionNeutralPlanetsUnderAttack.Add(planet);
 				}
 			}
 			return myInvasionNeutralPlanetsUnderAttack;
-		}
+		}*/
 
 		public Planets PlanetsWithinProximityToPlanet(Planets planetList, Planet thisPlanet, int proximityTreshold)
 		{
@@ -1039,11 +1040,11 @@ namespace Bot
 					{
 						saveSteps.Add(step);
 						fleets.Add(new Fleet(1, step.Second, 0, planet.PlanetID(), step.First-1, step.First-1));
-						Planet planetInFuture2 = PlanetFutureStatus(modelPlanet, turn);
+						/*Planet planetInFuture2 = PlanetFutureStatus(modelPlanet, turn);
 						if ((planetInFuture2.Owner() != 1) || (planetInFuture2.NumShips() != Config.MinShipsOnMyPlanetsAfterDefend))
 						{
 							throw new ApplicationException();
-						}
+						}*/
 					}
 
 					lastTurn = turn;

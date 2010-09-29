@@ -16,7 +16,7 @@ namespace Bot
 		private Planet SelectPlanetForAdvise()
 		{
 			Planets myPlanetsUnderAttack = Context.MyPlanetsUnderAttack();
-			myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
+			//myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
 
 			if (usedPlanets.Count > 0)
 			{
