@@ -1,4 +1,4 @@
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Globalization;
@@ -38,35 +38,33 @@ namespace Bot
 			//if (_turn > 20) return;
 			try
 			{
-				IAdviser defendAdviser = new DefendAdviser(Context);
-				IAdviser invadeAdviser = new InvadeAdviser(Context);
-				IAdviser attackAdviser = new AttackAdviser(Context);
+				DefendAdviser defendAdviser = new DefendAdviser(Context);
+				InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
+				AttackAdviser attackAdviser = new AttackAdviser(Context);
 				SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
-
-				bool doDefend;
-				bool doAttack;
-				bool doInvade;
 
 				do
 				{
-					doDefend = RunAdviser(defendAdviser);
+					if (!defendAdviser.IsWorkFinished) RunAdviser(defendAdviser);
 					if (!CheckTime()) return;
 
-					doInvade = RunAdviser(invadeAdviser);
+					if (!invadeAdviser.IsWorkFinished) RunAdviser(invadeAdviser);
 					if (!CheckTime()) return;
 
-					doAttack = RunAdviser(attackAdviser);
+					if (!attackAdviser.IsWorkFinished) RunAdviser(attackAdviser);
 					if (!CheckTime()) return;
 
-				} while (doDefend || doAttack || doInvade);
+				} while (!defendAdviser.IsWorkFinished || !invadeAdviser.IsWorkFinished || !attackAdviser.IsWorkFinished);
 
 				Planets myPlanets = Context.MyPlanets();
-				foreach (Planet planet in myPlanets)
+				Planet myPlanet = Context.GetPlanet(10);
+				//foreach (Planet myPlanet in myPlanets)
 				{
-					supplyAdviser.SupplyPlanet = planet;
+					supplyAdviser.SupplyPlanet = myPlanet;
 					RunAdviser(supplyAdviser);
 					if (!CheckTime()) return;
 				}
+				
 			}
 			finally
 			{
@@ -74,13 +72,10 @@ namespace Bot
 			}
 		}
 
-		private bool RunAdviser(IAdviser adviser)
+		private void RunAdviser(IAdviser adviser)
 		{
 			Moves moves = adviser.Run();
-			if (moves.Count == 0) return false;
-#if DEBUG
-			//Logger.Log("  " + adviser.GetAdviserName() + ": " + moves.Count + " moves");
-#endif
+			if (moves.Count == 0) return;
 			foreach (Move move in moves)
 			{
 #if DEBUG
@@ -88,7 +83,6 @@ namespace Bot
 #endif
 				Context.IssueOrder(move);
 			}
-			return true;
 		}
 
 		private static int turn;
@@ -134,7 +128,7 @@ namespace Bot
 									"prod " +
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
-								if (turn == 12) Logger.Log(message);
+								if (turn == 28) Logger.Log(message);
 								#endif
 								
 								if (bot == null)

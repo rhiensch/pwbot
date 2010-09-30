@@ -1,4 +1,4 @@
-﻿#define DEBUG
+﻿#undef DEBUG
 
 using System;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -13,7 +13,7 @@ namespace Bot
 		{
 		}
 
-		private Planet SelectPlanetForAttack()
+		private Planet SelectPlanetForAdvise()
 		{
 			Planets enemyPlanets = Context.EnemyPlanets();
 
@@ -26,17 +26,26 @@ namespace Bot
 				}
 			}
 
-			if (enemyPlanets.Count == 0) return null;
-			if (enemyPlanets.Count == 1) return enemyPlanets[0];
+			if (enemyPlanets.Count == 0)
+			{
+				IsWorkFinished = true;
+				return null;
+			}
+			if (enemyPlanets.Count == 1)
+			{
+				usedPlanets.Add(enemyPlanets[0]);
+				return enemyPlanets[0];
+			}
 
 			enemyPlanets.Sort(new Comparer(Context).CompareImportanceOfEnemyPlanetsGT);
+			usedPlanets.Add(enemyPlanets[0]);
 			return enemyPlanets[0];
 		}
 
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
-			Planet planet = SelectPlanetForAttack();
+			Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
 			Planets myPlanets = Context.MyPlanets();
@@ -55,6 +64,9 @@ namespace Bot
 
 				int canSend = Math.Min(needToSend - sendedShipsNum, Context.CanSend(myPlanet));
 				if (canSend <= 0) continue;
+
+				if (canSend < Context.CanSend(myPlanet)) canSend = Context.CanSend(myPlanet);
+
 				moves.Add(new Move(myPlanet.PlanetID(), planet.PlanetID(), canSend));
 				sendedShipsNum += canSend;
 
@@ -74,7 +86,6 @@ namespace Bot
 #if DEBUG
 				//Logger.Log(moves.Count == 0 ? "    no need to send" : "    accepted!");
 #endif
-				usedPlanets.Add(planet);
 				return moves;
 			}
 

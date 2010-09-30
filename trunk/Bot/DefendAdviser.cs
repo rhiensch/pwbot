@@ -27,10 +27,19 @@ namespace Bot
 				}
 			}
 
-			if (myPlanetsUnderAttack.Count == 0) return null;
-			if (myPlanetsUnderAttack.Count == 1) return myPlanetsUnderAttack[0];
+			if (myPlanetsUnderAttack.Count == 0)
+			{
+				IsWorkFinished = true;
+				return null;
+			}
+			if (myPlanetsUnderAttack.Count == 1)
+			{
+				usedPlanets.Add(myPlanetsUnderAttack[0]);
+				return myPlanetsUnderAttack[0];
+			}
 
 			myPlanetsUnderAttack.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
+			usedPlanets.Add(myPlanetsUnderAttack[0]);
 			return myPlanetsUnderAttack[0];
 		}
 
@@ -40,8 +49,6 @@ namespace Bot
 
 			Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
-
-			usedPlanets.Add(planet);
 
 			List<Pair<int, int>> saveSteps =
 					Context.GetMyPlanetSaveSteps(planet, Config.MinShipsOnPlanetsAfterDefend);

@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -60,11 +60,9 @@ namespace Bot
 
 		// Return a list of all the planets owned by the current player. By
 		// convention, the current player is always player number 1.
-		private Planets myPlanets;
 		public Planets MyPlanets()
 		{
-			if (myPlanets != null) return myPlanets;
-			myPlanets = new Planets();
+			Planets myPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() == 1)
@@ -76,11 +74,9 @@ namespace Bot
 		}
 
 		// Return a list of all neutral planets.
-		private Planets neutralPlanets;
 		public Planets NeutralPlanets()
 		{
-			if (neutralPlanets != null) return neutralPlanets;
-			neutralPlanets = new Planets();
+			Planets neutralPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() == 0)
@@ -93,34 +89,23 @@ namespace Bot
 
 		// Return a list of all the planets owned by rival players. This excludes
 		// planets owned by the current player, as well as neutral planets.
-		private Planets enemyPlanets;
 		public Planets EnemyPlanets()
 		{
-			if (enemyPlanets != null) return enemyPlanets;
-			enemyPlanets = new Planets();
+			Planets enemyPlanets = new Planets();
 			foreach (Planet p in planets)
-			{
-				if (p.Owner() >= 2)
-				{
-					enemyPlanets.Add(p);
-				}
-			}
+				if (p.Owner() >= 2) enemyPlanets.Add(p);
 			return enemyPlanets;
 		}
 
 		// Return a list of all the planets that are not owned by the current
 		// player. This includes all enemy planets and neutral planets.
-		private Planets notMyPlanets;
 		public Planets NotMyPlanets()
 		{
-			if (notMyPlanets != null) return notMyPlanets;
-			notMyPlanets = new Planets();
+			Planets notMyPlanets = new Planets();
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() != 1)
-				{
 					notMyPlanets.Add(p);
-				}
 			}
 			return notMyPlanets;
 		}
@@ -130,9 +115,7 @@ namespace Bot
 		{
 			Fleets r = new Fleets();
 			foreach (Fleet f in fleets)
-			{
 				r.Add(f);
-			}
 			return r;
 		}
 
@@ -143,9 +126,7 @@ namespace Bot
 			foreach (Fleet f in fleets)
 			{
 				if (f.Owner() == 1)
-				{
 					r.Add(f);
-				}
 			}
 			return r;
 		}
@@ -157,9 +138,7 @@ namespace Bot
 			foreach (Fleet f in fleets)
 			{
 				if (f.Owner() != 1)
-				{
 					r.Add(f);
-				}
 			}
 			return r;
 		}
@@ -207,7 +186,7 @@ namespace Bot
 			return IsValid(move.SourceID, move.DestinationID, move.NumSheeps);
 		}
 
-		public void IssueOrder(int sourcePlanet, int destinationPlanet, int numShips)
+		/*public void IssueOrder(int sourcePlanet, int destinationPlanet, int numShips)
 		{
 			Move move = new Move(sourcePlanet, destinationPlanet, numShips);
 			IssueOrder(move);
@@ -217,7 +196,7 @@ namespace Bot
 		{
 			Move move = new Move(source.PlanetID(), dest.PlanetID(), numShips);
 			IssueOrder(move);
-		}
+		}*/
 
 		public void IssueOrder(Move move)
 		{
@@ -699,7 +678,7 @@ namespace Bot
 			Planet planetInFuture = new Planet(planet);
 
 			// All fleets heading to this planet
-			Fleets thisPlanetFleets = FleetsGoingToPlanet(Fleets(), planet);
+			Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
 
 			for (uint turn = 1; turn <= numberOfTurns; turn++)
 			{
@@ -774,10 +753,7 @@ namespace Bot
 			int distance = 0;
 			foreach (Planet planet in planetList)
 			{
-				if (planet.PlanetID() == thisPlanet.PlanetID())
-				{
-					continue;
-				}
+				if (planet.PlanetID() == thisPlanet.PlanetID()) continue;
 				distance += Distance(planet, thisPlanet);
 			}
 			return distance;
@@ -1015,7 +991,7 @@ namespace Bot
 
 			thisPlanetFleets.Sort(new Comparer(this).CompareTurnsRemainingLT);
 
-			Fleets allFleetsBackup = fleets;
+			Fleets allFleetsBackup = new Fleets(fleets);
 
 			try
 			{
@@ -1069,7 +1045,7 @@ namespace Bot
 			Planet planetInFuture = new Planet(planet);
 
 			// All fleets heading to this planet
-			Fleets thisPlanetFleets = FleetsGoingToPlanet(Fleets(), planet);
+			Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
 
 			int numberOfTurns = GetFarestFleetDistance(enemyFleets);
 			for (uint turn = 1; turn <= numberOfTurns; turn++)
@@ -1078,16 +1054,51 @@ namespace Bot
 
 				// Get all fleets which will arrive at the planet in this turn
 				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
-				if ((planet.PlanetID() == 5))
-				{
-				}
 
 				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
 				if (planetInFuture.Owner() != 1) return 0;
 				if (planetInFuture.NumShips() < canSend) canSend = planetInFuture.NumShips();
-
 			}
 			return canSend;
+		}
+
+		//# Returns a string representation of the entire game state.
+		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets)
+		{
+			string message = "";
+			int n = 0;
+			foreach (Planet p in planets)
+			{
+				message += SerializePlanet(p) + "#" + n++ + "\n";
+			}
+			message += "\n";
+
+			foreach (Fleet f in fleets) message += SerializeFleet(f) + "\n";
+
+			message += "\ngo\n";
+			message = message.Replace("\n\n", "\n");
+			return message;
+		}
+
+		//# Generates a string representation of a planet. This is used to send data
+		//# about the planets to the client programs.
+		public static string SerializePlanet(Planet planet)
+		{
+			int owner = planet.Owner();
+			string message = "P " + planet.X() + " " + planet.Y() + " " + owner +
+							" " + planet.NumShips() + " " + planet.GrowthRate();
+			return message.Replace(".0 ", " ");
+		}
+
+		//# Generates a string representation of a fleet. This is used to send data
+		//# about the fleets to the client programs.
+		public static string SerializeFleet(Fleet fleet)
+		{
+			int owner = fleet.Owner();
+			string message = "F " + owner + " " + fleet.NumShips() + " " +
+			                 fleet.SourcePlanet() + " " + fleet.DestinationPlanet() + " " +
+			                 fleet.TotalTripLength() + " " + fleet.TurnsRemaining();
+			return message.Replace(".0 ", " ");
 		}
 	}
 }
