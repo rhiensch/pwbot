@@ -100,7 +100,13 @@ namespace Bot
 			return (fleet1.TurnsRemaining() - fleet2.TurnsRemaining());
 		}
 
-		public Planet TargetPlanet { get; set; }
+		private Planet targetPlanet;
+		public Planet TargetPlanet
+		{
+			get { return targetPlanet; }
+			set { targetPlanet = value; }
+		}
+
 		public int CompareDistanceToTargetPlanetGT(Planet planet1, Planet planet2)
 		{
 			if (TargetPlanet == null) return 0;

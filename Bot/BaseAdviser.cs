@@ -9,6 +9,7 @@ namespace Bot
 		{
 			Context = context;
 			if (usedPlanets == null) usedPlanets = new Planets();
+			IsWorkFinished = false;
 		}
 
 		private PlanetWars context;
@@ -22,5 +23,12 @@ namespace Bot
 		public abstract string GetAdviserName();
 
 		protected Planets usedPlanets;
+
+		protected bool isWorkFinished;
+		public bool IsWorkFinished
+		{
+			get { return isWorkFinished; }
+			protected set { isWorkFinished = value; }
+		}
 	}
 }

@@ -5,35 +5,64 @@ namespace Bot
 {
 	public class SupplyAdviser : BaseAdviser
 	{
-		private Planet supplyPlanet;
-		public Planet SupplyPlanet
-		{
-			get { return supplyPlanet; }
-			set { supplyPlanet = value; }
-		}
+		private Planet testSupplyPlanet;
 
 		public SupplyAdviser(PlanetWars context)
 			: base(context)
 		{
+			testSupplyPlanet = null;
+			//iter = -1;
 		}
 
-		public SupplyAdviser(PlanetWars context, Planet planet)
+		public SupplyAdviser(PlanetWars context, Planet supplyPlanet)
 			: base(context)
 		{
-			SupplyPlanet = planet;
+			SupplyPlanet = supplyPlanet;
+		}
+
+		public Planet SupplyPlanet
+		{
+			get { return testSupplyPlanet; }
+			set { testSupplyPlanet = value; }
+		}
+
+		//private int iter;
+		private Planet SelectPlanetForAdvise()
+		{
+			//iter++;
+			Planets myPlanets = Context.MyPlanets();
+
+			if (usedPlanets.Count > 0)
+			{
+				foreach (Planet usedPlanet in usedPlanets)
+				{
+					int index = myPlanets.IndexOf(usedPlanet);
+					if (index != -1) myPlanets.RemoveAt(index);
+				}
+			}
+
+			if (myPlanets.Count == 0)
+			//if (iter == myPlanets.Count)
+			{
+				IsWorkFinished = true;
+				return null;
+			}
+
+			usedPlanets.Add(myPlanets[0]);
+			return myPlanets[0];
 		}
 
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
-			if (SupplyPlanet == null) return moves;
 
-			int canSend = Context.CanSend(SupplyPlanet);
+			Planet supplyPlanet = SupplyPlanet/* ?? SelectPlanetForAdvise()*/;
+			if (supplyPlanet == null) return moves;
+
+			int canSend = Context.CanSend(supplyPlanet);
 			if (canSend == 0) return moves;
 
-			if (SupplyPlanet.NumShips() == 0) return moves;
-
-			int supplyPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), SupplyPlanet);
+			int supplyPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
 
 			Planets nearPlanets = Context.MyPlanets();
 			if (nearPlanets.Count == 0) return moves;
@@ -43,7 +72,10 @@ namespace Bot
 			{
 				int nearPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
 
-				if (nearPlanetSumDistance < supplyPlanetSumDistance) frontPlanets.Add(nearPlanet);
+				if (nearPlanetSumDistance < supplyPlanetSumDistance)
+				{
+					frontPlanets.Add(nearPlanet);
+				}
 			}
 
 			if (frontPlanets.Count == 0) return moves;
@@ -52,7 +84,7 @@ namespace Bot
 			Planet dest = null;
 			foreach (Planet frontPlanet in frontPlanets)
 			{
-				int distance = Context.Distance(frontPlanet, SupplyPlanet);
+				int distance = Context.Distance(frontPlanet, supplyPlanet);
 				if (minDistance > distance)
 				{
 					minDistance = distance;
@@ -61,7 +93,10 @@ namespace Bot
 			}
 
 			if (dest != null)
-				moves.Add(new Move(SupplyPlanet.PlanetID(), dest.PlanetID(), canSend));
+			{
+				moves.Add(new Move(supplyPlanet.PlanetID(), dest.PlanetID(), canSend));
+			}
+
 			return moves;
 		}
 

@@ -304,5 +304,11 @@ namespace BotTests
 
 			Assert.AreEqual(2, canSend);
 		}
+
+		[TestMethod]
+		public void TestSerialization()
+		{
+			Assert.AreEqual(PLANETS + FLEETS + "go\n", PlanetWars.SerializeGameState(Context.Planets(), Context.Fleets()));
+		}
 	}
 }
