@@ -1,8 +1,9 @@
-﻿#undef DEBUG
+﻿#define  DEBUG
 
 using System;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
+using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
 namespace Bot
 {
@@ -53,42 +54,33 @@ namespace Bot
 
 			Comparer comparer = new Comparer(Context);
 			comparer.TargetPlanet = planet;
-			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetGT);
+			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
+			int sendedShipsNum = 0;
 			int maxNeedToSend = 0;
 			foreach (Planet myPlanet in myPlanets)
 			{
 				int distance = Context.Distance(planet, myPlanet);
-				int needToSend = Context.PlanetFutureStatus(planet, distance).NumShips() + Config.MinShipsOnPlanetsAfterAttack;
 
-				int canSend = Math.Min(needToSend - sendedShipsNum, Context.CanSend(myPlanet));
+				Planet futurePlanet = Context.PlanetFutureStatus(planet, distance);
+				if (futurePlanet.Owner() != 2) return moves; //Error?
+
+				int needToSend = futurePlanet.NumShips() + Config.MinShipsOnPlanetsAfterAttack;
+
+				int canSend = Context.CanSend(myPlanet);
 				if (canSend <= 0) continue;
-
-				if (canSend < Context.CanSend(myPlanet)) canSend = Context.CanSend(myPlanet);
 
 				moves.Add(new Move(myPlanet.PlanetID(), planet.PlanetID(), canSend));
 				sendedShipsNum += canSend;
 
 				if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
 
-				if (sendedShipsNum >= maxNeedToSend) break;
-			}
-			if (sendedShipsNum < maxNeedToSend)
-			{
-				moves.Clear();
-#if DEBUG
-				//Logger.Log("    ...failed");
-#endif
-			} 
-			else
-			{
-#if DEBUG
-				//Logger.Log(moves.Count == 0 ? "    no need to send" : "    accepted!");
-#endif
-				return moves;
-			}
+				Planets enemyDefenders = Context.PlanetsWithinProximityToPlanet(Context.EnemyPlanets(), planet, distance);
+				int defenders = Context.GetPlanetsShipNum(enemyDefenders);
 
+				if (sendedShipsNum >= maxNeedToSend + defenders) return moves;
+			}
+			moves.Clear();
 			return moves;
 		}
 

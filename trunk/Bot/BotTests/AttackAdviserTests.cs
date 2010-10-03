@@ -71,5 +71,7 @@ namespace BotTests
 
 			Assert.IsTrue(moves.Count > 0);
 		}
+
+		
 	}
 }

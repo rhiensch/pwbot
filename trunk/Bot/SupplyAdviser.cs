@@ -59,10 +59,17 @@ namespace Bot
 			Planet supplyPlanet = SupplyPlanet/* ?? SelectPlanetForAdvise()*/;
 			if (supplyPlanet == null) return moves;
 
+			if (Context.EnemyPlanets().Count == 0)
+			{
+				IsWorkFinished = true;
+				return moves;
+			}
+
 			int canSend = Context.CanSend(supplyPlanet);
 			if (canSend == 0) return moves;
 
-			int supplyPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
+			int supplyPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(supplyPlanet);
+				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
 
 			Planets nearPlanets = Context.MyPlanets();
 			if (nearPlanets.Count == 0) return moves;
@@ -70,9 +77,10 @@ namespace Bot
 			Planets frontPlanets = new Planets();
 			foreach (Planet nearPlanet in nearPlanets)
 			{
-				int nearPlanetSumDistance = Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
+				int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
+					//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
 
-				if (nearPlanetSumDistance < supplyPlanetSumDistance)
+				if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
 				{
 					frontPlanets.Add(nearPlanet);
 				}

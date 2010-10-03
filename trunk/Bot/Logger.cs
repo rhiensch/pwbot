@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 
 #if DEBUG
 using System;
@@ -9,30 +9,35 @@ namespace Bot
 {
 	public static class Logger
 	{
-		private const string FileName = "botlog.txt";
+		private const string FILE_NAME = "botlog.txt";
 
 		static Logger()
 		{
 			Enabled = true;
 		}
 
-		private static FileStream _fileStream;
+		private static FileStream fileStream;
 
-		public static bool Enabled { get; set; }
+		private static bool enabled;
+		public static bool Enabled
+		{
+			get { return enabled; }
+			set { enabled = value; }
+		}
 
 		public static void Log(string message)
 		{
 			if (!Enabled) return;
-			if (_fileStream == null)
+			if (fileStream == null)
 			{
-				_fileStream = new FileStream(FileName, FileMode.Create, FileAccess.Write);
+				fileStream = new FileStream(FILE_NAME, FileMode.Create, FileAccess.Write);
 			}
 			int length = message.IndexOf("\n\r");
 			string modifiedMessage = length > 0 ? message.Substring(0, length) : message;
 
 			byte[] byteData = Encoding.ASCII.GetBytes(DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss ") + modifiedMessage + "\n\r");
-			_fileStream.Write(byteData, 0, byteData.Length);
-			_fileStream.Flush();
+			fileStream.Write(byteData, 0, byteData.Length);
+			fileStream.Flush();
 
 			if (length > 0)
 			{
