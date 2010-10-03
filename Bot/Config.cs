@@ -5,9 +5,8 @@
 		static Config()
 		{
 			_invokeDistanceForDefend = 15;
-			_invokeDistanceForInvade = 15;
+			_invokeDistanceForInvade = 10;
 			_invokeDistanceForAttack = 15;
-			_invokeDistanceForFront = 10;
 		}
 
 		private static int _invokeDistanceForDefend;
@@ -27,9 +26,6 @@
 		{
 			_invokeDistanceForInvadeModifier = 0;
 		}
-
-		private static int _invokeDistanceForFront;
-		public static int InvokeDistanceForFront { get { return _invokeDistanceForFront; } set { _invokeDistanceForFront = value; } }
 
 		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }
 		public static int MinShipsOnPlanetsAfterInvade { get { return 1; } }

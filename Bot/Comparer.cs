@@ -1,4 +1,5 @@
-﻿using Planets = System.Collections.Generic.List<Bot.Planet>;
+﻿using System;
+using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 
@@ -26,6 +27,11 @@ namespace Bot
 		public int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
 		{
 			return (planet2.NumShips() - planet1.NumShips());
+		}
+
+		public int CompareGrowsRateGT(Planet planet1, Planet planet2)
+		{
+			return (planet2.GrowthRate() - planet1.GrowthRate());
 		}
 
 		public int CompareSecondOfPair(Pair<int, int> pair1, Pair<int, int> pair2)
@@ -88,8 +94,10 @@ namespace Bot
 				 planet2.NumShips())
 				* Config.NumShipsKoef;
 			int distanceDifference =
-				(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
-				 Context.GetPlanetSummaryDistance(myPlanets, planet2))
+				(Context.GetClosestMyPlanetDistance(planet1) -
+				 Context.GetClosestMyPlanetDistance(planet2))
+				//(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
+				// Context.GetPlanetSummaryDistance(myPlanets, planet2))
 				* Config.DistanceKoef;
 
 			return growthDifference + numFleetsDifference + distanceDifference;
@@ -107,9 +115,9 @@ namespace Bot
 			set { targetPlanet = value; }
 		}
 
-		public int CompareDistanceToTargetPlanetGT(Planet planet1, Planet planet2)
+		public int CompareDistanceToTargetPlanetLT(Planet planet1, Planet planet2)
 		{
-			if (TargetPlanet == null) return 0;
+			if (TargetPlanet == null) throw new ArgumentNullException("planet1", "Target planet is not defined!");
 			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
 
 			return (Context.Distance(planet1, TargetPlanet) - Context.Distance(planet2, TargetPlanet));

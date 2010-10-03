@@ -1,4 +1,4 @@
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Globalization;
@@ -42,10 +42,14 @@ namespace Bot
 				InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
 				AttackAdviser attackAdviser = new AttackAdviser(Context);
 				SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
+				StealAdviser stealAdviser = new StealAdviser(Context);
 
 				do
 				{
 					if (!defendAdviser.IsWorkFinished) RunAdviser(defendAdviser);
+					if (!CheckTime()) return;
+
+					if (!stealAdviser.IsWorkFinished) RunAdviser(stealAdviser);
 					if (!CheckTime()) return;
 
 					if (!invadeAdviser.IsWorkFinished) RunAdviser(invadeAdviser);
@@ -54,11 +58,14 @@ namespace Bot
 					if (!attackAdviser.IsWorkFinished) RunAdviser(attackAdviser);
 					if (!CheckTime()) return;
 
-				} while (!defendAdviser.IsWorkFinished || !invadeAdviser.IsWorkFinished || !attackAdviser.IsWorkFinished);
+				} while (
+					!defendAdviser.IsWorkFinished ||
+					!invadeAdviser.IsWorkFinished ||
+					!attackAdviser.IsWorkFinished ||
+					!stealAdviser.IsWorkFinished);
 
 				Planets myPlanets = Context.MyPlanets();
-				Planet myPlanet = Context.GetPlanet(10);
-				//foreach (Planet myPlanet in myPlanets)
+				foreach (Planet myPlanet in myPlanets)
 				{
 					supplyAdviser.SupplyPlanet = myPlanet;
 					RunAdviser(supplyAdviser);
@@ -128,7 +135,7 @@ namespace Bot
 									"prod " +
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
-								if (turn == 28) Logger.Log(message);
+								if (turn == 180) Logger.Log(message);
 								#endif
 								
 								if (bot == null)

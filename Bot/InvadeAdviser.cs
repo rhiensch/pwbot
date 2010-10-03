@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 using System;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
@@ -32,18 +32,25 @@ namespace Bot
 				return null;
 			}
 
-			Planets neutralPlanetsCloseEnough = new Planets(neutralPlanets);
+			Planets neutralPlanetsSuitable = new Planets(neutralPlanets);
 			foreach (Planet neutralPlanet in neutralPlanets)
 			{
+				if (neutralPlanet.GrowthRate() == 0)
+				{
+					usedPlanets.Add(neutralPlanet);
+					neutralPlanetsSuitable.Remove(neutralPlanet);
+					continue;
+				}
+
 				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(neutralPlanet, Config.InvokeDistanceForInvade);
 				if (nearestPlanets.Count == 0)
 				{
 					usedPlanets.Add(neutralPlanet);
-					neutralPlanetsCloseEnough.Remove(neutralPlanet);
+					neutralPlanetsSuitable.Remove(neutralPlanet);
 				}
 			}
 
-			if (neutralPlanetsCloseEnough.Count == 0)
+			if (neutralPlanetsSuitable.Count == 0)
 			{
 				Config.IncInvadeDistance();
 				IsWorkFinished = true;
@@ -51,16 +58,16 @@ namespace Bot
 			}
 			Config.ResetInvadeDistance();
 
-			if (neutralPlanetsCloseEnough.Count == 1)
+			if (neutralPlanetsSuitable.Count == 1)
 			{
-				usedPlanets.Add(neutralPlanetsCloseEnough[0]);
+				usedPlanets.Add(neutralPlanetsSuitable[0]);
 				return neutralPlanets[0];
 			}
 
-			neutralPlanetsCloseEnough.Sort(new Comparer(Context).CompareImportanceOfNeutralPlanetsGT);
-			usedPlanets.Add(neutralPlanetsCloseEnough[0]);
+			neutralPlanetsSuitable.Sort(new Comparer(Context).CompareImportanceOfNeutralPlanetsGT);
+			usedPlanets.Add(neutralPlanetsSuitable[0]);
 			
-			return neutralPlanetsCloseEnough[0];
+			return neutralPlanetsSuitable[0];
 		}
 
 		public override Moves Run()

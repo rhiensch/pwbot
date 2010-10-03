@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -396,7 +396,7 @@ namespace Bot
 		private readonly Planets planets;
 		private Fleets fleets;
 
-		private static Fleets GetThisTurnFleets(uint turn, IEnumerable<Fleet> thisPlanetFleets)
+		public Fleets GetThisTurnFleets(int turn, IEnumerable<Fleet> thisPlanetFleets)
 		{
 			Fleets thisTurnFleets = new Fleets();
 			foreach (Fleet fleet in thisPlanetFleets)
@@ -680,7 +680,7 @@ namespace Bot
 			// All fleets heading to this planet
 			Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
 
-			for (uint turn = 1; turn <= numberOfTurns; turn++)
+			for (int turn = 1; turn <= numberOfTurns; turn++)
 			{
 				PlanetGrowth(planetInFuture);
 
@@ -794,10 +794,16 @@ namespace Bot
 
 		public int GetFleetsShipNum(Fleets fleetList)
 		{
+			return GetFleetsShipNumCloserThan(fleetList, 0);
+		}
+
+		public int GetFleetsShipNumCloserThan(Fleets fleetList, int treshold)
+		{
 			int num = 0;
 			foreach (Fleet fleet in fleetList)
 			{
-				num += fleet.NumShips();
+				if ((treshold == 0) || (fleet.TurnsRemaining() <= treshold))
+					num += fleet.NumShips();
 			}
 			return num;
 		}
@@ -1048,7 +1054,7 @@ namespace Bot
 			Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
 
 			int numberOfTurns = GetFarestFleetDistance(enemyFleets);
-			for (uint turn = 1; turn <= numberOfTurns; turn++)
+			for (int turn = 1; turn <= numberOfTurns; turn++)
 			{
 				PlanetGrowth(planetInFuture);
 
@@ -1099,6 +1105,37 @@ namespace Bot
 			                 fleet.SourcePlanet() + " " + fleet.DestinationPlanet() + " " +
 			                 fleet.TotalTripLength() + " " + fleet.TurnsRemaining();
 			return message.Replace(".0 ", " ");
+		}
+
+		public int GetClosestEnemyPlanetDistance(Planet planet)
+		{
+			return GetClosestPlanetDistance(planet, EnemyPlanets());
+		}
+
+		public int GetClosestMyPlanetDistance(Planet planet)
+		{
+			return GetClosestPlanetDistance(planet, MyPlanets());
+		}
+
+		public int GetClosestPlanetDistance(Planet planet, Planets planetList)
+		{
+			int distance = int.MaxValue;
+			foreach (Planet eachPlanet in planetList)
+			{
+				int currentDistance = Distance(planet, eachPlanet);
+				if (distance > currentDistance) distance = currentDistance;
+			}
+			return distance;
+		}
+
+		public int GetPlanetsShipNum(Planets planets)
+		{
+			int num = 0;
+			foreach (Planet planet in planets)
+			{
+				num += planet.NumShips();
+			}
+			return num;
 		}
 	}
 }

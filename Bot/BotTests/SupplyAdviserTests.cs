@@ -1,6 +1,4 @@
-﻿#undef DEBUG
-
-using System.Globalization;
+﻿using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,7 +32,6 @@ namespace BotTests
 				"P 2 5 2 10 4#4\n" +
 				"P 3 3 2 10 4#5\n";
 			PlanetWars pw = new PlanetWars(message);
-			Config.InvokeDistanceForFront = 3;
 
 			IAdviser adviser = new SupplyAdviser(pw, pw.GetPlanet(3));
 			Moves moves = adviser.Run();
@@ -53,7 +50,6 @@ namespace BotTests
 				"P 9.83220591213 22.0204604189 2 100 5\n" +
 				"P 19.6930466168 9.76544103518 2 2 4\n" +
 				"P 20.2820697829 3.88811462784 1 7 1\n";
-			Config.InvokeDistanceForFront = 10;
 			PlanetWars pw = new PlanetWars(message);
 
 			IAdviser adviser = new SupplyAdviser(pw, pw.GetPlanet(0));
@@ -66,7 +62,7 @@ namespace BotTests
 		}
 
 		[TestMethod]
-		public void Test()
+		public void TestDontSupplyFromEndangeredPlanets()
 		{
 			PlanetWars planetWars = new PlanetWars(
 				"P 10.9462142783 11.7571388049 1 24 4\n"+
@@ -103,6 +99,29 @@ namespace BotTests
 
 			Moves moves = adviser.Run();
 			Assert.AreEqual(0, moves.Count);
+		}
+
+		[TestMethod]
+		public void TestSupplyMoreThenOnce()
+		{
+			const string message =
+				"P 1 1 1 10 5\n" +
+				"P 2 2 1 10 5\n" +
+				"P 3 3 1 10 5\n" +
+				"P 4 4 2 10 5\n";
+			PlanetWars pw = new PlanetWars(message);
+
+			SupplyAdviser adviser = new SupplyAdviser(pw);
+
+			adviser.SupplyPlanet = pw.GetPlanet(0);
+			Moves moves = adviser.Run();
+			Assert.IsTrue(moves.Count > 0);
+			Assert.AreEqual(1, moves[0].DestinationID);
+
+			adviser.SupplyPlanet = pw.GetPlanet(1);
+			moves = adviser.Run();
+			Assert.IsTrue(moves.Count > 0);
+			Assert.AreEqual(2, moves[0].DestinationID);
 		}
 	}
 }

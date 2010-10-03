@@ -1,1 +1,2 @@
-java -jar tools/PlayGame.jar maps/map90.txt 1000 100 log.txt bot.exe bot_exe/bot1.exe | java -jar tools/showgame.jar
+java -jar tools/PlayGame.jar maps/map90.txt 1000 100 log.txt bot.exe bot_exe/bot2.exe | java -jar tools/showgame.jar
+CSharpEngine.exe maps/map90.txt 1000 100 log.txt bot.exe bot_exe/bot2.exe | java -jar tools/showgame.jar
