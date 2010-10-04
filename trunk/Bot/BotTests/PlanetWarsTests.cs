@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bot;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
+using Moves = System.Collections.Generic.List<Bot.Move>;
 
 namespace BotTests
 {
@@ -309,6 +310,31 @@ namespace BotTests
 		public void TestSerialization()
 		{
 			Assert.AreEqual(PLANETS + FLEETS + "go\n", PlanetWars.SerializeGameState(Context.Planets(), Context.Fleets()));
+		}
+
+		[TestMethod]
+		public void TestGetPossibleDefendMoves()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 2 10 5#0\n" +
+				"P 1 1 2 10 5#1\n" +
+				"P 3 3 2 10 5#2\n" +
+				"P 5 5 1 10 5#3\n" +
+				"F 1 7 3 1 8 3\n" +
+				"F 1 8 3 1 8 4\n" +
+				"F 2 2 2 1 4 2\n" +
+				"go\n");
+
+			Moves moves = pw.GetPossibleDefendMoves(pw.GetPlanet(0), pw.EnemyPlanets(), 5);
+
+			Assert.AreEqual(2, moves.Count);
+			Assert.AreEqual(1, moves[0].SourceID);
+			Assert.AreEqual(3, moves[0].TurnsBefore);
+			Assert.AreEqual(10 + 3 * 5 - 7 + 2, moves[0].NumSheeps);
+
+			Assert.AreEqual(2, moves[1].SourceID);
+			Assert.AreEqual(0, moves[1].TurnsBefore);
+			Assert.AreEqual(10, moves[1].NumSheeps);
 		}
 	}
 }

@@ -72,6 +72,77 @@ namespace BotTests
 			Assert.IsTrue(moves.Count > 0);
 		}
 
-		
+		[TestMethod]
+		public void TestSearchEnemyPlanetClosestToMine()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 0 0 1 10 5#0\n" +
+				"P 5 5 1 10 5#1\n" +
+				"P 2 2 2 10 5#2\n" +
+				"P 3 3 2 10 5#3\n" +
+				"P 4 4 2 10 5#4\n" +
+				"go\n");
+
+			AttackAdviser adviser = new AttackAdviser(planetWars);
+
+			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
+		}
+
+		[TestMethod]
+		public void TestDontAttackWhenPlanetIsStronger()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 0 0 1 10 5#0\n" +
+				"P 5 5 1 10 5#1\n" +
+				"P 2 2 2 2 5#2\n" +
+				"P 3 3 2 2 5#3\n" +
+				"P 4 4 2 10 5#4\n" +
+				"go\n");
+
+			AttackAdviser adviser = new AttackAdviser(planetWars);
+			Moves moves = adviser.Run();
+
+			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
+			Assert.AreEqual(0, moves.Count);
+		}
+
+		[TestMethod]
+		public void TestAttackWhenOurFirstPlanetStrongerThanDefenders()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 0 0 1 10 5#0\n" +
+				"P 5 5 1 100 5#1\n" +
+				"P 2 2 2 2 5#2\n" +
+				"P 3 3 2 2 5#3\n" +
+				"P 4 4 2 10 5#4\n" +
+				"go\n");
+
+			AttackAdviser adviser = new AttackAdviser(planetWars);
+			Moves moves = adviser.Run();
+
+			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
+			Assert.AreEqual(1, moves.Count);
+			Assert.AreEqual(100, moves[0].NumSheeps);
+		}
+
+		[TestMethod]
+		public void TestAttackWhenMyAllPlanetsStrongerThanDefenders()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 0 0 1 100 5#0\n" +
+				"P 5 5 1 10 5#1\n" +
+				"P 2 2 2 2 5#2\n" +
+				"P 3 3 2 2 5#3\n" +
+				"P 4 4 2 10 5#4\n" +
+				"go\n");
+
+			AttackAdviser adviser = new AttackAdviser(planetWars);
+			Moves moves = adviser.Run();
+
+			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
+			Assert.AreEqual(2, moves.Count);
+			Assert.AreEqual(10, moves[0].NumSheeps);
+			Assert.AreEqual(100, moves[1].NumSheeps);
+		}
 	}
 }

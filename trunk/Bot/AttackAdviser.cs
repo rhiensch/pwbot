@@ -14,6 +14,13 @@ namespace Bot
 		{
 		}
 
+		private Planet internalTargetPlanet;
+		public Planet TargetPlanet
+		{
+			get { return internalTargetPlanet; }
+			private set { internalTargetPlanet = value; }
+		}
+
 		private Planet SelectPlanetForAdvise()
 		{
 			Planets enemyPlanets = Context.EnemyPlanets();
@@ -38,50 +45,88 @@ namespace Bot
 				return enemyPlanets[0];
 			}
 
-			enemyPlanets.Sort(new Comparer(Context).CompareImportanceOfEnemyPlanetsGT);
-			usedPlanets.Add(enemyPlanets[0]);
-			return enemyPlanets[0];
+			int minDistance = int.MaxValue;
+			Planet targetPlanet = null;
+			foreach (Planet enemyPlanet in enemyPlanets)
+			{
+				int distance = Context.GetClosestMyPlanetDistance(enemyPlanet);
+				if (distance < minDistance)
+				{
+					minDistance = distance;
+					targetPlanet = enemyPlanet;
+				}
+			}
+
+			usedPlanets.Add(targetPlanet);
+			TargetPlanet = targetPlanet;
+			return targetPlanet;
 		}
 
 		public override Moves Run()
 		{
 			Moves moves = new Moves();
-			Planet planet = SelectPlanetForAdvise();
-			if (planet == null) return moves;
+			Planet targetPlanet = SelectPlanetForAdvise();
+			if (targetPlanet == null) return moves;
 
 			Planets myPlanets = Context.MyPlanets();
 			if (myPlanets.Count == 0) return moves;
 
 			Comparer comparer = new Comparer(Context);
-			comparer.TargetPlanet = planet;
+			comparer.TargetPlanet = targetPlanet;
 			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			int sendedShipsNum = 0;
-			int maxNeedToSend = 0;
+			Fleets addMyFleets = new Fleets();
+			Fleets addEnemyFleets = new Fleets();
+
+			int bestMark = int.MaxValue;
+			int bestMovesCount = 0;
+
 			foreach (Planet myPlanet in myPlanets)
 			{
-				int distance = Context.Distance(planet, myPlanet);
+				int targetDistance = Context.Distance(myPlanet, targetPlanet);
+				int myCanSend = Context.CanSend(myPlanet);
+				Planets defendPlanets = Context.PlanetsWithinProximityToPlanet(
+											Context.EnemyPlanets(),
+											targetPlanet,
+											targetDistance);
 
-				Planet futurePlanet = Context.PlanetFutureStatus(planet, distance);
-				if (futurePlanet.Owner() != 2) return moves; //Error?
+				Move move = new Move(myPlanet, targetPlanet, myCanSend);
+				moves.Add(move);
+				addMyFleets.Add(Context.MoveToFleet(1, move));
 
-				int needToSend = futurePlanet.NumShips() + Config.MinShipsOnPlanetsAfterAttack;
+				Moves defendMoves = Context.GetPossibleDefendMoves(targetPlanet, defendPlanets, targetDistance);
+				foreach (Move defendMove in defendMoves)
+				{
+					addEnemyFleets.Add(Context.MoveToFleet(2, defendMove));
+				}
 
-				int canSend = Context.CanSend(myPlanet);
-				if (canSend <= 0) continue;
+				Fleets addFleets = new Fleets(addMyFleets);
+				addFleets.AddRange(addEnemyFleets);
+				Planet futurePlanet = 
+					Context.PlanetFutureStatus(targetPlanet, targetDistance, addFleets);
+				if (futurePlanet.Owner() == 1) return moves; //Victory!
 
-				moves.Add(new Move(myPlanet.PlanetID(), planet.PlanetID(), canSend));
-				sendedShipsNum += canSend;
+				Planet futurePlanetWithoutDefend =
+					Context.PlanetFutureStatus(targetPlanet, targetDistance, addMyFleets);
 
-				if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
-
-				Planets enemyDefenders = Context.PlanetsWithinProximityToPlanet(Context.EnemyPlanets(), planet, distance);
-				int defenders = Context.GetPlanetsShipNum(enemyDefenders);
-
-				if (sendedShipsNum >= maxNeedToSend + defenders) return moves;
+				if (futurePlanetWithoutDefend.Owner() == 1)
+				{
+					//TODO save futurePlanet.NumShips as mark1 for current moves (save moves.Count also)
+					if (bestMark < futurePlanet.NumShips())
+					{
+						bestMark = futurePlanet.NumShips();
+						bestMovesCount = addMyFleets.Count;
+					}
+				}
 			}
-			moves.Clear();
-			return moves;
+
+			if (bestMovesCount > 0)
+			{
+				moves = moves.GetRange(0, bestMovesCount);
+				return moves;
+			}
+
+			return new Moves();
 		}
 
 		public override string GetAdviserName()

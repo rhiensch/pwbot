@@ -75,6 +75,7 @@ namespace BotTests
 				"go\n");
 
 			MyBot bot = new MyBot(pw);
+			MyBot.DoCheckTime = false;
 
 			
 			bot.DoTurn();
