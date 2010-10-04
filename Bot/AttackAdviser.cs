@@ -86,9 +86,12 @@ namespace Bot
 				int targetDistance = Context.Distance(myPlanet, targetPlanet);
 				int myCanSend = Context.CanSend(myPlanet);
 
-				Move move = new Move(myPlanet, targetPlanet, myCanSend);
-				moves.Add(move);
-				addMyFleets.Add(Context.MoveToFleet(1, move));
+				if (myCanSend > 0)
+				{
+					Move move = new Move(myPlanet, targetPlanet, myCanSend);
+					moves.Add(move);
+					addMyFleets.Add(Context.MoveToFleet(1, move));
+				}
 
 				Planets defendPlanets = Context.PlanetsWithinProximityToPlanet(
 											Context.EnemyPlanets(),
@@ -122,11 +125,11 @@ namespace Bot
 				}
 			}
 
-			if (bestMovesCount > 0)
+			/*if (bestMovesCount > 0)
 			{
 				moves = moves.GetRange(0, bestMovesCount);
 				return moves;
-			}
+			}*/
 
 			return new Moves();
 		}
