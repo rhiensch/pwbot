@@ -220,16 +220,7 @@ namespace Bot
 
 		private void MakeMove(Move move)
 		{
-			int distance = Distance(move.SourceID, move.DestinationID);
-			Fleet newFleet = new Fleet(
-				1,
-				move.NumSheeps,
-				move.SourceID,
-				move.DestinationID,
-				distance,
-				distance);
-
-			fleets.Add(newFleet);
+			fleets.Add(MoveToFleet(1, move));
 			GetPlanet(move.SourceID).RemoveShips(move.NumSheeps);
 		}
 
@@ -675,21 +666,36 @@ namespace Bot
 
 		public Planet PlanetFutureStatus(Planet planet, int numberOfTurns)
 		{
+			return PlanetFutureStatus(planet, numberOfTurns, new Fleets());
+		}
+
+		public Planet PlanetFutureStatus(Planet planet, int numberOfTurns, Fleets addFleets)
+		{
 			Planet planetInFuture = new Planet(planet);
 
-			// All fleets heading to this planet
-			Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
-
-			for (int turn = 1; turn <= numberOfTurns; turn++)
+			Fleets backupFleets = new Fleets(fleets);
+			try
 			{
-				PlanetGrowth(planetInFuture);
+				fleets.AddRange(addFleets);
 
-				// Get all fleets which will arrive at the planet in this turn
-				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
+				// All fleets heading to this planet
+				Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
 
-				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
+				for (int turn = 1; turn <= numberOfTurns; turn++)
+				{
+					PlanetGrowth(planetInFuture);
+
+					// Get all fleets which will arrive at the planet in this turn
+					Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
+
+					CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
+				}
+				return planetInFuture;
 			}
-			return planetInFuture;
+			finally
+			{
+				fleets = backupFleets;
+			}
 		}
 
 		private void CalcFleetsOnPlanet(Planet planetInFuture, Fleets thisTurnFleets)
@@ -1128,14 +1134,75 @@ namespace Bot
 			return distance;
 		}
 
-		public int GetPlanetsShipNum(Planets planets)
+		public int GetPlanetsShipNum(Planets planetList)
 		{
 			int num = 0;
-			foreach (Planet planet in planets)
+			foreach (Planet planet in planetList)
 			{
 				num += planet.NumShips();
 			}
 			return num;
+		}
+
+		public int EnemyCanSend(Planet planet, int passTurns)
+		{
+			if (planet.Owner() != 2) return 0;
+
+			//TODO make more intelligent strategy
+			int canSend = planet.NumShips() + passTurns * planet.GrowthRate();
+			Fleets myFleets = MyFleetsGoingToPlanet(planet);
+			foreach (Fleet myFleet in myFleets)
+			{
+				if (myFleet.TurnsRemaining() <= passTurns) canSend -= myFleet.NumShips();
+			}
+
+			Fleets enemyFleets = EnemyFleetsGoingToPlanet(planet);
+			foreach (Fleet enemyFleet in enemyFleets)
+			{
+				if (enemyFleet.TurnsRemaining() <= passTurns) canSend += enemyFleet.NumShips();
+			}
+
+			return canSend < 0 ? 0 : canSend;
+		}
+
+		public Moves GetPossibleDefendMoves(Planet defendPlanet, Planets planetList, int numTurns)
+		{
+			Moves moves = new Moves();
+
+			foreach (Planet planet in planetList)
+			{
+				if (planet == defendPlanet) continue;
+
+				int distance = Distance(defendPlanet, planet);
+
+				int moveTurn = numTurns - distance;
+				if (moveTurn < 0) continue;
+
+				int canSend = EnemyCanSend(planet, moveTurn);
+				if (canSend > 0)
+				{
+					Move move = new Move(planet.PlanetID(), defendPlanet.PlanetID(), canSend);
+					move.TurnsBefore = moveTurn;
+
+					moves.Add(move);
+				}
+			}
+
+			return moves;
+		}
+
+		public Fleet MoveToFleet(int owner, Move move)
+		{
+			int distance = Distance(move.SourceID, move.DestinationID) + move.TurnsBefore;
+			Fleet fleet = new Fleet(
+				owner,
+				move.NumSheeps,
+				move.SourceID,
+				move.DestinationID,
+				distance,
+				distance
+				);
+			return fleet;
 		}
 	}
 }

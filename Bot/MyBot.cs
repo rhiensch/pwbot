@@ -10,6 +10,8 @@ namespace Bot
 {
 	public class MyBot
 	{
+		public static bool DoCheckTime { get; set; }
+
 		private PlanetWars context;
 		public PlanetWars Context
 		{
@@ -20,6 +22,7 @@ namespace Bot
 		public MyBot(PlanetWars planetWars)
 		{
 			Context = planetWars;
+			DoCheckTime = true;
 		}
 
 #if DEBUG
@@ -98,6 +101,7 @@ namespace Bot
 
 		private static bool CheckTime()
 		{
+			if (!DoCheckTime) return true;
 			return (DateTime.Now - startTime).TotalMilliseconds < Config.CriticalTimeInMilliseconds;
 		}
 

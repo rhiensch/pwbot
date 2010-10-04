@@ -18,6 +18,23 @@ namespace Bot
 			this.turnsRemaining = turnsRemaining;
 		}
 
+		public Fleet(
+				int owner,
+				int numShips,
+				Planet source,
+				Planet dest,
+				int totalTripLength,
+				int turnsRemaining)
+			: this(
+				owner,
+				numShips,
+				source.PlanetID(),
+				dest.PlanetID(),
+				totalTripLength,
+				turnsRemaining)
+		{
+		}
+
 		// Initializes a fleet.
 		public Fleet(int owner,
 		             int numShips)
@@ -88,7 +105,7 @@ namespace Bot
 		private readonly int totalTripLength;
 		private int turnsRemaining;
 
-		private Fleet(Fleet f)
+		public Fleet(Fleet f)
 		{
 			owner = f.owner;
 			numShips = f.numShips;
