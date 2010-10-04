@@ -85,16 +85,19 @@ namespace Bot
 			{
 				int targetDistance = Context.Distance(myPlanet, targetPlanet);
 				int myCanSend = Context.CanSend(myPlanet);
-				Planets defendPlanets = Context.PlanetsWithinProximityToPlanet(
-											Context.EnemyPlanets(),
-											targetPlanet,
-											targetDistance);
 
 				Move move = new Move(myPlanet, targetPlanet, myCanSend);
 				moves.Add(move);
 				addMyFleets.Add(Context.MoveToFleet(1, move));
 
+				Planets defendPlanets = Context.PlanetsWithinProximityToPlanet(
+											Context.EnemyPlanets(),
+											targetPlanet,
+											targetDistance);
+
 				Moves defendMoves = Context.GetPossibleDefendMoves(targetPlanet, defendPlanets, targetDistance);
+
+				addEnemyFleets.Clear();
 				foreach (Move defendMove in defendMoves)
 				{
 					addEnemyFleets.Add(Context.MoveToFleet(2, defendMove));
@@ -111,8 +114,7 @@ namespace Bot
 
 				if (futurePlanetWithoutDefend.Owner() == 1)
 				{
-					//TODO save futurePlanet.NumShips as mark1 for current moves (save moves.Count also)
-					if (bestMark < futurePlanet.NumShips())
+					if (bestMark > futurePlanet.NumShips())
 					{
 						bestMark = futurePlanet.NumShips();
 						bestMovesCount = addMyFleets.Count;
