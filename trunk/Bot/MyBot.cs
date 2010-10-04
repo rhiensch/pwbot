@@ -10,7 +10,12 @@ namespace Bot
 {
 	public class MyBot
 	{
-		public static bool DoCheckTime { get; set; }
+		private static bool doCheckTime;
+		public static bool DoCheckTime
+		{
+			get { return doCheckTime; }
+			set { doCheckTime = value; }
+		}
 
 		private PlanetWars context;
 		public PlanetWars Context
@@ -139,7 +144,6 @@ namespace Bot
 									"prod " +
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
-								if (turn == 180) Logger.Log(message);
 								#endif
 								
 								if (bot == null)

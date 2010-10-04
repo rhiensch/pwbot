@@ -15,6 +15,12 @@ namespace Bot
 
 		private Planet SelectPlanetForAdvise()
 		{
+			if (Context.MyProduction > Context.EnemyProduction)
+			{
+				IsWorkFinished = true;
+				return null;
+			}
+
 			Planets neutralPlanets = Context.NeutralPlanets();
 
 			if (usedPlanets.Count > 0)
