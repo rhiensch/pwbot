@@ -36,5 +36,6 @@
 		public static int DistanceKoef { get { return -2; } }
 		public static int NumShipsKoef { get { return 1; } }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
+		public static double DoInvadeKoef { get { return 1.5; } }
 	}
 }

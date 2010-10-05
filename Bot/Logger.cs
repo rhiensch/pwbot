@@ -44,6 +44,11 @@ namespace Bot
 				Log(message.Substring(length + 1, message.Length - length - 1));
 			}
 		}
+
+		public static void Close()
+		{
+			fileStream.Close();
+		}
 	}
 }
 #endif

@@ -15,7 +15,7 @@ namespace Bot
 
 		private Planet SelectPlanetForAdvise()
 		{
-			if (Context.MyProduction > Context.EnemyProduction)
+			if (Context.MyProduction > Context.EnemyProduction * Config.DoInvadeKoef)
 			{
 				IsWorkFinished = true;
 				return null;
