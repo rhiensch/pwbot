@@ -43,9 +43,14 @@ namespace Bot
 
 		public void DoTurn()
 		{
-			//if (_turn > 20) return;
 			try
 			{
+				if (turn == 1)
+				{
+					RunAdviser(new FirstMoveAdviser(Context));
+					return;
+				}
+
 				DefendAdviser defendAdviser = new DefendAdviser(Context);
 				InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
 				AttackAdviser attackAdviser = new AttackAdviser(Context);
@@ -118,9 +123,9 @@ namespace Bot
 			turn = 0;
 			string line = "";
 			string message = "";
-			#if DEBUG
+#if DEBUG
 			Logger.Log("\n\n\nNew Game\n\n\n");
-			#endif
+#endif
 			try
 			{
 				int c;
@@ -133,19 +138,19 @@ namespace Bot
 							if (line.Equals("go"))
 							{
 								PlanetWars pw = new PlanetWars(message);
-								#if DEBUG
+#if DEBUG
 								Logger.Log(
-									"Turn " + Convert.ToString(++turn) + 
+									"Turn " + Convert.ToString(++turn) +
 									"(" +
-									"ships " + 
+									"ships " +
 									Convert.ToString(pw.MyTotalShipCount) + "/" + Convert.ToString(pw.EnemyTotalShipCount) + " " +
 									"planets " +
 									Convert.ToString(pw.MyPlanets().Count) + "/" + Convert.ToString(pw.EnemyPlanets().Count) + " " +
 									"prod " +
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
-								#endif
-								
+#endif
+
 								if (bot == null)
 									bot = new MyBot(pw);
 								else
@@ -178,6 +183,13 @@ namespace Bot
 				// Owned.
 			}
 		}
+
+#if DEBUG
+		~MyBot()
+		{
+			Logger.Close();
+		}
+#endif
 	}
 }
 

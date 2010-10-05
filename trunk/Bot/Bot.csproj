@@ -43,6 +43,7 @@
     <Compile Include="BaseAdviser.cs" />
     <Compile Include="Comparer.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="FirstMoveAdviser.cs" />
     <Compile Include="StealAdviser.cs" />
     <Compile Include="DefendAdviser.cs" />
     <Compile Include="Fleet.cs" />

@@ -86,5 +86,10 @@ namespace Bot
 			x = p.x;
 			y = p.y;
 		}
+
+		public override string ToString()
+		{
+			return planetID.ToString();
+		}
 	}
 }
