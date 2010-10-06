@@ -51,30 +51,6 @@ namespace Bot
 			return bestTargets;
 		}
 
-		/*private PlanetsCombination GetPlanetCombination(Planets candidates, int n)
-		{
-			PlanetsCombination combination = new PlanetsCombination();
-
-			if (n == 1)
-			{
-				foreach (Planet candidate in candidates)
-				{
-					Planets planets = new Planets();
-					planets.Add(candidate);
-					combination.Add(planets);
-				}
-				
-				return combination;
-			}
-
-			foreach (Planet candidate in candidates)
-			{
-				combination.Add(candidate);
-			}
-
-			return combination;
-		}*/
-
 		public override Moves Run()
 		{
 			Moves moves = new Moves();

@@ -2,5 +2,6 @@
 {
 	static class Router
 	{
+
 	}
 }
