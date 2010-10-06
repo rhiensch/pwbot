@@ -4,27 +4,28 @@
 	{
 		static Config()
 		{
-			_invokeDistanceForDefend = 15;
-			_invokeDistanceForInvade = 10;
-			_invokeDistanceForAttack = 15;
+			invokeDistanceForDefend = 15;
+			invokeDistanceForInvade = 10;
+			invokeDistanceForAttack = 15;
+			doInvadeKoef = 1.5;
 		}
 
-		private static int _invokeDistanceForDefend;
-		private static int _invokeDistanceForInvade;
-		private static int _invokeDistanceForAttack;
-		public static int InvokeDistanceForDefend { get { return _invokeDistanceForDefend; } set { _invokeDistanceForDefend = value; } }
-		public static int InvokeDistanceForInvade { get { return _invokeDistanceForInvade + _invokeDistanceForInvadeModifier; } set { _invokeDistanceForInvade = value; } }
-		public static int InvokeDistanceForAttack { get { return _invokeDistanceForAttack; } set { _invokeDistanceForAttack = value; } }
+		private static int invokeDistanceForDefend;
+		private static int invokeDistanceForInvade;
+		private static int invokeDistanceForAttack;
+		public static int InvokeDistanceForDefend { get { return invokeDistanceForDefend; } set { invokeDistanceForDefend = value; } }
+		public static int InvokeDistanceForInvade { get { return invokeDistanceForInvade + invokeDistanceForInvadeModifier; } set { invokeDistanceForInvade = value; } }
+		public static int InvokeDistanceForAttack { get { return invokeDistanceForAttack; } set { invokeDistanceForAttack = value; } }
 
-		private static int _invokeDistanceForInvadeModifier;
+		private static int invokeDistanceForInvadeModifier;
 		public static void IncInvadeDistance()
 		{
-			_invokeDistanceForInvadeModifier++;
+			invokeDistanceForInvadeModifier++;
 		}
 
 		public static void ResetInvadeDistance()
 		{
-			_invokeDistanceForInvadeModifier = 0;
+			invokeDistanceForInvadeModifier = 0;
 		}
 
 		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }
@@ -36,6 +37,11 @@
 		public static int DistanceKoef { get { return -2; } }
 		public static int NumShipsKoef { get { return 1; } }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
-		public static double DoInvadeKoef { get { return 1.5; } }
+		private static double doInvadeKoef;
+		public static double DoInvadeKoef
+		{
+			get { return doInvadeKoef; }
+			set { doInvadeKoef = value; }
+		}
 	}
 }

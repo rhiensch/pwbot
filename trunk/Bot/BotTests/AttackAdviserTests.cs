@@ -145,25 +145,5 @@ namespace BotTests
 			Assert.AreEqual(10, moves[0].NumSheeps);
 			Assert.AreEqual(100, moves[1].NumSheeps);
 		}
-
-		[TestMethod]
-		public void TestAttackWhenMyAllPlanetsNotStrongerThanDefenders()
-		{
-			PlanetWars planetWars = new PlanetWars(
-				"P 0 0 1 100 5#0\n" +
-				"P 5 5 1 10 5#1\n" +
-				"P 2 2 2 100 5#2\n" +
-				"P 3 3 2 2 5#3\n" +
-				"P 4 4 2 10 5#4\n" +
-				"go\n");
-
-			AttackAdviser adviser = new AttackAdviser(planetWars);
-			Moves moves = adviser.Run();
-
-			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
-			Assert.AreEqual(2, moves.Count);
-			Assert.AreEqual(10, moves[0].NumSheeps);
-			Assert.AreEqual(100, moves[1].NumSheeps);
-		}
 	}
 }
