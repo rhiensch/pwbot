@@ -159,7 +159,7 @@ namespace BotTests
 		[TestMethod]
 		public void TestFleetsWithGivenOwner()
 		{
-			Fleets myFleets = Context.FleetsWithGivenOwner(Context.Fleets(), 1);
+			Fleets myFleets = PlanetWars.FleetsWithGivenOwner(Context.Fleets(), 1);
 
 			Assert.AreEqual(2, myFleets.Count);
 			Assert.AreEqual(75, myFleets[0].NumShips() + myFleets[1].NumShips());

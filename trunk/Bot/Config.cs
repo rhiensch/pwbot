@@ -7,7 +7,7 @@
 			invokeDistanceForDefend = 15;
 			invokeDistanceForInvade = 10;
 			invokeDistanceForAttack = 15;
-			doInvadeKoef = 1.5;
+			doInvadeKoef = 1.2;
 		}
 
 		private static int invokeDistanceForDefend;

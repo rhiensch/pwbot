@@ -16,5 +16,10 @@
 		private T2 second;
 		public T1 First { get { return first; } set { first = value; } }
 		public T2 Second { get { return second; } set { second = value; } }
+
+		public static int CompareSecondOfPair(Pair<int, int> pair1, Pair<int, int> pair2)
+		{
+			return pair2.Second - pair1.Second;
+		}
 	};
 }
