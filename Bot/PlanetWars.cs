@@ -22,6 +22,7 @@ namespace Bot
 			planets = new List<Planet>(); 
 			fleets = new Fleets();
 			ParseGameState(gameStatestring);
+			Router.Init(planets);
 			//FillMyPlanetsFrontLevel();
 		}
 
@@ -148,9 +149,8 @@ namespace Bot
 		// between the two planets.
 		public int Distance(int sourcePlanet, int destinationPlanet)
 		{
-			Planet source = planets[sourcePlanet];
-			Planet destination = planets[destinationPlanet];
-			return Distance(source, destination);
+			return Distance(GetPlanet(sourcePlanet), GetPlanet(destinationPlanet));
+			//return Router.Distance(sourcePlanet, destinationPlanet);
 		}
 
 		public int Distance(Planet source, Planet destination)
@@ -159,11 +159,9 @@ namespace Bot
 			double dy = source.Y() - destination.Y();
 			double squared = dx * dx + dy * dy;
 			double rooted = Math.Sqrt(squared);
-			return (int)Math.Ceiling(rooted);
-
-			/*double dx = source.X() - destination.X();
-			double dy = source.Y() - destination.Y();
-			return (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy));*/
+			int result = (int)Math.Ceiling(rooted);
+			return result;
+			//return Router.Distance(source, destination);
 		}
 
 		private bool IsValid(int sourcePlanetID, int destPlanetID, int numShips)
@@ -406,7 +404,7 @@ namespace Bot
 			if (ships.Count > 1)
 			{
 				// Sorts the fleets in descending order by the number of ships in the fleet
-				ships.Sort(new Comparer(this).CompareSecondOfPair);
+				ships.Sort(Pair<int, int>.CompareSecondOfPair);
 
 				Pair<int, int> winner = ships[0];
 				Pair<int, int> secondToWinner = ships[1];
@@ -549,7 +547,7 @@ namespace Bot
 			return selectedPlanets;
 		}
 
-		public Fleets FleetsWithGivenOwner(Fleets fleetList, int ownerID)
+		public static Fleets FleetsWithGivenOwner(Fleets fleetList, int ownerID)
 		{
 			if (ownerID == -1)
 			{

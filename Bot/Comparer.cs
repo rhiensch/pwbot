@@ -34,11 +34,6 @@ namespace Bot
 			return (planet2.GrowthRate() - planet1.GrowthRate());
 		}
 
-		public int CompareSecondOfPair(Pair<int, int> pair1, Pair<int, int> pair2)
-		{
-			return pair2.Second - pair1.Second;
-		}
-
 		public int CompareImportanceOfPlanetsGT(Planet planet1, Planet planet2)
 		{
 			if (planet1.PlanetID() == planet2.PlanetID()) return 0;

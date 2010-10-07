@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,7 +33,8 @@ namespace BotTests
 				"P 6 6 2 10 4#5\n";
 
 			PlanetWars pw = new PlanetWars(message);
-			Planets targetPlanets = FirstMoveAdviser.GetTargetPlanets(pw.NeutralPlanets(), 100);
+			Planets targetPlanets = FirstMoveAdviser.Knapsack01(pw.NeutralPlanets(), 100);
+				//FirstMoveAdviser.GetTargetPlanets(pw.NeutralPlanets(), 100);
 
 			Assert.AreEqual(2, targetPlanets.Count);
 			Assert.AreEqual(3+4, targetPlanets[0].PlanetID() + targetPlanets[1].PlanetID());
