@@ -225,7 +225,7 @@ namespace BotTests
 		[TestMethod]
 		public void TestMyEndangeredPlanets()
 		{
-			Planets planets = Context.MyEndangeredPlanets(1, 10);
+			Planets planets = Context.MyEndangeredPlanets();
 
 			Assert.AreEqual(1, planets.Count);
 			Assert.AreEqual(1, planets[0].PlanetID());
@@ -241,15 +241,6 @@ namespace BotTests
 			distance = Context.GetPlanetSummaryDistance(Context.NeutralPlanets(), Context.GetPlanet(1));
 
 			Assert.AreEqual(Context.Distance(1, 0) + Context.Distance(1, 4), distance);
-		}
-
-		[TestMethod]
-		public void TestMostImportantPlanets()
-		{
-			Planets planets = Context.MostImportantPlanets(Context.MyPlanets(), 1);
-
-			Assert.AreEqual(1, planets.Count);
-			Assert.AreEqual(1, planets[0].PlanetID());
 		}
 
 		[TestMethod]
@@ -297,6 +288,7 @@ namespace BotTests
 
 			PlanetWars planetWars = new PlanetWars(
 				"P 1 1 1 30 5#0\n" +
+				"P 9 9 1 30 5#1 we need second planet to have Router.MaxDistance > 0\n" +
 				"F 2 20 1 0 5 1\n" +
 				"F 2 18 1 0 5 2\n" +
 				"F 2 3 1 0 5 3\n" +

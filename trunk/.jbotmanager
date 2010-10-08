@@ -1,0 +1,7 @@
+
+bot.exe
+bot_exe\bot2.exe
+bot_exe\bot3.exe
+bot_exe\bot1.exe
+bot_exe\DoNothingBot.exe
+java -jar example_bots\DualBot.jar

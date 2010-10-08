@@ -15,32 +15,32 @@ namespace Bot
 
 		private Planet SelectPlanetForAdvise()
 		{
-			Planets myPlanetsUnderAttack = Context.MyPlanetsUnderAttack();
+			Planets myEndangeredPlanets = Context.MyEndangeredPlanets(); 
 			//myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
 
 			if (usedPlanets.Count > 0)
 			{
 				foreach (Planet usedPlanet in usedPlanets)
 				{
-					int index = myPlanetsUnderAttack.IndexOf(usedPlanet);
-					if (index != -1) myPlanetsUnderAttack.RemoveAt(index);
+					int index = myEndangeredPlanets.IndexOf(usedPlanet);
+					if (index != -1) myEndangeredPlanets.RemoveAt(index);
 				}
 			}
 
-			if (myPlanetsUnderAttack.Count == 0)
+			if (myEndangeredPlanets.Count == 0)
 			{
 				IsWorkFinished = true;
 				return null;
 			}
-			if (myPlanetsUnderAttack.Count == 1)
+			if (myEndangeredPlanets.Count == 1)
 			{
-				usedPlanets.Add(myPlanetsUnderAttack[0]);
-				return myPlanetsUnderAttack[0];
+				usedPlanets.Add(myEndangeredPlanets[0]);
+				return myEndangeredPlanets[0];
 			}
 
-			myPlanetsUnderAttack.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
-			usedPlanets.Add(myPlanetsUnderAttack[0]);
-			return myPlanetsUnderAttack[0];
+			myEndangeredPlanets.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
+			usedPlanets.Add(myEndangeredPlanets[0]);
+			return myEndangeredPlanets[0];
 		}
 
 		public override Moves Run()
@@ -50,22 +50,32 @@ namespace Bot
 			Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
-			List<Pair<int, int>> saveSteps =
-					Context.GetMyPlanetSaveSteps(planet, Config.MinShipsOnPlanetsAfterDefend);
+			List<Step> saveSteps = Context.GetMyPlanetSaveSteps(planet);
 
 			if (saveSteps.Count == 0) return moves;
 
 			for (int i = 0; i < saveSteps.Count; i++)
 			{
-				Planets planetsCanHelp = Context.MyPlanetsWithinProximityToPlanet(planet, saveSteps[i].First);
-				planetsCanHelp.Sort(new Comparer(Context).CompareNumberOfShipsGT);
+				Planets planetsCanHelp = Context.MyPlanetsWithinProximityToPlanet(planet, saveSteps[i].ToTurn);
+
+				Comparer comparer = new Comparer(Context);
+				comparer.TargetPlanet = planet;
+				planetsCanHelp.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 				int sendedShipsNum = 0;
 				foreach (Planet nearPlanet in planetsCanHelp)
 				{
-					int canSend = Math.Min(saveSteps[i].Second - sendedShipsNum, Context.CanSend(nearPlanet));
+					int canSend = Math.Min(saveSteps[i].NumShips - sendedShipsNum, Context.CanSend(nearPlanet));
 					if (canSend <= 0) continue;
-					moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
+
+					int distance = Context.Distance(planet, nearPlanet);
+					Move move = new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend);
+					if (distance < saveSteps[i].ToTurn)
+					{
+						//delay move
+						move.TurnsBefore = saveSteps[i].ToTurn - distance;
+					}
+					moves.Add(move);
 					sendedShipsNum += canSend;
 				}
 			}

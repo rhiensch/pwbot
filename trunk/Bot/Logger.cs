@@ -47,7 +47,7 @@ namespace Bot
 
 		public static void Close()
 		{
-			fileStream.Close();
+			//fileStream.Close();
 		}
 	}
 }

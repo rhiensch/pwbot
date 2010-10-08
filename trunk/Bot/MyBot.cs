@@ -84,7 +84,6 @@ namespace Bot
 					RunAdviser(supplyAdviser);
 					if (!CheckTime()) return;
 				}
-				
 			}
 			finally
 			{

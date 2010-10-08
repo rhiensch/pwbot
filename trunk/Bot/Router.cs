@@ -26,7 +26,10 @@ namespace Bot
 		private static int maxDistance;
 		public static int MaxDistance
 		{
-			get { return maxDistance; }
+			get
+			{
+				return maxDistance;
+			}
 		}
 
 		private static void CalcMaxDistance()
@@ -36,7 +39,7 @@ namespace Bot
 			{
 				for (int j = i + 1; j < planets.Count; j++)
 				{
-					if (distances[i, j] > maxDistance) maxDistance = distances[i, j];
+					if (Distance(i, j) > maxDistance) maxDistance = Distance(i, j);
 				}
 			}
 		}
@@ -66,7 +69,6 @@ namespace Bot
 
 			distances[source.PlanetID(), destination.PlanetID()] = result;
 			distances[destination.PlanetID(), source.PlanetID()] = result;
-			Logger.Log(result.ToString());
 			return result;
 		}
 
