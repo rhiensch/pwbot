@@ -88,7 +88,7 @@ namespace BotTests
 				totalCount = totalCount + move.NumSheeps;
 			}
 			
-			Assert.AreEqual(35 + Config.MinShipsOnPlanetsAfterDefend, totalCount);
+			Assert.AreEqual(12 + Config.MinShipsOnPlanetsAfterDefend, totalCount);
 		}
 
 		[TestMethod]

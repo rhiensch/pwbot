@@ -59,7 +59,9 @@
     <Compile Include="PlanetWars.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Router.cs" />
+    <Compile Include="Step.cs" />
     <Compile Include="SupplyAdviser.cs" />
+    <Compile Include="PlanetOwnerSwitch.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
