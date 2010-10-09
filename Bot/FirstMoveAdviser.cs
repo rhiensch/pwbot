@@ -26,23 +26,23 @@ namespace Bot
 				// here weights and values are numShips and growthRate respectively 
 				// you can change this to something more complex if you like...
 				weights.Add(p.NumShips() + 1);
-				values.Add(p.GrowthRate());
+				values.Add(GetTargetScore(p));
 			}
 
-			int[,] K = new int[weights.Count + 1, maxWeight];
+			int[,] knapsack = new int[weights.Count + 1, maxWeight];
 
 			int i;
 			for (i = 0; i < maxWeight; i++)
 			{
-				K[0, i] = 0;
+				knapsack[0, i] = 0;
 			}
 			for (int k = 1; k <= weights.Count; k++)
 			{
 				for (int y = 1; y <= maxWeight; y++)
 				{
-					if (y < weights[k - 1]) K[k, y - 1] = K[k - 1, y - 1];
-					else if (y > weights[k - 1]) K[k, y - 1] = Math.Max(K[k - 1, y - 1], K[k - 1, y - 1 - weights[k - 1]] + values[k - 1]);
-					else K[k, y - 1] = Math.Max(K[k - 1, y - 1], values[k - 1]);
+					if (y < weights[k - 1]) knapsack[k, y - 1] = knapsack[k - 1, y - 1];
+					else if (y > weights[k - 1]) knapsack[k, y - 1] = Math.Max(knapsack[k - 1, y - 1], knapsack[k - 1, y - 1 - weights[k - 1]] + values[k - 1]);
+					else knapsack[k, y - 1] = Math.Max(knapsack[k - 1, y - 1], values[k - 1]);
 				}
 			}
 
@@ -53,7 +53,7 @@ namespace Bot
 
 			while ((i > 0) && (currentW >= 0))
 			{
-				if (((i == 0) && (K[i, currentW] > 0)) || (K[i, currentW] != K[i - 1, currentW]))
+				if (((i == 0) && (knapsack[i, currentW] > 0)) || (knapsack[i, currentW] != knapsack[i - 1, currentW]))
 				{
 					markedPlanets.Add(planets[i - 1]);
 					currentW = currentW - weights[i - 1];
@@ -100,9 +100,14 @@ namespace Bot
 			return bestTargets;
 		}
 
-		public override Moves Run()
+		public override Moves Run(Planet planet)
 		{
-			Moves moves = new Moves();
+			throw new NotImplementedException();
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			List<MovesSet> setList = new List<MovesSet>();
 
 			Planet myPlanet = Context.MyPlanets()[0];
 			Planet enemyPlanet = Context.EnemyPlanets()[0];
@@ -129,15 +134,26 @@ namespace Bot
 				if (sendedShips > myPlanet.NumShips()) break; //ERROR!
 
 				Move move = new Move(myPlanet, targetPlanet, targetPlanet.NumShips() + 1);
+				Moves moves = new Moves(1);
 				moves.Add(move);
+
+				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet));
+
+				setList.Add(set);
 			}
 
-			return moves;
+			return setList;
+		}
+
+		private static int GetTargetScore(Planet planet)
+		{
+			return planet.GrowthRate();
 		}
 
 		public override string GetAdviserName()
 		{
 			return "FirstMove";
 		}
+
 	}
 }

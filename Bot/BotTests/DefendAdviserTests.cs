@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -36,7 +37,7 @@ namespace BotTests
 				"go\n");
 
 			IAdviser adviser = new DefendAdviser(planetWars);
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(0, moves.Count);
 		}
@@ -55,8 +56,8 @@ namespace BotTests
 				"F 2 70 2 1 5 3\n" +
 				"go\n");
 
-			IAdviser adviser = new DefendAdviser(planetWars);
-			Moves moves = adviser.Run();
+			DefendAdviser adviser = new DefendAdviser(planetWars);
+			Moves moves = adviser.Run(planetWars.GetPlanet(1));
 
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(3, moves[0].SourceID);
@@ -78,8 +79,8 @@ namespace BotTests
 				"F 2 8 1 2 20 18\n" +
 				"go\n");
 
-			IAdviser adviser = new DefendAdviser(planetWars);
-			Moves moves = adviser.Run();
+			DefendAdviser adviser = new DefendAdviser(planetWars);
+			Moves moves = adviser.Run(planetWars.GetPlanet(2));
 
 			int totalCount = 0;
 			foreach (Move move in moves)
@@ -108,7 +109,7 @@ namespace BotTests
 
 
 			IAdviser adviser = new DefendAdviser(planetWars);
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(0, moves.Count);
 		}

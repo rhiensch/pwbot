@@ -1,5 +1,6 @@
 ﻿#define DEBUG
 using System;
+using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
@@ -13,7 +14,7 @@ namespace Bot
 		{
 		}
 
-		private Planet SelectPlanetForAdvise()
+		/*private Planet SelectPlanetForAdvise()
 		{
 			if (Context.MyProduction > Context.EnemyProduction * Config.DoInvadeKoef)
 			{
@@ -74,13 +75,13 @@ namespace Bot
 			usedPlanets.Add(neutralPlanetsSuitable[0]);
 			
 			return neutralPlanetsSuitable[0];
-		}
+		}*/
 
-		public override Moves Run()
+		public override Moves Run(Planet planet)
 		{
 			Moves moves = new Moves();
 
-			Planet planet = SelectPlanetForAdvise();
+			//Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
 			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
@@ -126,6 +127,23 @@ namespace Bot
 		public override string GetAdviserName()
 		{
 			return "Invade";
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			List<MovesSet> movesSet = new List<MovesSet>();
+			Planets planetsForAdvise = Context.NeutralPlanets();
+			foreach (Planet planet in planetsForAdvise)
+			{
+				if (planet.GrowthRate() == 0) continue;
+				Moves moves = Run(planet);
+				if (moves.Count > 0)
+				{
+					MovesSet set = new MovesSet(moves, planet.GrowthRate());
+					movesSet.Add(set);
+				}
+			}
+			return movesSet;
 		}
 	}
 }

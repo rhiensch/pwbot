@@ -1,18 +1,18 @@
-﻿using Moves = System.Collections.Generic.List<Bot.Move>;
+﻿using System;
+using System.Collections.Generic;
+using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 
 namespace Bot
 {
 	public class SupplyAdviser : BaseAdviser
 	{
-		private Planet testSupplyPlanet;
-
 		public SupplyAdviser(PlanetWars context)
 			: base(context)
 		{
-			testSupplyPlanet = null;
-			//iter = -1;
 		}
+
+		/*private Planet testSupplyPlanet;
 
 		public SupplyAdviser(PlanetWars context, Planet supplyPlanet)
 			: base(context)
@@ -50,13 +50,13 @@ namespace Bot
 
 			usedPlanets.Add(myPlanets[0]);
 			return myPlanets[0];
-		}
+		}*/
 
-		public override Moves Run()
+		public override Moves Run(Planet supplyPlanet)
 		{
 			Moves moves = new Moves();
 
-			Planet supplyPlanet = SupplyPlanet/* ?? SelectPlanetForAdvise()*/;
+			//Planet supplyPlanet = SupplyPlanet/* ?? SelectPlanetForAdvise()*/;
 			if (supplyPlanet == null) return moves;
 
 			if (Context.EnemyPlanets().Count == 0)
@@ -111,6 +111,23 @@ namespace Bot
 		public override string GetAdviserName()
 		{
 			return "Supply";
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			Planets myPlanets = Context.MyPlanets();
+
+			List<MovesSet> movesSet = new List<MovesSet>();
+			foreach (Planet myPlanet in myPlanets)
+			{
+				Moves moves = Run(myPlanet);
+				if (moves.Count > 0)
+				{
+					MovesSet set = new MovesSet(moves, 0);
+					movesSet.Add(set);
+				}
+			}
+			return movesSet;
 		}
 	}
 }

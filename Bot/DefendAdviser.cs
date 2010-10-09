@@ -13,9 +13,9 @@ namespace Bot
 		{
 		}
 
-		private Planet SelectPlanetForAdvise()
+		/*private Planet SelectPlanetForAdvise()
 		{
-			Planets myEndangeredPlanets = Context.MyEndangeredPlanets(); 
+			Planets myEndangeredPlanets = Context.MyEndangeredPlanets();
 			//myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
 
 			if (usedPlanets.Count > 0)
@@ -41,13 +41,13 @@ namespace Bot
 			myEndangeredPlanets.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
 			usedPlanets.Add(myEndangeredPlanets[0]);
 			return myEndangeredPlanets[0];
-		}
+		}*/
 
-		public override Moves Run()
+		public override Moves Run(Planet planet)
 		{
 			Moves moves = new Moves();
 
-			Planet planet = SelectPlanetForAdvise();
+			//Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
 			List<Step> saveSteps = Context.GetMyPlanetSaveSteps(planet);
@@ -81,6 +81,22 @@ namespace Bot
 			}
 
 			return moves;
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			List<MovesSet> movesSet = new List<MovesSet>();
+			Planets planetsForAdvise = Context.MyEndangeredPlanets();
+			foreach (Planet planet in planetsForAdvise)
+			{
+				Moves moves = Run(planet);
+				if (moves.Count > 0)
+				{
+					MovesSet set = new MovesSet(moves, planet.GrowthRate());
+					movesSet.Add(set);
+				}
+			}
+			return movesSet;
 		}
 
 		public override string GetAdviserName()

@@ -1,4 +1,6 @@
-﻿using Moves = System.Collections.Generic.List<Bot.Move>;
+﻿using System;
+using System.Collections.Generic;
+using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
@@ -11,7 +13,7 @@ namespace Bot
 		{
 		}
 
-		private Planet SelectPlanetForAdvise()
+		/*private Planet SelectPlanetForAdvise()
 		{
 			Planets planets = Context.NeutralPlanetsUnderAttack();
 
@@ -34,13 +36,13 @@ namespace Bot
 
 			usedPlanets.Add(planets[0]);
 			return planets[0];
-		}
+		}*/
 
-		public override Moves Run()
+		public override Moves Run(Planet stealPlanet)
 		{
 			Moves moves = new Moves();
 
-			Planet stealPlanet = SelectPlanetForAdvise();
+			//Planet stealPlanet = SelectPlanetForAdvise();
 			if (stealPlanet == null) return moves;
 
 			if (Context.MyPlanets().Count == 0)
@@ -79,6 +81,22 @@ namespace Bot
 		public override string GetAdviserName()
 		{
 			return "Steal";
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			List<MovesSet> movesSet = new List<MovesSet>();
+			Planets planetsForAdvise = Context.NeutralPlanetsUnderAttack();
+			foreach (Planet planet in planetsForAdvise)
+			{
+				Moves moves = Run(planet);
+				if (moves.Count > 0)
+				{
+					MovesSet set = new MovesSet(moves, planet.GrowthRate());
+					movesSet.Add(set);
+				}
+			}
+			return movesSet;
 		}
 	}
 }

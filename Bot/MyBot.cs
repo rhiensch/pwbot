@@ -1,6 +1,7 @@
 #define DEBUG
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -57,50 +58,61 @@ namespace Bot
 				SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
 				StealAdviser stealAdviser = new StealAdviser(Context);
 
-				do
+				
+				RunAdviser(defendAdviser);
+				if (!CheckTime()) return;
+
+				RunAdviser(stealAdviser);
+				if (!CheckTime()) return;
+
+				if (Context.MyProduction > Context.EnemyProduction * Config.DoInvadeKoef)
 				{
-					if (!defendAdviser.IsWorkFinished) RunAdviser(defendAdviser);
-					if (!CheckTime()) return;
-
-					if (!stealAdviser.IsWorkFinished) RunAdviser(stealAdviser);
-					if (!CheckTime()) return;
-
-					if (!invadeAdviser.IsWorkFinished) RunAdviser(invadeAdviser);
-					if (!CheckTime()) return;
-
-					if (!attackAdviser.IsWorkFinished) RunAdviser(attackAdviser);
-					if (!CheckTime()) return;
-
-				} while (
-					!defendAdviser.IsWorkFinished ||
-					!invadeAdviser.IsWorkFinished ||
-					!attackAdviser.IsWorkFinished ||
-					!stealAdviser.IsWorkFinished);
-
-				Planets myPlanets = Context.MyPlanets();
-				foreach (Planet myPlanet in myPlanets)
-				{
-					supplyAdviser.SupplyPlanet = myPlanet;
-					RunAdviser(supplyAdviser);
+					RunAdviser(invadeAdviser);
 					if (!CheckTime()) return;
 				}
+
+				RunAdviser(attackAdviser);
+				if (!CheckTime()) return;
+
+				RunAdviser(supplyAdviser);
+				if (!CheckTime()) return;
 			}
 			finally
 			{
-				Context.FinishTurn();
+				try
+				{
+					SelectAndMakeMoves();
+				}
+				finally
+				{
+					Context.FinishTurn();
+				}
 			}
 		}
 
-		private void RunAdviser(IAdviser adviser)
+		private List<MovesSet> setList;
+		private void RunAdviser(BaseAdviser adviser)
 		{
-			Moves moves = adviser.Run();
-			if (moves.Count == 0) return;
-			foreach (Move move in moves)
+			if (setList == null) setList = new List<MovesSet>();
+
+			setList.AddRange(adviser.RunAll());
+		}
+
+		private void SelectAndMakeMoves()
+		{
+			if (setList.Count == 0) return;
+
+			if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
+
+			foreach (MovesSet movesSet in setList)
 			{
-#if DEBUG
-				LogMove(adviser.GetAdviserName(), move);
-#endif
-				Context.IssueOrder(move);
+				bool isPossible = true;
+				foreach (Move move in movesSet.Moves)
+				{
+					isPossible = Context.IsValid(move);
+					if (!isPossible) break;
+				}
+				if (isPossible) Context.IssueOrder(movesSet);
 			}
 		}
 

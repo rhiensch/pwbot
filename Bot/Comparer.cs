@@ -118,5 +118,9 @@ namespace Bot
 			return (Context.Distance(planet1, TargetPlanet) - Context.Distance(planet2, TargetPlanet));
 		}
 
+		public int CompareSetScoreGT(MovesSet set1, MovesSet set2)
+		{
+			return (set2.Score - set1.Score);
+		}
 	}
 }

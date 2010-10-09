@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,10 +38,11 @@ namespace BotTests
 			PlanetWars pw = new PlanetWars(message);
 			StealAdviser adviser = new StealAdviser(pw);
 
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(1, moves.Count);
-			Assert.AreEqual(3, moves[0].DestinationID);
+			Assert.AreEqual(1, moves[0].Moves.Count);
+			Assert.AreEqual(3, moves[0].Moves[0].DestinationID);
 		}
 	}
 }

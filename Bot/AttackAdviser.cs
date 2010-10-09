@@ -1,6 +1,7 @@
 ﻿#define  DEBUG
 
 using System;
+using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
@@ -14,7 +15,7 @@ namespace Bot
 		{
 		}
 
-		private Planet internalTargetPlanet;
+		/*private Planet internalTargetPlanet;
 		public Planet TargetPlanet
 		{
 			get { return internalTargetPlanet; }
@@ -60,12 +61,12 @@ namespace Bot
 			usedPlanets.Add(targetPlanet);
 			TargetPlanet = targetPlanet;
 			return targetPlanet;
-		}
+		}*/
 
-		public override Moves Run()
+		public override Moves Run(Planet targetPlanet)
 		{
 			Moves moves = new Moves();
-			Planet targetPlanet = SelectPlanetForAdvise();
+			//Planet targetPlanet = SelectPlanetForAdvise();
 			if (targetPlanet == null) return moves;
 
 			Planets myPlanets = Context.MyPlanets();
@@ -137,6 +138,23 @@ namespace Bot
 		public override string GetAdviserName()
 		{
 			return "Attack";
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			Planets enemyPlanets = Context.EnemyPlanets();
+
+			List<MovesSet> movesSet = new List<MovesSet>();
+			foreach (Planet enemyPlanet in enemyPlanets)
+			{
+				Moves moves = Run(enemyPlanet);
+				if (moves.Count > 0)
+				{
+					MovesSet set = new MovesSet(moves, enemyPlanet.GrowthRate());
+					movesSet.Add(set);
+				}
+			}
+			return movesSet;
 		}
 	}
 }

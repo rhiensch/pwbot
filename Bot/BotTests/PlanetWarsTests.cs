@@ -328,5 +328,18 @@ namespace BotTests
 			Assert.AreEqual(0, moves[1].TurnsBefore);
 			Assert.AreEqual(10, moves[1].NumSheeps);
 		}
+
+		[TestMethod]
+		public void TestEnemyAid()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 1 10 5#0\n" +
+				"P 1 1 2 10 5#1\n" +
+				"P 3 3 2 10 5#2\n" +
+				"P 5 5 2 10 5#3\n" +
+				"go\n");
+
+			Assert.AreEqual(10 + 5*4 + 10 + 5*1, pw.GetEnemyAid(pw.GetPlanet(0), 6));
+		}
 	}
 }

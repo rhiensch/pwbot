@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,7 +34,7 @@ namespace BotTests
 				"go\n");
 
 			IAdviser adviser = new AttackAdviser(planetWars);
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(0, moves.Count);
 		}
@@ -67,26 +68,9 @@ namespace BotTests
 				"go\n");
 
 			IAdviser adviser = new AttackAdviser(planetWars);
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.IsTrue(moves.Count > 0);
-		}
-
-		[TestMethod]
-		public void TestSearchEnemyPlanetClosestToMine()
-		{
-			PlanetWars planetWars = new PlanetWars(
-				"P 0 0 1 10 5#0\n" +
-				"P 5 5 1 10 5#1\n" +
-				"P 2 2 2 10 5#2\n" +
-				"P 3 3 2 10 5#3\n" +
-				"P 4 4 2 10 5#4\n" +
-				"go\n");
-
-			AttackAdviser adviser = new AttackAdviser(planetWars);
-			adviser.Run();
-
-			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
 		}
 
 		[TestMethod]
@@ -101,9 +85,8 @@ namespace BotTests
 				"go\n");
 
 			AttackAdviser adviser = new AttackAdviser(planetWars);
-			Moves moves = adviser.Run();
+			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
-			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
 			Assert.AreEqual(0, moves.Count);
 		}
 
@@ -119,9 +102,8 @@ namespace BotTests
 				"go\n");
 
 			AttackAdviser adviser = new AttackAdviser(planetWars);
-			Moves moves = adviser.Run();
+			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
-			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(100, moves[0].NumSheeps);
 		}
@@ -138,9 +120,8 @@ namespace BotTests
 				"go\n");
 
 			AttackAdviser adviser = new AttackAdviser(planetWars);
-			Moves moves = adviser.Run();
+			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
-			Assert.AreEqual(4, adviser.TargetPlanet.PlanetID());
 			Assert.AreEqual(2, moves.Count);
 			Assert.AreEqual(10, moves[0].NumSheeps);
 			Assert.AreEqual(100, moves[1].NumSheeps);
