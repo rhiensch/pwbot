@@ -45,6 +45,7 @@
     <Compile Include="Comparer.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="FirstMoveAdviser.cs" />
+    <Compile Include="MovesSet.cs" />
     <Compile Include="PlanetHolder.cs" />
     <Compile Include="StealAdviser.cs" />
     <Compile Include="DefendAdviser.cs" />

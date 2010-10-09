@@ -1,4 +1,6 @@
-﻿using Moves = System.Collections.Generic.List<Bot.Move>;
+﻿using System;
+using System.Collections.Generic;
+using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 
 namespace Bot
@@ -19,16 +21,19 @@ namespace Bot
 			set { context = value; }
 		}
 
-		public abstract Moves Run();
+		public abstract Moves Run(Planet planet);
 		public abstract string GetAdviserName();
 
 		protected Planets usedPlanets;
 
 		protected bool isWorkFinished;
+
 		public bool IsWorkFinished
 		{
 			get { return isWorkFinished; }
 			protected set { isWorkFinished = value; }
 		}
+
+		public abstract List<MovesSet> RunAll();
 	}
 }

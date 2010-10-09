@@ -33,8 +33,8 @@ namespace BotTests
 				"P 3 3 2 10 4#5\n";
 			PlanetWars pw = new PlanetWars(message);
 
-			IAdviser adviser = new SupplyAdviser(pw, pw.GetPlanet(3));
-			Moves moves = adviser.Run();
+			IAdviser adviser = new SupplyAdviser(pw);
+			Moves moves = adviser.Run(pw.GetPlanet(3));
 
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(3, moves[0].SourceID);
@@ -52,8 +52,8 @@ namespace BotTests
 				"P 20.2820697829 3.88811462784 1 7 1\n";
 			PlanetWars pw = new PlanetWars(message);
 
-			IAdviser adviser = new SupplyAdviser(pw, pw.GetPlanet(0));
-			Moves moves = adviser.Run();
+			IAdviser adviser = new SupplyAdviser(pw);
+			Moves moves = adviser.Run(pw.GetPlanet(0));
 
 			Assert.AreEqual(1, moves.Count);
 			/*Assert.AreEqual(3, moves[0].SourceID);
@@ -95,9 +95,9 @@ namespace BotTests
 			/*Planets planets = planetWars.MyEndangeredPlanets(14, 0);
 			Assert.IsTrue(planets.IndexOf(planetWars.GetPlanet(10)) >= 0);*/
 
-			SupplyAdviser adviser = new SupplyAdviser(planetWars) {SupplyPlanet = planetWars.GetPlanet(10)};
+			SupplyAdviser adviser = new SupplyAdviser(planetWars);
 
-			Moves moves = adviser.Run();
+			Moves moves = adviser.Run(planetWars.GetPlanet(10));
 			Assert.AreEqual(0, moves.Count);
 		}
 
@@ -113,13 +113,11 @@ namespace BotTests
 
 			SupplyAdviser adviser = new SupplyAdviser(pw);
 
-			adviser.SupplyPlanet = pw.GetPlanet(0);
-			Moves moves = adviser.Run();
+			Moves moves = adviser.Run(pw.GetPlanet(0));
 			Assert.IsTrue(moves.Count > 0);
 			Assert.AreEqual(1, moves[0].DestinationID);
 
-			adviser.SupplyPlanet = pw.GetPlanet(1);
-			moves = adviser.Run();
+			moves = adviser.Run(pw.GetPlanet(1));
 			Assert.IsTrue(moves.Count > 0);
 			Assert.AreEqual(2, moves[0].DestinationID);
 		}

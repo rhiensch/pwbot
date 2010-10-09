@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using Bot;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,7 +33,7 @@ namespace BotTests
 				"go\n");
 
 			IAdviser adviser = new InvadeAdviser(planetWars);
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(0, moves.Count);
 		}
@@ -50,7 +51,7 @@ namespace BotTests
 			
 			IAdviser adviser = new InvadeAdviser(planetWars);
 			Config.DoInvadeKoef = 1.5;
-			Moves moves = adviser.Run();
+			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(4, moves[0].DestinationID);
@@ -66,7 +67,7 @@ namespace BotTests
 				"go\n");
 
 			IAdviser adviser = new InvadeAdviser(planetWars);
-			Moves moves = adviser.Run();
+			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(0, moves.Count);
 		}

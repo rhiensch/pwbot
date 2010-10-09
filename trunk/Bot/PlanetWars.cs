@@ -214,14 +214,14 @@ namespace Bot
 			//return Router.Distance(source, destination);
 		}
 
-		private bool IsValid(int sourcePlanetID, int destPlanetID, int numShips)
+		public bool IsValid(int sourcePlanetID, int destPlanetID, int numShips)
 		{
 			Planet source = GetPlanet(sourcePlanetID);
 			Planet dest = GetPlanet(destPlanetID);
 			return IsValid(source, dest, numShips);
 		}
 
-		private static bool IsValid(Planet source, Planet dest, int numShips)
+		public static bool IsValid(Planet source, Planet dest, int numShips)
 		{
 			if (source.Owner() != 1) return false;
 			if (numShips > source.NumShips()) return false;
@@ -229,7 +229,7 @@ namespace Bot
 			return true;
 		}
 
-		private bool IsValid(Move move)
+		public bool IsValid(Move move)
 		{
 			return IsValid(move.SourceID, move.DestinationID, move.NumSheeps);
 		}
@@ -1244,6 +1244,50 @@ namespace Bot
 				distance
 				);
 			return fleet;
+		}
+
+		private int [,] enemyAid;
+		public int GetEnemyAid(Planet planet, int numberOfTurn)
+		{
+			if (enemyAid == null)
+			{
+				int iSize = Planets().Count;
+				int jSize = Router.MaxDistance + 1;
+				enemyAid = new int[iSize, jSize];
+				for (int i = 0; i < iSize; i++)
+				{
+					for (int j = 0; j < jSize; j++)
+					{
+						enemyAid[i, j] = -1;
+					}
+				}
+			}
+
+			if (enemyAid[planet.PlanetID(), numberOfTurn] != -1) return enemyAid[planet.PlanetID(), numberOfTurn];
+
+			enemyAid[planet.PlanetID(), numberOfTurn] = 0;
+
+			Planets enemyPlanets = EnemyPlanets();
+			foreach (Planet enemyPlanet in enemyPlanets)
+			{
+				if (enemyPlanet.PlanetID() == planet.PlanetID()) continue;
+
+				int distance = Distance(enemyPlanet, planet);
+				if (distance > numberOfTurn) continue;
+
+				int sendTurn = numberOfTurn - distance;
+				int numShips = PlanetFutureStatus(enemyPlanet, sendTurn).NumShips();
+				enemyAid[planet.PlanetID(), numberOfTurn] += numShips;
+			}
+			return enemyAid[planet.PlanetID(), numberOfTurn];
+		}
+
+		public void IssueOrder(MovesSet movesSet)
+		{
+			foreach (Move move in movesSet.Moves)
+			{
+				IssueOrder(move);
+			}
 		}
 	}
 }

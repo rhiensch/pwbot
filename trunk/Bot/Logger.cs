@@ -36,13 +36,23 @@ namespace Bot
 			string modifiedMessage = length > 0 ? message.Substring(0, length) : message;
 
 			byte[] byteData = Encoding.ASCII.GetBytes(DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss ") + modifiedMessage + "\n\r");
-			fileStream.Write(byteData, 0, byteData.Length);
-			fileStream.Flush();
-
-			if (length > 0)
+			if (fileStream != null)
 			{
-				Log(message.Substring(length + 1, message.Length - length - 1));
+				try
+				{
+					fileStream.Write(byteData, 0, byteData.Length);
+					fileStream.Flush();
+				}
+				catch (Exception)
+				{
+					
+					throw;
+				}
+				
 			}
+
+			if (length <= 0) return;
+			Log(message.Substring(length + 1, message.Length - length - 1));
 		}
 
 		public static void Close()
