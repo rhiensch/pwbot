@@ -1263,6 +1263,7 @@ namespace Bot
 				}
 			}
 
+			if (numberOfTurn > Router.MaxDistance) return GetEnemyAid(planet, Router.MaxDistance);
 			if (enemyAid[planet.PlanetID(), numberOfTurn] != -1) return enemyAid[planet.PlanetID(), numberOfTurn];
 
 			enemyAid[planet.PlanetID(), numberOfTurn] = 0;
@@ -1288,6 +1289,18 @@ namespace Bot
 			{
 				IssueOrder(move);
 			}
+		}
+
+		public double AverageMovesDistance(Moves moves)
+		{
+			if (moves.Count == 0) return 0;
+
+			double sumDistance = 0;
+			foreach (Move move in moves)
+			{
+				sumDistance += Distance(move.SourceID, move.DestinationID);
+			}
+			return sumDistance/moves.Count;
 		}
 	}
 }

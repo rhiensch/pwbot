@@ -120,7 +120,7 @@ namespace Bot
 
 		public int CompareSetScoreGT(MovesSet set1, MovesSet set2)
 		{
-			return (set2.Score - set1.Score);
+			return (Math.Sign(set2.Score - set1.Score));
 		}
 	}
 }

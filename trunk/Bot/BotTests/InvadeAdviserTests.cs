@@ -43,19 +43,18 @@ namespace BotTests
 		{
 			PlanetWars planetWars = new PlanetWars(
 				"P 1 1 0 119 2#0\n" +
-				"P 2 2 1 40 5#1\n" +
+				"P 2 2 1 150 5#1\n" +
 				"P 3 3 2 100 5#2\n" +
 				"P 4 4 1 21 2#3\n" +
-				"P 5 5 0 21 2#4\n" +
+				"P 5 5 0 21 5#4\n" +
 				"go\n");
 			
 			IAdviser adviser = new InvadeAdviser(planetWars);
 			Config.DoInvadeKoef = 1.5;
 			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
-			Assert.AreEqual(1, moves.Count);
-			Assert.AreEqual(4, moves[0].DestinationID);
-			Assert.AreEqual(21 + Config.MinShipsOnPlanetsAfterInvade, moves[0].NumSheeps);
+			Assert.AreEqual(2, moves.Count);
+			Assert.AreEqual(21 + 100 + 5*3 + 1, moves[0].NumSheeps + moves[1].NumSheeps);
 		}
 
 		[TestMethod]

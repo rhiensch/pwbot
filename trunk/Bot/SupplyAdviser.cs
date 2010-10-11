@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 
@@ -59,12 +58,6 @@ namespace Bot
 			//Planet supplyPlanet = SupplyPlanet/* ?? SelectPlanetForAdvise()*/;
 			if (supplyPlanet == null) return moves;
 
-			if (Context.EnemyPlanets().Count == 0)
-			{
-				IsWorkFinished = true;
-				return moves;
-			}
-
 			int canSend = Context.CanSend(supplyPlanet);
 			if (canSend == 0) return moves;
 
@@ -118,6 +111,8 @@ namespace Bot
 			Planets myPlanets = Context.MyPlanets();
 
 			List<MovesSet> movesSet = new List<MovesSet>();
+			if (Context.EnemyPlanets().Count == 0) return movesSet;
+
 			foreach (Planet myPlanet in myPlanets)
 			{
 				Moves moves = Run(myPlanet);
