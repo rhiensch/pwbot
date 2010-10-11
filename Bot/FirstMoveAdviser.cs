@@ -15,7 +15,7 @@ namespace Bot
 		{
 		}
 
-		public static Planets Knapsack01(List<Planet> planets, int maxWeight)
+		public Planets Knapsack01(List<Planet> planets, int maxWeight)
 		{
 			List<int> weights = new List<int>();
 			List<int> values = new List<int>();
@@ -145,9 +145,10 @@ namespace Bot
 			return setList;
 		}
 
-		private static int GetTargetScore(Planet planet)
+		private int GetTargetScore(Planet planet)
 		{
-			return planet.GrowthRate();
+			double score = planet.GrowthRate()/(double)Context.Distance(Context.MyPlanets()[0], planet);
+			return Convert.ToInt32(score);
 		}
 
 		public override string GetAdviserName()

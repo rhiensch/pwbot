@@ -5,9 +5,9 @@ namespace Bot
 	public class MovesSet
 	{
 		public Moves Moves;
-		public int Score;
+		public double Score;
 
-		public MovesSet(Moves movesSet, int score)
+		public MovesSet(Moves movesSet, double score)
 		{
 			Moves = movesSet;
 			Score = score;

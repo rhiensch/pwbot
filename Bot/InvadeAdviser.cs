@@ -84,17 +84,57 @@ namespace Bot
 			//Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
-			Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
+			Planets nearestPlanets = Context.MyPlanets();//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 			if (nearestPlanets.Count == 0) return moves;
 
+			
 			if (nearestPlanets.Count > 1)
-				nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
+			{
+				//nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
+				Comparer comparer = new Comparer(Context);
+				comparer.TargetPlanet = planet;
+				nearestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+			}
 
 #if DEBUG
 			Logger.Log("      Trying to invade planet " + planet.PlanetID() + "...");
 #endif
 
-			int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
+			int canSend = 0;
+			foreach (Planet nearestPlanet in nearestPlanets)
+			{
+				int distance = Context.Distance(planet, nearestPlanet);
+				int extraTurns = (int)Math.Ceiling(planet.NumShips()/(double)planet.GrowthRate());
+				Planet futurePlanet = Context.PlanetFutureStatus(planet, distance);
+				if (futurePlanet.NumShips() == 2)
+				{
+					//Error?
+					moves.Clear();
+					return moves;
+				}
+
+				int needToSend = futurePlanet.NumShips()*(futurePlanet.Owner() == 0 ? 1 : -1);
+				needToSend -= Context.GetFleetsShipNumCloserThan(Context.MyFleetsGoingToPlanet(planet), distance);
+				needToSend += Context.GetEnemyAid(planet, distance + extraTurns);
+				needToSend -= canSend;
+
+				if (needToSend <= 0) return moves;
+
+				canSend += Context.CanSend(nearestPlanet);
+				Move move = new Move(nearestPlanet, planet, Math.Min(needToSend, canSend));
+				if (canSend < needToSend)
+				{
+					//delay move
+					move.TurnsBefore = 1;
+				}
+				moves.Add(move);
+				if (canSend >= needToSend)
+				{
+					return moves;
+				}
+			}
+
+			/*int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
 			int maxNeedToSend = 0;
 			foreach (Planet nearPlanet in nearestPlanets)
 			{
@@ -120,7 +160,8 @@ namespace Bot
 			if (sendedShipsNum < maxNeedToSend)
 			{
 				moves.Clear();
-			}
+			}*/
+			moves.Clear();
 			return moves;
 		}
 
@@ -136,10 +177,15 @@ namespace Bot
 			foreach (Planet planet in planetsForAdvise)
 			{
 				if (planet.GrowthRate() == 0) continue;
+
+				PlanetHolder planetHolder = Context.GetPlanetHolder(planet);
+				if (planetHolder.GetOwnerSwitchesFromNeutralToEnemy().Count > 0) continue;
+
 				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{
-					MovesSet set = new MovesSet(moves, planet.GrowthRate());
+					double score = planet.GrowthRate() / (Context.AverageMovesDistance(moves) + planet.NumShips());
+					MovesSet set = new MovesSet(moves, score);
 					movesSet.Add(set);
 				}
 			}

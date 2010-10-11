@@ -79,8 +79,8 @@ namespace Bot
 			Fleets addMyFleets = new Fleets();
 			Fleets addEnemyFleets = new Fleets();
 
-			int bestMark = int.MaxValue;
-			int bestMovesCount = 0;
+			//int bestMark = int.MaxValue;
+			//int bestMovesCount;
 
 			foreach (Planet myPlanet in myPlanets)
 			{
@@ -113,8 +113,8 @@ namespace Bot
 					Context.PlanetFutureStatus(targetPlanet, targetDistance, addFleets);
 				if (futurePlanet.Owner() == 1) return moves; //Victory!
 
-				Planet futurePlanetWithoutDefend =
-					Context.PlanetFutureStatus(targetPlanet, targetDistance, addMyFleets);
+				/*Planet futurePlanetWithoutDefend =
+					Context.PlanetFutureStatus(targetPlanet, targetDistance, addMyFleets);}
 
 				if (futurePlanetWithoutDefend.Owner() == 1)
 				{
@@ -123,7 +123,7 @@ namespace Bot
 						bestMark = futurePlanet.NumShips();
 						bestMovesCount = addMyFleets.Count;
 					}
-				}
+				}*/
 			}
 
 			/*if (bestMovesCount > 0)
@@ -150,7 +150,8 @@ namespace Bot
 				Moves moves = Run(enemyPlanet);
 				if (moves.Count > 0)
 				{
-					MovesSet set = new MovesSet(moves, enemyPlanet.GrowthRate());
+					double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
+					MovesSet set = new MovesSet(moves, score);
 					movesSet.Add(set);
 				}
 			}
