@@ -11,51 +11,10 @@ namespace Bot
 		{
 		}
 
-		/*private Planet testSupplyPlanet;
-
-		public SupplyAdviser(PlanetWars context, Planet supplyPlanet)
-			: base(context)
-		{
-			SupplyPlanet = supplyPlanet;
-		}
-
-		public Planet SupplyPlanet
-		{
-			get { return testSupplyPlanet; }
-			set { testSupplyPlanet = value; }
-		}
-
-		//private int iter;
-		private Planet SelectPlanetForAdvise()
-		{
-			//iter++;
-			Planets myPlanets = Context.MyPlanets();
-
-			if (usedPlanets.Count > 0)
-			{
-				foreach (Planet usedPlanet in usedPlanets)
-				{
-					int index = myPlanets.IndexOf(usedPlanet);
-					if (index != -1) myPlanets.RemoveAt(index);
-				}
-			}
-
-			if (myPlanets.Count == 0)
-			//if (iter == myPlanets.Count)
-			{
-				IsWorkFinished = true;
-				return null;
-			}
-
-			usedPlanets.Add(myPlanets[0]);
-			return myPlanets[0];
-		}*/
-
 		public override Moves Run(Planet supplyPlanet)
 		{
 			Moves moves = new Moves();
 
-			//Planet supplyPlanet = SupplyPlanet/* ?? SelectPlanetForAdvise()*/;
 			if (supplyPlanet == null) return moves;
 
 			int canSend = Context.CanSend(supplyPlanet);
@@ -67,37 +26,23 @@ namespace Bot
 			Planets nearPlanets = Context.MyPlanets();
 			if (nearPlanets.Count == 0) return moves;
 
-			Planets frontPlanets = new Planets();
+			Comparer comparer = new Comparer(Context);
+			comparer.TargetPlanet = supplyPlanet;
+			nearPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
 			foreach (Planet nearPlanet in nearPlanets)
 			{
+				if (nearPlanet == supplyPlanet) continue;
+
 				int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
 					//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
 
 				if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
 				{
-					frontPlanets.Add(nearPlanet);
+					moves.Add(new Move(supplyPlanet.PlanetID(), nearPlanet.PlanetID(), canSend));
+					return moves;
 				}
 			}
-
-			if (frontPlanets.Count == 0) return moves;
-
-			int minDistance = int.MaxValue;
-			Planet dest = null;
-			foreach (Planet frontPlanet in frontPlanets)
-			{
-				int distance = Context.Distance(frontPlanet, supplyPlanet);
-				if (minDistance > distance)
-				{
-					minDistance = distance;
-					dest = frontPlanet;
-				}
-			}
-
-			if (dest != null)
-			{
-				moves.Add(new Move(supplyPlanet.PlanetID(), dest.PlanetID(), canSend));
-			}
-
 			return moves;
 		}
 
@@ -118,7 +63,7 @@ namespace Bot
 				Moves moves = Run(myPlanet);
 				if (moves.Count > 0)
 				{
-					MovesSet set = new MovesSet(moves, 0);
+					MovesSet set = new MovesSet(moves, 0, GetAdviserName());
 					movesSet.Add(set);
 				}
 			}

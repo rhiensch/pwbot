@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -451,7 +451,7 @@ namespace Bot
 			return thisTurnFleets;
 		}
 
-		private void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
+		/*private static void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
 		{
 			// Were there any fleets other than the one on the planet?
 			if (ships.Count > 1)
@@ -482,7 +482,7 @@ namespace Bot
 			{
 				planetInFuture.NumShips(planetInFuture.NumShips() + planetInFuture.GrowthRate());
 			}
-		}
+		}*/
 
 		//Any planets
 		public Planets WeakestPlanets(Planets planetList, int number)
@@ -720,7 +720,7 @@ namespace Bot
 			return GetPlanetHolder(planet).GetFutureState(numberOfTurns);
 		}
 
-		public Planet PlanetFutureStatus(Planet planet, int numberOfTurns, Fleets addFleets)
+		/*public Planet PlanetFutureStatus(Planet planet, int numberOfTurns, Fleets addFleets)
 		{
 			Planet planetInFuture = new Planet(planet);
 
@@ -786,7 +786,7 @@ namespace Bot
 
 				BattleForPlanet(planetInFuture, ships);
 			}
-		}
+		}*/
 
 		public Planets MyEndangeredPlanets()
 		{
@@ -820,15 +820,27 @@ namespace Bot
 			return GetFleetsShipNumCloserThan(fleetList, 0);
 		}
 
-		public int GetFleetsShipNumCloserThan(Fleets fleetList, int treshold)
+		private static int GetFleetsShipNumWithCondition(Fleets fleetList, int treshold, int sign)
 		{
 			int num = 0;
 			foreach (Fleet fleet in fleetList)
 			{
-				if ((treshold == 0) || (fleet.TurnsRemaining() <= treshold))
+				if ((treshold == 0) ||
+					(((fleet.TurnsRemaining() <= treshold) && (sign < 0)) ||
+					((fleet.TurnsRemaining() > treshold) && (sign > 0))))
 					num += fleet.NumShips();
 			}
 			return num;
+		}
+
+		public int GetFleetsShipNumCloserThan(Fleets fleetList, int treshold)
+		{
+			return GetFleetsShipNumWithCondition(fleetList, treshold, -1);
+		}
+
+		public int GetFleetsShipNumFarerThan(Fleets fleetList, int treshold)
+		{
+			return GetFleetsShipNumWithCondition(fleetList, treshold, 1);
 		}
 
 		internal static int GetClosestFleetDistance(Fleets fleetList)
@@ -1116,21 +1128,49 @@ namespace Bot
 		}
 
 		//# Returns a string representation of the entire game state.
-		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets)
+		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets, bool forDebug)
 		{
 			string message = "";
 			int n = 0;
 			foreach (Planet p in planets)
 			{
-				message += SerializePlanet(p) + "#" + n++ + "\n";
+				message += 
+					(forDebug ? "\"" : "") + 
+					SerializePlanet(p) + 
+					"#" + 
+					n++ + 
+					(forDebug ? "\\n\" +" : "") +
+					"\n";
 			}
 			message += "\n";
 
-			foreach (Fleet f in fleets) message += SerializeFleet(f) + "\n";
+			foreach (Fleet f in fleets)
+			{
+				message +=
+					(forDebug ? "\"" : "") + 
+					SerializeFleet(f) +
+					(forDebug ? "\\n\" +" : "") +
+					"\n";
+			}
 
-			message += "\ngo\n";
+			message +=
+				//"\n" + 
+				(forDebug ? "\"" : "") +
+				"go" +
+				(forDebug ? "\\n\"" : "")+
+				"\n";
 			message = message.Replace("\n\n", "\n");
 			return message;
+		}
+
+		public static string SerializeGameState(PlanetWars pw, bool forDebug)
+		{
+			return SerializeGameState(pw.Planets(), pw.Fleets(), forDebug);
+		}
+
+		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets)
+		{
+			return SerializeGameState(planets, fleets, false);
 		}
 
 		//# Generates a string representation of a planet. This is used to send data
@@ -1138,8 +1178,17 @@ namespace Bot
 		public static string SerializePlanet(Planet planet)
 		{
 			int owner = planet.Owner();
-			string message = "P " + planet.X() + " " + planet.Y() + " " + owner +
-							" " + planet.NumShips() + " " + planet.GrowthRate();
+			string message = 
+				"P " + 
+				string.Format("{0:R}", planet.X()) + 
+				" " + 
+				string.Format("{0:R}", planet.Y()) + 
+				" " + 
+				owner +
+				" " + 
+				planet.NumShips() + 
+				" " + 
+				planet.GrowthRate();
 			return message.Replace(".0 ", " ");
 		}
 
@@ -1148,9 +1197,19 @@ namespace Bot
 		public static string SerializeFleet(Fleet fleet)
 		{
 			int owner = fleet.Owner();
-			string message = "F " + owner + " " + fleet.NumShips() + " " +
-			                 fleet.SourcePlanet() + " " + fleet.DestinationPlanet() + " " +
-			                 fleet.TotalTripLength() + " " + fleet.TurnsRemaining();
+			string message = 
+				"F " + 
+				owner + 
+				" " + 
+				fleet.NumShips() + 
+				" " +
+				fleet.SourcePlanet() + 
+				" " + 
+				fleet.DestinationPlanet() + 
+				" " +
+				fleet.TotalTripLength() + 
+				" " + 
+				fleet.TurnsRemaining();
 			return message.Replace(".0 ", " ");
 		}
 
@@ -1268,7 +1327,7 @@ namespace Bot
 
 			enemyAid[planet.PlanetID(), numberOfTurn] = 0;
 
-			Planets enemyPlanets = EnemyPlanets();
+			Planets enemyPlanets = Planets();
 			foreach (Planet enemyPlanet in enemyPlanets)
 			{
 				if (enemyPlanet.PlanetID() == planet.PlanetID()) continue;
@@ -1277,7 +1336,11 @@ namespace Bot
 				if (distance > numberOfTurn) continue;
 
 				int sendTurn = numberOfTurn - distance;
-				int numShips = PlanetFutureStatus(enemyPlanet, sendTurn).NumShips();
+
+				Planet futurePlanet = PlanetFutureStatus(enemyPlanet, sendTurn);
+				if (futurePlanet.Owner() < 2) continue;
+
+				int numShips = futurePlanet.NumShips();
 				enemyAid[planet.PlanetID(), numberOfTurn] += numShips;
 			}
 			return enemyAid[planet.PlanetID(), numberOfTurn];

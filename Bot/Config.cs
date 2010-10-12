@@ -1,4 +1,6 @@
-﻿namespace Bot
+﻿using System;
+
+namespace Bot
 {
 	public static class Config
 	{
@@ -8,6 +10,7 @@
 			invokeDistanceForInvade = 10;
 			invokeDistanceForAttack = 15;
 			doInvadeKoef = 1.2;
+			invadeSendMoreThanEnemyCanDefend = false;
 		}
 
 		private static int invokeDistanceForDefend;
@@ -38,10 +41,24 @@
 		public static int NumShipsKoef { get { return 1; } }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
 		private static double doInvadeKoef;
+		private static bool invadeSendMoreThanEnemyCanDefend;
+
 		public static double DoInvadeKoef
 		{
 			get { return doInvadeKoef; }
 			set { doInvadeKoef = value; }
+		}
+
+		public static bool InvadeSendMoreThanEnemyCanDefend
+		{
+			get 
+			{
+				return invadeSendMoreThanEnemyCanDefend;
+			}
+			set 
+			{
+				invadeSendMoreThanEnemyCanDefend = value;
+			}
 		}
 	}
 }

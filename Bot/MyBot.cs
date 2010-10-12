@@ -1,4 +1,4 @@
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -31,17 +31,6 @@ namespace Bot
 			DoCheckTime = true;
 		}
 
-#if DEBUG
-		private void LogMove(string prefix, Move move)
-		{
-			Logger.Log(
-				"  " + prefix + 
-				" " + move + 
-				" distance " + 
-				Convert.ToString(Context.Distance(move.SourceID, move.DestinationID)));
-		}
-#endif
-
 		public void DoTurn()
 		{
 			try
@@ -65,11 +54,9 @@ namespace Bot
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
 
-				if (Context.MyProduction > Context.EnemyProduction * Config.DoInvadeKoef)
-				{
-					RunAdviser(invadeAdviser);
-					if (!CheckTime()) return;
-				}
+				Config.InvadeSendMoreThanEnemyCanDefend = (Context.MyProduction > Context.EnemyProduction*Config.DoInvadeKoef);
+				RunAdviser(invadeAdviser);
+				if (!CheckTime()) return;
 
 				RunAdviser(attackAdviser);
 				if (!CheckTime()) return;
@@ -95,7 +82,8 @@ namespace Bot
 		{
 			if (setList == null) setList = new List<MovesSet>();
 
-			setList.AddRange(adviser.RunAll());
+			List<MovesSet> moves = adviser.RunAll();
+			setList.AddRange(moves);
 		}
 
 		private void SelectAndMakeMoves()
@@ -112,8 +100,12 @@ namespace Bot
 					isPossible = Context.IsValid(move);
 					if (!isPossible) break;
 				}
-				if (isPossible) Context.IssueOrder(movesSet);
+				if (isPossible)
+				{
+					Context.IssueOrder(movesSet);
+				}
 			}
+			setList.Clear();
 		}
 
 		private static int turn;
@@ -189,7 +181,9 @@ namespace Bot
 					}
 				}
 			}
-			catch (Exception)
+// ReSharper disable EmptyGeneralCatchClause
+			catch
+// ReSharper restore EmptyGeneralCatchClause
 			{
 				// Owned.
 			}

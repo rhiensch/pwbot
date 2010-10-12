@@ -93,7 +93,7 @@ namespace Bot
 				if (moves.Count > 0)
 				{
 					double score = planet.GrowthRate()/Context.AverageMovesDistance(moves);
-					MovesSet set = new MovesSet(moves, score);
+					MovesSet set = new MovesSet(moves, score, GetAdviserName());
 					movesSet.Add(set);
 				}
 			}

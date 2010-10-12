@@ -40,9 +40,9 @@ namespace BotTests
 
 			List<MovesSet> moves = adviser.RunAll();
 
-			Assert.AreEqual(1, moves.Count);
-			Assert.AreEqual(1, moves[0].Moves.Count);
-			Assert.AreEqual(3, moves[0].Moves[0].DestinationID);
+			Assert.AreEqual(2, moves.Count);
+			Assert.AreEqual(1, moves[1].Moves.Count);
+			Assert.AreEqual(3, moves[1].Moves[0].DestinationID);
 		}
 	}
 }
