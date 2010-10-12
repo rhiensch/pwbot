@@ -305,6 +305,23 @@ namespace BotTests
 		}
 
 		[TestMethod]
+		public void TestSerializationForDebug()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 2 10 5#0\n" +
+				"F 1 7 3 1 8 3\n" +
+				"go\n");
+
+			const string result =
+				"\"P 0 0 2 10 5#0\\n\" +\n" +
+				"\"F 1 7 3 1 8 3\\n\" +\n" +
+				"\"go\\n\"\n";
+
+
+			Assert.AreEqual(result, PlanetWars.SerializeGameState(pw, true));
+		}
+
+		[TestMethod]
 		public void TestGetPossibleDefendMoves()
 		{
 			PlanetWars pw = new PlanetWars(

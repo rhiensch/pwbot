@@ -89,7 +89,15 @@ namespace Bot
 
 		public override string ToString()
 		{
-			return planetID.ToString();
+			return
+				"ID: " +
+				planetID +
+				" Owner: " +
+				Owner() +
+				" NumShips: " +
+				NumShips() +
+				" GrowthRate: " +
+				GrowthRate();
 		}
 	}
 }

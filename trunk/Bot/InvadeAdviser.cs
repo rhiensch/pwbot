@@ -1,4 +1,4 @@
-﻿#define DEBUG
+﻿#undef DEBUG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -81,86 +81,64 @@ namespace Bot
 		{
 			Moves moves = new Moves();
 
-			//Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
 
 			Planets nearestPlanets = Context.MyPlanets();//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 			if (nearestPlanets.Count == 0) return moves;
-
 			
 			if (nearestPlanets.Count > 1)
 			{
-				//nearestPlanets.Sort(new Comparer(Context).CompareNumberOfShipsGT);
 				Comparer comparer = new Comparer(Context);
 				comparer.TargetPlanet = planet;
 				nearestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 			}
 
-#if DEBUG
-			Logger.Log("      Trying to invade planet " + planet.PlanetID() + "...");
-#endif
+			Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(planet);
+			int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
 
-			int canSend = 0;
+			int sendedShips = 0;
 			foreach (Planet nearestPlanet in nearestPlanets)
 			{
+				int canSend = Context.CanSend(nearestPlanet);
+				if (canSend == 0) continue;
+
 				int distance = Context.Distance(planet, nearestPlanet);
 				int extraTurns = (int)Math.Ceiling(planet.NumShips()/(double)planet.GrowthRate());
 				Planet futurePlanet = Context.PlanetFutureStatus(planet, distance);
-				if (futurePlanet.NumShips() == 2)
+				if (futurePlanet.NumShips() == 2)//Error?
 				{
-					//Error?
 					moves.Clear();
 					return moves;
 				}
 
-				int needToSend = futurePlanet.NumShips()*(futurePlanet.Owner() == 0 ? 1 : -1);
-				needToSend -= Context.GetFleetsShipNumCloserThan(Context.MyFleetsGoingToPlanet(planet), distance);
-				needToSend += Context.GetEnemyAid(planet, distance + extraTurns);
-				needToSend -= canSend;
+				int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, distance);
+
+				int needToSend = 1 + futurePlanet.NumShips()*(futurePlanet.Owner() == 0 ? 1 : -1);
+				needToSend -= myFleetsShipNum;//Context.GetFleetsShipNumCloserThan(Context.MyFleetsGoingToPlanet(planet), distance);
+				if (Config.InvadeSendMoreThanEnemyCanDefend)
+				{
+					needToSend += Context.GetEnemyAid(planet, distance + extraTurns);
+				}
+				needToSend -= sendedShips;
 
 				if (needToSend <= 0) return moves;
 
-				canSend += Context.CanSend(nearestPlanet);
-				Move move = new Move(nearestPlanet, planet, Math.Min(needToSend, canSend));
-				if (canSend < needToSend)
-				{
-					//delay move
-					move.TurnsBefore = 1;
-				}
+				sendedShips += canSend;
+				Move move = new Move(nearestPlanet, planet, Math.Min(needToSend, sendedShips));
 				moves.Add(move);
-				if (canSend >= needToSend)
+				if (sendedShips >= needToSend)
 				{
+					//delay closer moves
+					foreach (Move eachMove in moves)
+					{
+						int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
+						int maxDistance = Math.Max(distance, farestFleet);
+						eachMove.TurnsBefore = maxDistance - moveDistance;
+					}
 					return moves;
 				}
 			}
 
-			/*int sendedShipsNum = Context.GetFleetsShipNum(Context.MyFleetsGoingToPlanet(planet));
-			int maxNeedToSend = 0;
-			foreach (Planet nearPlanet in nearestPlanets)
-			{
-				int distance = Context.Distance(planet, nearPlanet);
-				Planet futurePlanet = Context.PlanetFutureStatus(planet, distance + Config.ExtraTurns);
-				int needToSend = Config.MinShipsOnPlanetsAfterInvade;
-				if (futurePlanet.Owner() != 1)
-				{
-					needToSend += futurePlanet.NumShips();
-				}
-				else
-				{
-					needToSend -= futurePlanet.NumShips();
-				}
-
-				if (maxNeedToSend < needToSend) maxNeedToSend = needToSend;
-
-				int canSend = Math.Min(maxNeedToSend - sendedShipsNum, Context.CanSend(nearPlanet));
-				if (canSend <= 0) continue;
-				moves.Add(new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend));
-				sendedShipsNum += canSend;
-			}
-			if (sendedShipsNum < maxNeedToSend)
-			{
-				moves.Clear();
-			}*/
 			moves.Clear();
 			return moves;
 		}
@@ -185,7 +163,7 @@ namespace Bot
 				if (moves.Count > 0)
 				{
 					double score = planet.GrowthRate() / (Context.AverageMovesDistance(moves) + planet.NumShips());
-					MovesSet set = new MovesSet(moves, score);
+					MovesSet set = new MovesSet(moves, score, GetAdviserName());
 					movesSet.Add(set);
 				}
 			}

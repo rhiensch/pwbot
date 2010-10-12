@@ -137,7 +137,7 @@ namespace Bot
 				Moves moves = new Moves(1);
 				moves.Add(move);
 
-				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet));
+				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet), GetAdviserName());
 
 				setList.Add(set);
 			}
@@ -148,7 +148,7 @@ namespace Bot
 		private int GetTargetScore(Planet planet)
 		{
 			double score = planet.GrowthRate()/(double)Context.Distance(Context.MyPlanets()[0], planet);
-			return Convert.ToInt32(score);
+			return Convert.ToInt32(score * 1000);
 		}
 
 		public override string GetAdviserName()

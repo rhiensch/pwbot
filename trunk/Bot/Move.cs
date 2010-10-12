@@ -31,7 +31,8 @@
 			return
 				"from " + SourceID + 
 				" to " + DestinationID +
-				" num " + NumSheeps;
+				" num " + NumSheeps +
+				(TurnsBefore > 0 ? "(after " + TurnsBefore + ")" : "");
 		}
 	}
 }

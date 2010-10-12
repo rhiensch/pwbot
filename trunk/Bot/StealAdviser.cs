@@ -13,67 +13,43 @@ namespace Bot
 		{
 		}
 
-		/*private Planet SelectPlanetForAdvise()
-		{
-			Planets planets = Context.NeutralPlanetsUnderAttack();
-
-			if (usedPlanets.Count > 0)
-			{
-				foreach (Planet usedPlanet in usedPlanets)
-				{
-					int index = planets.IndexOf(usedPlanet);
-					if (index != -1) planets.RemoveAt(index);
-				}
-			}
-
-			if (planets.Count == 0)
-			{
-				IsWorkFinished = true;
-				return null;
-			}
-
-			planets.Sort(new Comparer(Context).CompareGrowsRateGT);
-
-			usedPlanets.Add(planets[0]);
-			return planets[0];
-		}*/
-
 		public override Moves Run(Planet stealPlanet)
 		{
 			Moves moves = new Moves();
 
-			//Planet stealPlanet = SelectPlanetForAdvise();
-			if (stealPlanet == null) return moves;
+			PlanetHolder planetHolder = Context.GetPlanetHolder(stealPlanet);
+			List<PlanetOwnerSwitch> switches = planetHolder.GetOwnerSwitchesFromNeutralToEnemy();
+			if (switches.Count == 0) return moves;
 
-			if (Context.MyPlanets().Count == 0)
-			{
-				IsWorkFinished = true;
-				return moves;
-			}
+			int turns = switches[0].TurnsBefore + 1;
 
-			Fleets enemyFleets = Context.EnemyFleetsGoingToPlanet(stealPlanet);
-			if (enemyFleets.Count == 0) return moves;
-			enemyFleets.Sort(new Comparer(Context).CompareTurnsRemainingLT);
-			Fleets firstFleets = Context.GetThisTurnFleets(enemyFleets[0].TurnsRemaining(), enemyFleets);
-			Fleets secondFleets = Context.GetThisTurnFleets(enemyFleets[0].TurnsRemaining() + 1, enemyFleets);
-
-			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, enemyFleets[0].TurnsRemaining() + 1);
+			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, turns);
 			if (myPlanets.Count == 0) return moves;
 
-			Planet futurePlanet = Context.PlanetFutureStatus(stealPlanet, enemyFleets[0].TurnsRemaining() + 1);
-			if (futurePlanet.Owner() != 2) return moves;
+			Planet futurePlanet = Context.PlanetFutureStatus(stealPlanet, turns);
+			if (futurePlanet.Owner() < 2) return moves;
+
+			int needToSend = futurePlanet.NumShips() + 1;
+			needToSend += Context.GetEnemyAid(stealPlanet, turns);
+
+			int sendedShips = 0;
 			foreach (Planet myPlanet in myPlanets)
 			{
-				if (Context.Distance(stealPlanet, myPlanet) == enemyFleets[0].TurnsRemaining() + 1)
+				int canSend = Context.CanSend(myPlanet);
+				if (canSend == 0) continue;
+
+				Move move = new Move(myPlanet, stealPlanet, canSend);
+				int distance = Context.Distance(myPlanet, stealPlanet);
+				if (distance < turns)
 				{
-					int canSend = Context.CanSend(myPlanet);
-					if (canSend > futurePlanet.NumShips())
-						moves.Add(new Move(myPlanet.PlanetID(), stealPlanet.PlanetID(), canSend));
+					move.TurnsBefore = turns - distance;
 				}
+				moves.Add(move);
+
+				sendedShips += canSend;
+
+				if (sendedShips > needToSend) return moves;
 			}
-			
-			//TODO Check if we can defend our steal
-			//Context.GetFleetsShipNum(enemyFleets);
 
 			return moves;
 		}
@@ -86,14 +62,18 @@ namespace Bot
 		public override List<MovesSet> RunAll()
 		{
 			List<MovesSet> movesSet = new List<MovesSet>();
-			Planets planetsForAdvise = Context.NeutralPlanetsUnderAttack();
+			Planets planetsForAdvise = Context.NeutralPlanets();
 			foreach (Planet planet in planetsForAdvise)
 			{
+				if (planet.GrowthRate() == 0) continue;
+
+				PlanetHolder planetHolder = Context.GetPlanetHolder(planet);
+				if (planetHolder.GetOwnerSwitchesFromNeutralToEnemy().Count == 0) continue;
 				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{
 					double score = planet.GrowthRate() / Context.AverageMovesDistance(moves);
-					MovesSet set = new MovesSet(moves, score);
+					MovesSet set = new MovesSet(moves, score, GetAdviserName());
 					movesSet.Add(set);
 				}
 			}

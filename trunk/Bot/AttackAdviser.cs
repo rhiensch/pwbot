@@ -1,4 +1,4 @@
-﻿#define  DEBUG
+﻿#undef  DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -15,58 +15,9 @@ namespace Bot
 		{
 		}
 
-		/*private Planet internalTargetPlanet;
-		public Planet TargetPlanet
-		{
-			get { return internalTargetPlanet; }
-			private set { internalTargetPlanet = value; }
-		}
-
-		private Planet SelectPlanetForAdvise()
-		{
-			Planets enemyPlanets = Context.EnemyPlanets();
-
-			if (usedPlanets.Count > 0)
-			{
-				foreach (Planet usedPlanet in usedPlanets)
-				{
-					int index = enemyPlanets.IndexOf(usedPlanet);
-					if (index != -1) enemyPlanets.RemoveAt(index);
-				}
-			}
-
-			if (enemyPlanets.Count == 0)
-			{
-				IsWorkFinished = true;
-				return null;
-			}
-			if (enemyPlanets.Count == 1)
-			{
-				usedPlanets.Add(enemyPlanets[0]);
-				return enemyPlanets[0];
-			}
-
-			int minDistance = int.MaxValue;
-			Planet targetPlanet = null;
-			foreach (Planet enemyPlanet in enemyPlanets)
-			{
-				int distance = Context.GetClosestMyPlanetDistance(enemyPlanet);
-				if (distance < minDistance)
-				{
-					minDistance = distance;
-					targetPlanet = enemyPlanet;
-				}
-			}
-
-			usedPlanets.Add(targetPlanet);
-			TargetPlanet = targetPlanet;
-			return targetPlanet;
-		}*/
-
 		public override Moves Run(Planet targetPlanet)
 		{
 			Moves moves = new Moves();
-			//Planet targetPlanet = SelectPlanetForAdvise();
 			if (targetPlanet == null) return moves;
 
 			Planets myPlanets = Context.MyPlanets();
@@ -76,61 +27,44 @@ namespace Bot
 			comparer.TargetPlanet = targetPlanet;
 			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			Fleets addMyFleets = new Fleets();
-			Fleets addEnemyFleets = new Fleets();
+			Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
+			int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
 
-			//int bestMark = int.MaxValue;
-			//int bestMovesCount;
-
+			int sendedShips = 0;
 			foreach (Planet myPlanet in myPlanets)
 			{
 				int targetDistance = Context.Distance(myPlanet, targetPlanet);
 				int myCanSend = Context.CanSend(myPlanet);
+				if (myCanSend == 0) continue;
 
-				if (myCanSend > 0)
+				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, targetDistance);
+				if (futurePlanet.Owner() != 2) continue;
+
+				int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, targetDistance);
+
+				int needToSend = 1 + futurePlanet.NumShips();
+				needToSend -= myFleetsShipNum;
+				needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
+				needToSend -= sendedShips;
+
+				if (needToSend <= 0) return moves;
+
+				sendedShips += myCanSend;
+
+				Move move = new Move(myPlanet, targetPlanet, sendedShips);
+				moves.Add(move);
+				if (sendedShips >= needToSend)
 				{
-					Move move = new Move(myPlanet, targetPlanet, myCanSend);
-					moves.Add(move);
-					addMyFleets.Add(Context.MoveToFleet(1, move));
-				}
-
-				Planets defendPlanets = Context.PlanetsWithinProximityToPlanet(
-											Context.EnemyPlanets(),
-											targetPlanet,
-											targetDistance);
-
-				Moves defendMoves = Context.GetPossibleDefendMoves(targetPlanet, defendPlanets, targetDistance);
-
-				addEnemyFleets.Clear();
-				foreach (Move defendMove in defendMoves)
-				{
-					addEnemyFleets.Add(Context.MoveToFleet(2, defendMove));
-				}
-
-				Fleets addFleets = new Fleets(addMyFleets);
-				addFleets.AddRange(addEnemyFleets);
-				Planet futurePlanet = 
-					Context.PlanetFutureStatus(targetPlanet, targetDistance, addFleets);
-				if (futurePlanet.Owner() == 1) return moves; //Victory!
-
-				/*Planet futurePlanetWithoutDefend =
-					Context.PlanetFutureStatus(targetPlanet, targetDistance, addMyFleets);}
-
-				if (futurePlanetWithoutDefend.Owner() == 1)
-				{
-					if (bestMark > futurePlanet.NumShips())
+					//delay closer moves
+					foreach (Move eachMove in moves)
 					{
-						bestMark = futurePlanet.NumShips();
-						bestMovesCount = addMyFleets.Count;
+						int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
+						int maxDistance = Math.Max(targetDistance, farestFleet);
+						eachMove.TurnsBefore = maxDistance - moveDistance;
 					}
-				}*/
+					return moves;
+				}
 			}
-
-			/*if (bestMovesCount > 0)
-			{
-				moves = moves.GetRange(0, bestMovesCount);
-				return moves;
-			}*/
 
 			return new Moves();
 		}
@@ -151,7 +85,7 @@ namespace Bot
 				if (moves.Count > 0)
 				{
 					double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-					MovesSet set = new MovesSet(moves, score);
+					MovesSet set = new MovesSet(moves, score, GetAdviserName());
 					movesSet.Add(set);
 				}
 			}
