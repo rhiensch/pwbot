@@ -57,13 +57,27 @@ namespace Bot
 		}
 
 		private int canSend;
-		public int CanSend
+		public int CanSend()
 		{
-			get
+			FillFutureStatesIfNeeded();
+			return canSend;
+		}
+
+		public int CanSend(int turns)
+		{
+			if (turns == 0) return CanSend();
+			FillFutureStatesIfNeeded();
+
+			int futureCanSend = -1;
+			int i = turns;
+			do
 			{
-				FillFutureStatesIfNeeded();
-				return canSend;
-			}
+				Planet futurePlanet = GetFutureState(i);
+				if (futurePlanet.Owner() != 1) futureCanSend = 0;
+				if ((futurePlanet.NumShips() < futureCanSend) || (futureCanSend == -1)) futureCanSend = futurePlanet.NumShips();
+				i++;
+			} while (i < turnsCount);
+			return futureCanSend;
 		}
 
 		private Planets futureStates;

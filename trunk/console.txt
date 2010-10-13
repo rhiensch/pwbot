@@ -1,0 +1,2 @@
+[$.map(Visualizer.planets, function(x){return ['P',x.x,x.y,x.owner,x.numShips,x.growthRate].join(' ')}).join("\n"),$.map(Visualizer.moves[Math.floor(Visualizer.frame)].moving, function(x){return ['F',x.owner,x.numShips,Visualizer.planets.indexOf(x.source),Visualizer.planets.indexOf(x.destination),x.tripLength,x.tripLength-x.progress].join(' ')}).join("\n")
+].join("\n")

@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -13,69 +13,6 @@ namespace Bot
 			: base(context)
 		{
 		}
-
-		/*private Planet SelectPlanetForAdvise()
-		{
-			if (Context.MyProduction > Context.EnemyProduction * Config.DoInvadeKoef)
-			{
-				IsWorkFinished = true;
-				return null;
-			}
-
-			Planets neutralPlanets = Context.NeutralPlanets();
-
-			if (usedPlanets.Count > 0)
-			{
-				foreach (Planet usedPlanet in usedPlanets)
-				{
-					int index = neutralPlanets.IndexOf(usedPlanet);
-					if (index != -1) neutralPlanets.RemoveAt(index);
-				}
-			}
-
-			if (neutralPlanets.Count == 0)
-			{
-				IsWorkFinished = true;
-				return null;
-			}
-
-			Planets neutralPlanetsSuitable = new Planets(neutralPlanets);
-			foreach (Planet neutralPlanet in neutralPlanets)
-			{
-				if (neutralPlanet.GrowthRate() == 0)
-				{
-					usedPlanets.Add(neutralPlanet);
-					neutralPlanetsSuitable.Remove(neutralPlanet);
-					continue;
-				}
-
-				Planets nearestPlanets = Context.MyPlanetsWithinProximityToPlanet(neutralPlanet, Config.InvokeDistanceForInvade);
-				if (nearestPlanets.Count == 0)
-				{
-					usedPlanets.Add(neutralPlanet);
-					neutralPlanetsSuitable.Remove(neutralPlanet);
-				}
-			}
-
-			if (neutralPlanetsSuitable.Count == 0)
-			{
-				Config.IncInvadeDistance();
-				IsWorkFinished = true;
-				return null;
-			}
-			Config.ResetInvadeDistance();
-
-			if (neutralPlanetsSuitable.Count == 1)
-			{
-				usedPlanets.Add(neutralPlanetsSuitable[0]);
-				return neutralPlanets[0];
-			}
-
-			neutralPlanetsSuitable.Sort(new Comparer(Context).CompareImportanceOfNeutralPlanetsGT);
-			usedPlanets.Add(neutralPlanetsSuitable[0]);
-			
-			return neutralPlanetsSuitable[0];
-		}*/
 
 		public override Moves Run(Planet planet)
 		{
@@ -113,8 +50,8 @@ namespace Bot
 
 				int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, distance);
 
-				int needToSend = 1 + futurePlanet.NumShips()*(futurePlanet.Owner() == 0 ? 1 : -1);
-				needToSend -= myFleetsShipNum;//Context.GetFleetsShipNumCloserThan(Context.MyFleetsGoingToPlanet(planet), distance);
+				int needToSend = futurePlanet.Owner() == 0 ? 1 + futurePlanet.NumShips() : -futurePlanet.NumShips();
+				needToSend -= myFleetsShipNum;
 				if (Config.InvadeSendMoreThanEnemyCanDefend)
 				{
 					needToSend += Context.GetEnemyAid(planet, distance + extraTurns);

@@ -6,29 +6,8 @@ namespace Bot
 	{
 		static Config()
 		{
-			invokeDistanceForDefend = 15;
-			invokeDistanceForInvade = 10;
-			invokeDistanceForAttack = 15;
 			doInvadeKoef = 1.2;
 			invadeSendMoreThanEnemyCanDefend = false;
-		}
-
-		private static int invokeDistanceForDefend;
-		private static int invokeDistanceForInvade;
-		private static int invokeDistanceForAttack;
-		public static int InvokeDistanceForDefend { get { return invokeDistanceForDefend; } set { invokeDistanceForDefend = value; } }
-		public static int InvokeDistanceForInvade { get { return invokeDistanceForInvade + invokeDistanceForInvadeModifier; } set { invokeDistanceForInvade = value; } }
-		public static int InvokeDistanceForAttack { get { return invokeDistanceForAttack; } set { invokeDistanceForAttack = value; } }
-
-		private static int invokeDistanceForInvadeModifier;
-		public static void IncInvadeDistance()
-		{
-			invokeDistanceForInvadeModifier++;
-		}
-
-		public static void ResetInvadeDistance()
-		{
-			invokeDistanceForInvadeModifier = 0;
 		}
 
 		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }

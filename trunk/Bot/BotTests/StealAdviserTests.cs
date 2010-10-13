@@ -44,5 +44,43 @@ namespace BotTests
 			Assert.AreEqual(1, moves[1].Moves.Count);
 			Assert.AreEqual(3, moves[1].Moves[0].DestinationID);
 		}
+
+		[TestMethod]
+		public void TestDontStealWhenWeCant()
+		{
+			const string message =
+				"P 0 0 1 1 1#0\n" +
+				"P 0 11 0 44 5#1\n" +
+				"P 12 9 2 10 5#2\n" +
+				"F 2 45 2 1 12 12\n" + 
+				"go\n";
+			PlanetWars pw = new PlanetWars(message);
+			StealAdviser adviser = new StealAdviser(pw);
+
+			List<MovesSet> moves = adviser.RunAll();
+
+			Assert.AreEqual(0, moves.Count);
+		}
+
+		[TestMethod]
+		public void TestStealShipsNumber()
+		{
+			const string message =
+				"P 0 0 1 10 1#0\n" +
+				"P 0 11 0 44 5#1\n" +
+				"P 12 9 2 0 0#2\n" +
+				"F 2 45 2 1 12 12\n" +
+				"go\n";
+			PlanetWars pw = new PlanetWars(message);
+			StealAdviser adviser = new StealAdviser(pw);
+
+			List<MovesSet> moves = adviser.RunAll();
+
+			Assert.AreEqual(1, moves.Count);
+			Assert.AreEqual(1, moves[0].Moves.Count);
+			Assert.AreEqual(1, moves[0].Moves[0].DestinationID);
+			Assert.AreEqual(7, moves[0].Moves[0].NumSheeps);
+			Assert.AreEqual(2, moves[0].Moves[0].TurnsBefore);
+		}
 	}
 }

@@ -79,6 +79,29 @@ namespace BotTests
 			Assert.IsTrue(movesSet.Count > 0);
 		}
 
+		[TestMethod]
+		public void TestDontGoToPlanetsCloserToEnemy()
+		{
+			const string message =
+				"P 0 0 1 57 2#0\n" +
+				"P 6 6 2 100 5#1\n" +
+				"P 2 2 0 1 5#2\n" +
+				"P 4 4 0 1 100#3\n" +
+				"go\n";
+
+			PlanetWars pw = new PlanetWars(message);
+			FirstMoveAdviser adviser = new FirstMoveAdviser(pw);
+			List<MovesSet> movesSet = adviser.RunAll();
+
+			foreach (MovesSet set in movesSet)
+			{
+				foreach (Move move in set.Moves)
+				{
+					Assert.IsFalse(move.DestinationID == 3);
+				}
+			}
+		}
+
 		/*[TestMethod]
 		public void TestClosePosition()
 		{
