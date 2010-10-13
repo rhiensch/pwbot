@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -720,74 +720,6 @@ namespace Bot
 			return GetPlanetHolder(planet).GetFutureState(numberOfTurns);
 		}
 
-		/*public Planet PlanetFutureStatus(Planet planet, int numberOfTurns, Fleets addFleets)
-		{
-			Planet planetInFuture = new Planet(planet);
-
-			Fleets backupFleets = new Fleets(fleets);
-			try
-			{
-				fleets.AddRange(addFleets);
-
-				// All fleets heading to this planet
-				Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
-
-				for (int turn = 1; turn <= numberOfTurns; turn++)
-				{
-					PlanetGrowth(planetInFuture);
-
-					// Get all fleets which will arrive at the planet in this turn
-					Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
-
-					CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
-				}
-				return planetInFuture;
-			}
-			finally
-			{
-				fleets = backupFleets;
-			}
-		}
-
-		private void CalcFleetsOnPlanet(Planet planetInFuture, Fleets thisTurnFleets)
-		{
-			// First is ownerID, second is number of ships
-			List<Pair<int, int>> ships = new List<Pair<int, int>>();
-
-			if (thisTurnFleets.Count > 0)
-			{
-				const int owners = 2;
-
-				for (int id = 1; id <= owners; ++id)
-				{
-					Fleets ownerFleets = FleetsWithGivenOwner(thisTurnFleets, id);
-					Pair<int, int> ownerShips = new Pair<int, int>(id, 0);
-
-					// Add up fleets with the same owner
-					foreach (Fleet ownerFleet in ownerFleets)
-					{
-						ownerShips.Second += ownerFleet.NumShips();
-					}
-
-					// Add the ships from the planet to the corresponding fleet
-					if (planetInFuture.Owner() == id)
-					{
-						ownerShips.Second += planetInFuture.NumShips();
-					}
-
-					ships.Add(ownerShips);
-				}
-
-				// If the planet was neutral, it has it's own fleet
-				if (planetInFuture.Owner() == 0)
-				{
-					ships.Add(new Pair<int, int>(0, planetInFuture.NumShips()));
-				}
-
-				BattleForPlanet(planetInFuture, ships);
-			}
-		}*/
-
 		public Planets MyEndangeredPlanets()
 		{
 			PlanetHolders myPlanetHolders = PlanetHolders(); //MyPlanetHolders();
@@ -974,52 +906,6 @@ namespace Bot
 			}
 		}
 
-		/*private Planets frontPlanets;
-		public Planets FrontPlanets
-		{
-			get { return frontPlanets; }
-			private set { frontPlanets = value; }
-		}
-
-		private Planets notFrontPlanets;
-		public Planets NotFrontPlanets
-		{
-			get { return notFrontPlanets; }
-			private set { notFrontPlanets = value; }
-		}
-
-		private void FillMyPlanetsFrontLevel()
-		{
-			if (FrontPlanets == null) FrontPlanets = new Planets(); else FrontPlanets.Clear();
-			if (NotFrontPlanets == null) NotFrontPlanets = new Planets(); else NotFrontPlanets.Clear();
-			foreach (Planet planet in planets)
-			{
-				planet.FrontLevel = 0;
-			}
-
-			foreach (Planet enemyPlanet in EnemyPlanets())
-			{
-				Planets nearFrontPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), enemyPlanet, Config.InvokeDistanceForFront);
-				foreach (Planet frontPlanet in nearFrontPlanets)
-				{
-					FrontPlanets.Add(frontPlanet);
-					frontPlanet.FrontLevel += 10 + (Config.InvokeDistanceForFront = Distance(enemyPlanet, frontPlanet));
-				}
-			}
-
-			foreach (Planet myPlanet in MyPlanets())
-			{
-				if (myPlanet.FrontLevel > 0) continue;
-				
-				Planets nearPlanets = PlanetsWithinProximityToPlanet(MyPlanets(), myPlanet, Config.InvokeDistanceForFront);
-				foreach (Planet nearPlanet in nearPlanets)
-				{
-					if (nearPlanet.FrontLevel > 0) myPlanet.FrontLevel += nearPlanet.FrontLevel / 10;
-				}
-				NotFrontPlanets.Add(myPlanet);
-			}
-		}*/
-
 		public List<Step> GetMyPlanetSaveSteps(Planet planet)
 		{
 			List<Step> saveSteps = new List<Step>();
@@ -1047,84 +933,18 @@ namespace Bot
 
 			return saveSteps;
 
-			/*Planet modelPlanet = new Planet(planet);
-
-			Fleets thisPlanetFleets = EnemyFleetsGoingToPlanet(planet);
-			if (thisPlanetFleets.Count == 0) return saveSteps;
-
-			thisPlanetFleets.Sort(new Comparer(this).CompareTurnsRemainingLT);
-
-			Fleets allFleetsBackup = new Fleets(fleets);
-
-			try
-			{
-				int lastTurn = -1;
-				foreach (Fleet thisPlanetFleet in thisPlanetFleets)
-				{
-					int turn = thisPlanetFleet.TurnsRemaining();
-					if (turn == lastTurn) continue;
-
-					Step step = null;
-					Planet planetInFuture = PlanetFutureStatus(modelPlanet, turn, fleets);
-					if (planetInFuture.Owner() != 1)
-					{
-						step = new Step(0, turn, planetInFuture.NumShips() + Config.MinShipsOnPlanetsAfterDefend);
-					}
-					else if (planetInFuture.NumShips() < Config.MinShipsOnPlanetsAfterDefend)
-					{
-						step = new Step(0, turn, Config.MinShipsOnPlanetsAfterDefend - planetInFuture.NumShips());
-					}
-
-					if (step != null)
-					{
-						saveSteps.Add(step);
-						fleets.Add(new Fleet(1, step.NumShips, 0, planet.PlanetID(), step.ToTurn-1, step.ToTurn));
-						//Planet planetInFuture2 = PlanetFutureStatus(modelPlanet, turn);
-						//if ((planetInFuture2.Owner() != 1) || (planetInFuture2.NumShips() != Config.MinShipsOnMyPlanetsAfterDefend))
-						//{
-					//		throw new ApplicationException();
-					//	}
-					}
-
-					lastTurn = turn;
-				}
-			}
-			finally
-			{
-				fleets = allFleetsBackup;
-			}
-
-			return saveSteps;*/
 		}
 
 		public int CanSend(Planet planet)
 		{
 			if (planet.Owner() != 1) return 0;
 
-			return GetPlanetHolder(planet).CanSend;
+			return GetPlanetHolder(planet).CanSend();
+		}
 
-			/*int canSend = planet.NumShips();
-			Fleets enemyFleets = EnemyFleetsGoingToPlanet(planet);
-			if (enemyFleets.Count == 0) return canSend;
-
-			Planet planetInFuture = new Planet(planet);
-
-			// All fleets heading to this planet
-			Fleets thisPlanetFleets = FleetsGoingToPlanet(fleets, planet);
-
-			int numberOfTurns = GetFarestFleetDistance(enemyFleets);
-			for (int turn = 1; turn <= numberOfTurns; turn++)
-			{
-				PlanetGrowth(planetInFuture);
-
-				// Get all fleets which will arrive at the planet in this turn
-				Fleets thisTurnFleets = GetThisTurnFleets(turn, thisPlanetFleets);
-
-				CalcFleetsOnPlanet(planetInFuture, thisTurnFleets);
-				if (planetInFuture.Owner() != 1) return 0;
-				if (planetInFuture.NumShips() < canSend) canSend = planetInFuture.NumShips();
-			}
-			return canSend;*/
+		public int CanSend(Planet planet, int turn)
+		{
+			return GetPlanetHolder(planet).CanSend(turn);
 		}
 
 		//# Returns a string representation of the entire game state.
@@ -1306,7 +1126,7 @@ namespace Bot
 		}
 
 		private int [,] enemyAid;
-		public int GetEnemyAid(Planet planet, int numberOfTurn)
+		public int GetEnemyAid(Planet planet, int numberOfTurns)
 		{
 			if (enemyAid == null)
 			{
@@ -1322,10 +1142,17 @@ namespace Bot
 				}
 			}
 
-			if (numberOfTurn > Router.MaxDistance) return GetEnemyAid(planet, Router.MaxDistance);
-			if (enemyAid[planet.PlanetID(), numberOfTurn] != -1) return enemyAid[planet.PlanetID(), numberOfTurn];
+			if (numberOfTurns > Router.MaxDistance) return GetEnemyAid(planet, Router.MaxDistance);
+			if (enemyAid[planet.PlanetID(), numberOfTurns] != -1) return enemyAid[planet.PlanetID(), numberOfTurns];
 
-			enemyAid[planet.PlanetID(), numberOfTurn] = 0;
+			enemyAid[planet.PlanetID(), numberOfTurns] = 0;
+
+			/*Fleets enemyFleets = FleetsGoingToPlanet(EnemyFleets(), planet);
+			foreach (Fleet enemyFleet in enemyFleets)
+			{
+				if (enemyFleet.TurnsRemaining() > numberOfTurns) continue;
+				enemyAid[planet.PlanetID(), numberOfTurns] += enemyFleet.NumShips();
+			}*/
 
 			Planets enemyPlanets = Planets();
 			foreach (Planet enemyPlanet in enemyPlanets)
@@ -1333,17 +1160,17 @@ namespace Bot
 				if (enemyPlanet.PlanetID() == planet.PlanetID()) continue;
 
 				int distance = Distance(enemyPlanet, planet);
-				if (distance > numberOfTurn) continue;
+				if (distance > numberOfTurns) continue;
 
-				int sendTurn = numberOfTurn - distance;
+				int sendTurn = numberOfTurns - distance;
 
 				Planet futurePlanet = PlanetFutureStatus(enemyPlanet, sendTurn);
 				if (futurePlanet.Owner() < 2) continue;
 
 				int numShips = futurePlanet.NumShips();
-				enemyAid[planet.PlanetID(), numberOfTurn] += numShips;
+				enemyAid[planet.PlanetID(), numberOfTurns] += numShips;
 			}
-			return enemyAid[planet.PlanetID(), numberOfTurn];
+			return enemyAid[planet.PlanetID(), numberOfTurns];
 		}
 
 		public void IssueOrder(MovesSet movesSet)

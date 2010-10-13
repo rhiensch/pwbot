@@ -299,6 +299,21 @@ namespace BotTests
 		}
 
 		[TestMethod]
+		public void TestCanSendInFuture()
+		{
+			PlanetWars planetWars = new PlanetWars(
+				"P 1 1 1 30 5#0\n" +
+				"P 9 9 1 30 5#1 we need second planet to have Router.MaxDistance > 0\n" +
+				"F 2 20 1 0 5 1\n" +
+				"F 2 18 1 0 5 2\n" +
+				"F 2 3 1 0 5 3\n" +
+				"go\n");
+			int canSend = planetWars.CanSend(planetWars.GetPlanet(0), 3);
+
+			Assert.AreEqual(4, canSend);
+		}
+
+		[TestMethod]
 		public void TestSerialization()
 		{
 			Assert.AreEqual(PLANETS + FLEETS + "go\n", PlanetWars.SerializeGameState(Context.Planets(), Context.Fleets()));
@@ -357,6 +372,19 @@ namespace BotTests
 				"go\n");
 
 			Assert.AreEqual(10 + 5*4 + 10 + 5*1, pw.GetEnemyAid(pw.GetPlanet(0), 6));
+		}
+
+		public void TestEnemyAidWithFleets()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 1 10 5#0\n" +
+				"P 1 1 2 10 5#1\n" +
+				"P 3 3 2 10 5#2\n" +
+				"P 5 5 2 10 5#3\n" +
+				"F 2 30 3 0 8 5\n" +
+				"go\n");
+
+			Assert.AreEqual(10 + 5*4 + 10 + 5*1 + 30, pw.GetEnemyAid(pw.GetPlanet(0), 6));
 		}
 	}
 }

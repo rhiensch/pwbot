@@ -121,6 +121,7 @@ namespace Bot
 				if (Context.Distance(myPlanet, neutralPlanet) < 
 					Context.Distance(enemyPlanet, neutralPlanet))
 				{
+					Logger.Log("planet" + neutralPlanet + " distance from my =" + Context.Distance(myPlanet, neutralPlanet) + " distance from enemy = " + Context.Distance(enemyPlanet, neutralPlanet));
 					planets.Add(neutralPlanet);
 				}
 			}
@@ -137,6 +138,8 @@ namespace Bot
 				Moves moves = new Moves(1);
 				moves.Add(move);
 
+				//Logger.Log("move" + move);
+
 				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet), GetAdviserName());
 
 				setList.Add(set);
@@ -147,7 +150,7 @@ namespace Bot
 
 		private int GetTargetScore(Planet planet)
 		{
-			double score = planet.GrowthRate()/(double)Context.Distance(Context.MyPlanets()[0], planet);
+			double score = planet.GrowthRate()/(double)(Context.Distance(Context.MyPlanets()[0], planet));
 			return Convert.ToInt32(score * 1000);
 		}
 

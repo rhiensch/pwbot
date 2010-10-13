@@ -21,36 +21,39 @@ namespace Bot
 			List<PlanetOwnerSwitch> switches = planetHolder.GetOwnerSwitchesFromNeutralToEnemy();
 			if (switches.Count == 0) return moves;
 
-			int turns = switches[0].TurnsBefore + 1;
+			int turn = switches[0].TurnsBefore + 1;
 
-			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, turns);
+			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, turn);
 			if (myPlanets.Count == 0) return moves;
 
-			Planet futurePlanet = Context.PlanetFutureStatus(stealPlanet, turns);
+			Planet futurePlanet = Context.PlanetFutureStatus(stealPlanet, turn);
 			if (futurePlanet.Owner() < 2) return moves;
 
 			int needToSend = futurePlanet.NumShips() + 1;
-			needToSend += Context.GetEnemyAid(stealPlanet, turns);
+			needToSend += Context.GetEnemyAid(stealPlanet, turn);
 
 			int sendedShips = 0;
 			foreach (Planet myPlanet in myPlanets)
 			{
-				int canSend = Context.CanSend(myPlanet);
+				int canSend = Context.CanSend(myPlanet, turn);
 				if (canSend == 0) continue;
 
-				Move move = new Move(myPlanet, stealPlanet, canSend);
+				int send = Math.Min(canSend, needToSend - sendedShips);
+
+				Move move = new Move(myPlanet, stealPlanet, send);
 				int distance = Context.Distance(myPlanet, stealPlanet);
-				if (distance < turns)
+				if (distance < turn)
 				{
-					move.TurnsBefore = turns - distance;
+					move.TurnsBefore = turn - distance;
 				}
 				moves.Add(move);
 
-				sendedShips += canSend;
+				sendedShips += send;
 
-				if (sendedShips > needToSend) return moves;
+				if (sendedShips >= needToSend) return moves;
 			}
 
+			moves.Clear();
 			return moves;
 		}
 

@@ -1,4 +1,4 @@
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ namespace Bot
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
 
-				Config.InvadeSendMoreThanEnemyCanDefend = (Context.MyProduction > Context.EnemyProduction*Config.DoInvadeKoef);
+				Config.InvadeSendMoreThanEnemyCanDefend = true;//(Context.MyProduction > Context.EnemyProduction*Config.DoInvadeKoef);
 				RunAdviser(invadeAdviser);
 				if (!CheckTime()) return;
 
