@@ -231,6 +231,7 @@ namespace Bot
 
 		public bool IsValid(Move move)
 		{
+			if (move.TurnsBefore > 0) return true;
 			return IsValid(move.SourceID, move.DestinationID, move.NumSheeps);
 		}
 
@@ -272,6 +273,7 @@ namespace Bot
 		{
 			fleets.Add(MoveToFleet(1, move));
 			GetPlanet(move.SourceID).RemoveShips(move.NumSheeps);
+			GetPlanetHolder(move.SourceID).ResetFutureStates();
 		}
 
 		// Sends the game engine a message to let it know that we're done sending
@@ -1175,8 +1177,10 @@ namespace Bot
 
 		public void IssueOrder(MovesSet movesSet)
 		{
-			foreach (Move move in movesSet.Moves)
+			Moves moves = movesSet.GetMoves();
+			foreach (Move move in moves)
 			{
+				Logger.Log(movesSet.AdviserName + ": " + move);
 				IssueOrder(move);
 			}
 		}
@@ -1191,6 +1195,19 @@ namespace Bot
 				sumDistance += Distance(move.SourceID, move.DestinationID);
 			}
 			return sumDistance/moves.Count;
+		}
+
+		public int MaxMovesDistance(Moves moves)
+		{
+			if (moves.Count == 0) return 0;
+
+			int maxDistance = 0;
+			foreach (Move move in moves)
+			{
+				int distance = Distance(move.SourceID, move.DestinationID);
+				if (maxDistance < distance) maxDistance = distance;
+			}
+			return maxDistance;
 		}
 	}
 }

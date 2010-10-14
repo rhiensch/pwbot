@@ -140,7 +140,7 @@ namespace Bot
 
 				//Logger.Log("move" + move);
 
-				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet), GetAdviserName());
+				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet), GetAdviserName(), Context);
 
 				setList.Add(set);
 			}

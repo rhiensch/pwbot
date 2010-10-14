@@ -63,7 +63,7 @@ namespace Bot
 				Moves moves = Run(myPlanet);
 				if (moves.Count > 0)
 				{
-					MovesSet set = new MovesSet(moves, 0, GetAdviserName());
+					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
 					movesSet.Add(set);
 				}
 			}

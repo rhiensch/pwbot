@@ -107,6 +107,11 @@ namespace Bot
 			}
 		}
 
+		public void ResetFutureStates()
+		{
+			futureStates = null;
+		}
+
 		private void CalcFutureState()
 		{
 			futureStates.Clear();

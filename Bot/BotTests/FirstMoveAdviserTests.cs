@@ -95,7 +95,8 @@ namespace BotTests
 
 			foreach (MovesSet set in movesSet)
 			{
-				foreach (Move move in set.Moves)
+				Moves moves = set.GetMoves();
+				foreach (Move move in moves)
 				{
 					Assert.IsFalse(move.DestinationID == 3);
 				}
