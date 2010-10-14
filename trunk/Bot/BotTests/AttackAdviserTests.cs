@@ -159,7 +159,7 @@ namespace BotTests
 			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.IsTrue(moves.Count > 0);
-			Assert.AreEqual(357, moves[0].Moves[0].NumSheeps);
+			Assert.AreEqual(357, moves[0].GetMove(0).NumSheeps);
 		}
 	}
 }

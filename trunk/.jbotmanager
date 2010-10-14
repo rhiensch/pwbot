@@ -5,3 +5,4 @@ bot_exe\bot3.exe
 bot_exe\bot1.exe
 bot_exe\DoNothingBot.exe
 java -jar example_bots\DualBot.jar
+java -jar example_bots\RageBot.jar

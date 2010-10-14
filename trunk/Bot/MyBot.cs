@@ -35,11 +35,12 @@ namespace Bot
 		{
 			try
 			{
+				/*if (turn == 53) Logger.Log(PlanetWars.SerializeGameState(Context, true));
 				if (turn == 1)
 				{
 					RunAdviser(new FirstMoveAdviser(Context));
 					return;
-				}
+				}*/
 
 				DefendAdviser defendAdviser = new DefendAdviser(Context);
 				InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
@@ -48,21 +49,21 @@ namespace Bot
 				StealAdviser stealAdviser = new StealAdviser(Context);
 
 				
-				RunAdviser(defendAdviser);
+				/*RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
 				RunAdviser(stealAdviser);
-				if (!CheckTime()) return;
+				if (!CheckTime()) return;*/
 
-				Config.InvadeSendMoreThanEnemyCanDefend = true;//(Context.MyProduction > Context.EnemyProduction*Config.DoInvadeKoef);
+				Config.InvadeSendMoreThanEnemyCanDefend = false;//(Context.MyProduction > Context.EnemyProduction*Config.DoInvadeKoef);
 				RunAdviser(invadeAdviser);
 				if (!CheckTime()) return;
 
-				RunAdviser(attackAdviser);
+				/*RunAdviser(attackAdviser);
 				if (!CheckTime()) return;
 
 				RunAdviser(supplyAdviser);
-				if (!CheckTime()) return;
+				if (!CheckTime()) return;*/
 			}
 			finally
 			{
@@ -95,11 +96,16 @@ namespace Bot
 			foreach (MovesSet movesSet in setList)
 			{
 				bool isPossible = true;
-				foreach (Move move in movesSet.Moves)
+				Moves moves = movesSet.GetMoves();
+				foreach (Move move in moves)
 				{
 					isPossible = Context.IsValid(move);
+					if (!isPossible) Logger.Log("Invalid move " + move);
+					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
+					isPossible = isPossible && (move.NumSheeps <= canSend);
 					if (!isPossible) break;
 				}
+				Logger.Log("move: " + movesSet + " ispossible: " + isPossible);
 				if (isPossible)
 				{
 					Context.IssueOrder(movesSet);

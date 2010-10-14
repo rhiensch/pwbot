@@ -41,8 +41,8 @@ namespace BotTests
 			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(2, moves.Count);
-			Assert.AreEqual(1, moves[1].Moves.Count);
-			Assert.AreEqual(3, moves[1].Moves[0].DestinationID);
+			Assert.AreEqual(1, moves[1].GetMoves().Count);
+			Assert.AreEqual(3, moves[1].GetMove(0).DestinationID);
 		}
 
 		[TestMethod]
@@ -77,10 +77,10 @@ namespace BotTests
 			List<MovesSet> moves = adviser.RunAll();
 
 			Assert.AreEqual(1, moves.Count);
-			Assert.AreEqual(1, moves[0].Moves.Count);
-			Assert.AreEqual(1, moves[0].Moves[0].DestinationID);
-			Assert.AreEqual(7, moves[0].Moves[0].NumSheeps);
-			Assert.AreEqual(2, moves[0].Moves[0].TurnsBefore);
+			Assert.AreEqual(1, moves[0].GetMoves().Count);
+			Assert.AreEqual(1, moves[0].GetMove(0).DestinationID);
+			Assert.AreEqual(7, moves[0].GetMove(0).NumSheeps);
+			Assert.AreEqual(2, moves[0].GetMove(0).TurnsBefore);
 		}
 	}
 }

@@ -18,6 +18,7 @@ namespace Bot
 		public static int GrowsRateKoef { get { return 4; } }
 		public static int DistanceKoef { get { return -2; } }
 		public static int NumShipsKoef { get { return 1; } }
+		public static int ScoreKoef { get { return 1000; } }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
 		private static double doInvadeKoef;
 		private static bool invadeSendMoreThanEnemyCanDefend;
