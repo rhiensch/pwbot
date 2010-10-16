@@ -14,11 +14,11 @@ namespace Bot
 		{
 		}
 
-		public override Moves Run(Planet planet)
+		public override Moves Run(Planet targetPlanet)
 		{
 			Moves moves = new Moves();
 
-			if (planet == null) return moves;
+			if (targetPlanet == null) return moves;
 
 			Planets nearestPlanets = Context.MyPlanets();//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 			if (nearestPlanets.Count == 0) return moves;
@@ -26,11 +26,11 @@ namespace Bot
 			if (nearestPlanets.Count > 1)
 			{
 				Comparer comparer = new Comparer(Context);
-				comparer.TargetPlanet = planet;
+				comparer.TargetPlanet = targetPlanet;
 				nearestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 			}
 
-			Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(planet);
+			Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
 			int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
 
 			foreach (Planet nearestPlanet in nearestPlanets)
@@ -38,45 +38,54 @@ namespace Bot
 				int canSend = Context.CanSend(nearestPlanet);
 				if (canSend == 0) continue;
 
-				int distance = Context.Distance(planet, nearestPlanet);
+				int distance = Context.Distance(targetPlanet, nearestPlanet);
+				int maxDistance = Math.Max(distance, farestFleet);
+				if (targetPlanet.PlanetID() == 13) Logger.Log("max " + maxDistance);
 
-				int sendedShips = 0;
-				//delay closer moves
-				foreach (Move eachMove in moves)
-				{
-					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
-					int maxDistance = Math.Max(distance, farestFleet);
-					int turns = maxDistance - moveDistance;
-					eachMove.TurnsBefore = turns;
-					sendedShips += Context.CanSend(Context.GetPlanet(eachMove.SourceID), turns);
-				}
-
-				int extraTurns = (int)Math.Ceiling(planet.NumShips()/(double)planet.GrowthRate());
-				Planet futurePlanet = Context.PlanetFutureStatus(planet, distance);
+				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, maxDistance);
 				if (futurePlanet.NumShips() == 2)//Error?
 				{
+#if DEBUG
+					Logger.Log("InvadeAdvizer: Error?");
+#endif
 					moves.Clear();
 					return moves;
 				}
 
-				int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, distance);
-
-				int needToSend = futurePlanet.Owner() == 0 ? 1 + futurePlanet.NumShips() : -futurePlanet.NumShips();
-				needToSend -= myFleetsShipNum;
+				int needToSend = 0;
+				if (futurePlanet.Owner() != 1)
+					needToSend += 1 + futurePlanet.NumShips();
 				if (Config.InvadeSendMoreThanEnemyCanDefend)
 				{
-					needToSend += Context.GetEnemyAid(planet, distance + extraTurns);
+					int extraTurns = (int)Math.Ceiling(targetPlanet.NumShips() / (double)targetPlanet.GrowthRate());
+					needToSend += Context.GetEnemyAid(targetPlanet, maxDistance + extraTurns);
+					//if (targetPlanet.PlanetID() == 0)
+					//	Logger.Log("target planet: " + targetPlanet + " turns" + (maxDistance + extraTurns) + " Aid: " + Context.GetEnemyAid(targetPlanet, maxDistance + extraTurns));
 				}
-				needToSend -= sendedShips;
+				//delay closer moves
+				foreach (Move eachMove in moves)
+				{
+					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
+					int turns = maxDistance - moveDistance;
+					eachMove.TurnsBefore = turns;
+					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID), turns);
+				}
+
+				//int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, distance);
+				//needToSend -= myFleetsShipNum;
+				if (futurePlanet.NumShips() == 1)
+					needToSend -= futurePlanet.NumShips();
 
 				if (needToSend <= 0) return moves;
 
-				sendedShips += canSend;
-				Move move = new Move(nearestPlanet, planet, Math.Min(needToSend, sendedShips));
+				canSend = Math.Min(needToSend, canSend);
+				needToSend -= canSend;
+				Move move = new Move(nearestPlanet, targetPlanet, canSend);
+				move.TurnsBefore = maxDistance - distance;
 				moves.Add(move);
-				if (sendedShips >= needToSend) return moves;
-			}
 
+				if (needToSend <= 0) return moves;
+			}
 			moves.Clear();
 			return moves;
 		}

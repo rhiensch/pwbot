@@ -422,13 +422,26 @@ namespace Bot
 					int turnsRemaining = Int32.Parse(tokens[6]);
 					if (numShips > 0)
 					{
-						Fleet f = new Fleet(owner,
-						                    numShips,
-						                    source,
-						                    destination,
-						                    totalTripLength,
-						                    turnsRemaining);
-						fleets.Add(f);
+						Fleet newFleet = null;
+						foreach (Fleet fleet in fleets)
+						{
+							if (fleet.DestinationPlanet() == destination &&
+								fleet.TurnsRemaining() == turnsRemaining)
+							{
+								newFleet = fleet;
+								break;
+							}
+						}
+						if (newFleet == null)
+						{
+							newFleet = new Fleet(owner,
+							                    numShips,
+							                    source,
+							                    destination,
+							                    totalTripLength,
+							                    turnsRemaining);
+							fleets.Add(newFleet);
+						}
 					}
 				}
 			}
@@ -437,7 +450,7 @@ namespace Bot
 		// Store all the planets and fleets. OMG we wouldn't wanna lose all the
 		// planets and fleets, would we!?
 		private readonly Planets planets;
-		private Fleets fleets;
+		private readonly Fleets fleets;
 		private readonly PlanetHolders planetHolders;
 
 		public Fleets GetThisTurnFleets(int turn, IEnumerable<Fleet> thisPlanetFleets)
@@ -787,7 +800,7 @@ namespace Bot
 			return GetLimitFleetDistance(fleetList, 1);
 		}
 
-		private static int GetLimitFleetDistance(Fleets fleetList, int limitType)
+		private static int GetLimitFleetDistance(IEnumerable<Fleet> fleetList, int limitType)
 		{
 			int distance = Math.Sign(limitType) > 0 ? 0 : int.MaxValue;
 			foreach (Fleet fleet in fleetList)
