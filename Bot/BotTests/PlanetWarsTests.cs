@@ -253,7 +253,7 @@ namespace BotTests
 			Assert.AreEqual(5, Context.Fleets().Count);
 			Assert.AreEqual(3, Context.MyFleets().Count);
 			Assert.AreEqual(40-20, Context.GetPlanet(1).NumShips());
-			Assert.AreEqual(Context.Distance(1, 2), Context.MyFleetsGoingToPlanet(Context.GetPlanet(2))[1].TotalTripLength());
+			//Assert.AreEqual(Context.Distance(1, 2), Context.MyFleetsGoingToPlanet(Context.GetPlanet(2))[1].TotalTripLength());
 			Assert.AreEqual(Context.Distance(1, 2), Context.MyFleetsGoingToPlanet(Context.GetPlanet(2))[1].TurnsRemaining());
 		}
 

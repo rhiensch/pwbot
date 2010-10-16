@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
@@ -68,16 +69,15 @@ namespace Bot
 			if (turns == 0) return CanSend();
 			FillFutureStatesIfNeeded();
 
-			int futureCanSend = -1;
-			int i = turns;
-			do
+			int canSendTurns = GetFutureState(turns).NumShips();
+			for (int i = turns + 1; i < turnsCount; i++)
 			{
 				Planet futurePlanet = GetFutureState(i);
-				if (futurePlanet.Owner() != 1) futureCanSend = 0;
-				if ((futurePlanet.NumShips() < futureCanSend) || (futureCanSend == -1)) futureCanSend = futurePlanet.NumShips();
-				i++;
-			} while (i < turnsCount);
-			return futureCanSend;
+				if (futurePlanet.Owner() != 1) return 0;
+				if ((futurePlanet.NumShips() < canSendTurns))
+					canSendTurns = futurePlanet.NumShips();
+			}
+			return canSendTurns;
 		}
 
 		private Planets futureStates;
