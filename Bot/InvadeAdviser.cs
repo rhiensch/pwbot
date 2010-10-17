@@ -20,7 +20,7 @@ namespace Bot
 
 			if (targetPlanet == null) return moves;
 
-			Planets nearestPlanets = Context.MyPlanets();//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
+			Planets nearestPlanets = Context.GetClosestPlanetsToTargetBySectors(targetPlanet, Context.MyPlanets());//Context.MyPlanets();//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 			if (nearestPlanets.Count == 0) return moves;
 			
 			if (nearestPlanets.Count > 1)
@@ -114,7 +114,7 @@ namespace Bot
 					int enemyAid = Context.GetEnemyAid(planet, set.MaxDistance);
 					double risk = 2.0;
 					if (enemyAid != 0) risk = set.SummaryNumShips / (double)enemyAid;
-					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.AverageDistance * 100 + planet.NumShips()));
+					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));
 					set.Score = score;
 
 					movesSet.Add(set);
