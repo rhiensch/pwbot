@@ -6,9 +6,13 @@ using Planets = System.Collections.Generic.List<Bot.Planet>;
 
 namespace Bot
 {
+	public enum Sectors { None = 0, NordEast, SouthEast, SouthWest, NordWest };
+
 	static class Router
 	{
 		private static int[,] distances;
+		private static Sectors[,] sectors;
+
 		private static Planets planets;
 
 		private static double controlSum;
@@ -55,6 +59,7 @@ namespace Bot
 			controlSum = newControlSum;
 			planets = new Planets(planetList);
 			distances = new int[planets.Count, planets.Count];
+			sectors = new Sectors[planets.Count, planets.Count];
 
 			CalcMaxDistance();
 		}
@@ -93,6 +98,62 @@ namespace Bot
 		public static int Distance(Planet planet1, Planet planet2)
 		{
 			return Distance(planet1.PlanetID(), planet2.PlanetID());
+		}
+
+		/*		  |
+		 *		  |		object
+		 *		  |
+		 *------base-----------
+		 *		  |
+		 * return: NordEast
+		 */
+		public static Sectors GetSector(int basePlanetID, int objectPlanetID)
+		{
+			if (distances == null)
+				throw new NullReferenceException("Router was not initialized!");
+			if (sectors[basePlanetID, objectPlanetID] == Sectors.None)
+				CalcSector(basePlanetID, objectPlanetID);
+
+			return sectors[basePlanetID, objectPlanetID];
+		}
+
+		public static Sectors GetSector(Planet basePlanet, Planet objectPlanet)
+		{
+			return GetSector(basePlanet.PlanetID(), objectPlanet.PlanetID());
+		}
+
+		private static void CalcSector(int basePlanetID, int objectPlanetID)
+		{
+			double baseX = planets[basePlanetID].X();
+			double baseY = planets[basePlanetID].X();
+			double objectX = planets[objectPlanetID].X();
+			double objectY = planets[objectPlanetID].X();
+
+			Sectors result;
+			if (objectY >= baseY)
+				result = objectX >= baseX ? Sectors.NordEast : Sectors.NordWest;
+			else
+				result = objectX >= baseX ? Sectors.SouthEast : Sectors.SouthWest;
+
+			sectors[basePlanetID, objectPlanetID] = result;
+			sectors[objectPlanetID, basePlanetID] = MirrorSector(result);
+		}
+
+		public static Sectors MirrorSector(Sectors sector)
+		{
+			switch (sector)
+			{
+				case Sectors.NordEast:
+					return Sectors.SouthWest;
+				case Sectors.NordWest:
+					return Sectors.SouthEast;
+				case Sectors.SouthEast:
+					return Sectors.NordWest;
+				case Sectors.SouthWest:
+					return Sectors.NordEast;
+				default:
+					return Sectors.None;
+			}
 		}
 	}
 }

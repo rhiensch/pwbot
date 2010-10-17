@@ -439,17 +439,32 @@ namespace BotTests
 			Assert.AreEqual(10 + 5*4 + 10 + 5*1, pw.GetEnemyAid(pw.GetPlanet(0), 6));
 		}
 
-		public void TestEnemyAidWithFleets()
+		[TestMethod]
+		public void TestGetSector()
 		{
 			PlanetWars pw = new PlanetWars(
-				"P 0 0 1 10 5#0\n" +
-				"P 1 1 2 10 5#1\n" +
-				"P 3 3 2 10 5#2\n" +
-				"P 5 5 2 10 5#3\n" +
-				"F 2 30 3 0 8 5\n" +
+				"P 10.946215 11.757139 0 15 4#0\n" +
+				"P 18.033072 20.11299 1 5 5#1\n" +
 				"go\n");
 
-			Assert.AreEqual(10 + 5*4 + 10 + 5*1 + 30, pw.GetEnemyAid(pw.GetPlanet(0), 6));
+			Assert.AreEqual(Sectors.NordEast, pw.GetSector(pw.GetPlanet(0), pw.GetPlanet(1)));
+			Assert.AreEqual(Sectors.SouthWest, pw.GetSector(pw.GetPlanet(1), pw.GetPlanet(0)));
 		}
+
+		[TestMethod]
+		public void TestGetClosestPlanetsToTargetBySectors()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 10.946215 11.757139 0 15 4#0\n" +
+				"P 18.033072 20.11299 1 5 5#1\n" +
+				"P 28.033072 30.11299 1 5 5#1\n" +
+				"go\n");
+
+			Planets closestPlanets = pw.GetClosestPlanetsToTargetBySectors(pw.GetPlanet(0), pw.MyPlanets());
+
+			Assert.AreEqual(1, closestPlanets.Count);
+			Assert.AreEqual(1, closestPlanets[0].PlanetID());
+		}
+		
 	}
 }

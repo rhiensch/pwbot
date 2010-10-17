@@ -1222,5 +1222,53 @@ namespace Bot
 			}
 			return maxDistance;
 		}
+
+		public Sectors GetSector(int basePlanetID, int objectPlanetID)
+		{
+			return Router.GetSector(basePlanetID, objectPlanetID);
+		}
+
+		public Sectors GetSector(Planet basePlanet, Planet objectPlanet)
+		{
+			return Router.GetSector(basePlanet.PlanetID(), objectPlanet.PlanetID());
+		}
+
+		public Planets GetClosestPlanetsToTargetBySectors(Planet target, Planets planetList)
+		{
+			Planets closestPlanets = new Planets();
+			if (planetList.Count == 0) return closestPlanets;
+
+			//Pair: Sector value, planetID
+			List<Pair<Sectors, int>> pairs = new List<Pair<Sectors, int>>();
+			foreach (Sectors value in Enum.GetValues(typeof(Sectors)))
+			{
+				if (value == Sectors.None) continue;
+
+				pairs.Add(new Pair<Sectors, int>(value, -1));
+			}
+
+			foreach (Planet planet in planetList)
+			{
+				Sectors sector = GetSector(target, planet);
+
+				foreach (Pair<Sectors, int> pair in pairs)
+				{
+					if (pair.First == sector)
+					{
+						if (pair.Second == -1) pair.Second = planet.PlanetID();
+						else if (Distance(planet, target) < Distance(pair.Second, target.PlanetID()))
+							pair.Second = planet.PlanetID();
+						break;
+					}
+				}
+			}
+
+			foreach (Pair<Sectors, int> pair in pairs)
+			{
+				if (pair.Second != -1)
+					closestPlanets.Add(GetPlanet(pair.Second));
+			}
+			return closestPlanets;
+		}
 	}
 }
