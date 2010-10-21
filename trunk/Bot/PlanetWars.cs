@@ -1069,6 +1069,22 @@ namespace Bot
 			return distance;
 		}
 
+		public Planet GetClosestPlanet(Planet planet, Planets planetList)
+		{
+			int distance = int.MaxValue;
+			Planet closestPlanet = null;
+			foreach (Planet eachPlanet in planetList)
+			{
+				int currentDistance = Distance(planet, eachPlanet);
+				if (distance > currentDistance)
+				{
+					distance = currentDistance;
+					closestPlanet = eachPlanet;
+				}
+			}
+			return closestPlanet;
+		}
+
 		public int GetPlanetsShipNum(Planets planetList)
 		{
 			int num = 0;
@@ -1269,6 +1285,56 @@ namespace Bot
 					closestPlanets.Add(GetPlanet(pair.Second));
 			}
 			return closestPlanets;
+		}
+
+		private Planets additionalTargetPlanets;
+		public void AddTargetPlanet(Planet targetPlanet)
+		{
+			if (additionalTargetPlanets == null)
+				additionalTargetPlanets = new Planets();
+			if (targetPlanet != null) 
+				additionalTargetPlanets.Add(targetPlanet);
+		}
+
+		private Planets frontPlanets;
+		public Planets GetFrontPlanets()
+		{
+			if (frontPlanets == null)
+			{
+				frontPlanets = new Planets();
+
+				Planets targetPlanets = EnemyPlanets();
+				if (additionalTargetPlanets != null) targetPlanets.AddRange(additionalTargetPlanets);
+
+				Planets myPlanets = MyPlanets();
+				foreach (Planet targetPlanet in targetPlanets)
+				{
+					Planets closestPlanets = GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);
+
+					Comparer comparer = new Comparer(this);
+					comparer.TargetPlanet = targetPlanet;
+					closestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
+					for (int i = 0; i < closestPlanets.Count; i++)
+					{
+						if (frontPlanets.IndexOf(closestPlanets[i]) > 0) continue;
+
+						bool isCloseEnough = true;
+						for (int j = 0; j < i; j++)
+						{
+							if (Distance(closestPlanets[i], closestPlanets[j]) <
+								Distance(closestPlanets[i], targetPlanet))
+							{
+								isCloseEnough = false;
+								break;
+							}
+						}
+						if (isCloseEnough) frontPlanets.Add(closestPlanets[i]);
+
+					}
+				}
+			}
+			return frontPlanets;
 		}
 	}
 }

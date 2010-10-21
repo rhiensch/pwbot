@@ -41,6 +41,7 @@ namespace Bot
 				if (futurePlanet.Owner() != 2) continue;
 
 				int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, targetDistance);
+				targetDistance = Math.Max(targetDistance, farestFleet);
 
 				int needToSend = 1 + futurePlanet.NumShips();
 				needToSend -= myFleetsShipNum;
@@ -49,9 +50,9 @@ namespace Bot
 
 				if (needToSend <= 0) return moves;
 
-				sendedShips += myCanSend;
+				sendedShips += Math.Min(myCanSend, needToSend);
 
-				Move move = new Move(myPlanet, targetPlanet, sendedShips);
+				Move move = new Move(myPlanet, targetPlanet, Math.Min(myCanSend, needToSend));
 				moves.Add(move);
 				if (sendedShips >= needToSend)
 				{
@@ -59,7 +60,7 @@ namespace Bot
 					foreach (Move eachMove in moves)
 					{
 						int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
-						int maxDistance = Math.Max(targetDistance, farestFleet);
+						int maxDistance = targetDistance;
 						eachMove.TurnsBefore = maxDistance - moveDistance;
 					}
 					return moves;

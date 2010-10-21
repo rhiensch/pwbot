@@ -86,6 +86,7 @@ namespace Bot
 
 				if (needToSend <= 0) return moves;
 			}
+
 			moves.Clear();
 			return moves;
 		}
