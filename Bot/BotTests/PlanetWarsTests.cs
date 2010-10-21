@@ -465,6 +465,37 @@ namespace BotTests
 			Assert.AreEqual(1, closestPlanets.Count);
 			Assert.AreEqual(1, closestPlanets[0].PlanetID());
 		}
+
+		[TestMethod]
+		public void TestFrontPlanets()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 2 15 4#0\n" +
+				"P 2 0 1 5 5#1\n" +
+				"P 3 0 1 5 5#2\n" +
+				"P -2 0 1 5 5#3\n" +
+				"go\n");
+
+			Planets frontPlanets = pw.GetFrontPlanets();
+
+			Assert.AreEqual(2, frontPlanets.Count);
+			Assert.AreEqual(4, frontPlanets[0].PlanetID() + frontPlanets[1].PlanetID());
+		}
+
+		[TestMethod]
+		public void TestFrontPlanetsNotCloseEnough()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 2 15 4#0\n" +
+				"P 2 1 1 5 5#1\n" +
+				"P 3 -1 1 5 5#2\n" +
+				"go\n");
+
+			Planets frontPlanets = pw.GetFrontPlanets();
+
+			Assert.AreEqual(1, frontPlanets.Count);
+			Assert.AreEqual(1, frontPlanets[0].PlanetID());
+		}
 		
 	}
 }

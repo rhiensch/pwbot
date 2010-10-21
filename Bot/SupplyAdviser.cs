@@ -17,10 +17,23 @@ namespace Bot
 
 			if (supplyPlanet == null) return moves;
 
+			Planets frontPlanets = Context.GetFrontPlanets();
+			if (frontPlanets == null) return moves;
+			if (frontPlanets.Count == 0) return moves;
+			if (frontPlanets.IndexOf(supplyPlanet) != -1) return moves;
+
 			int canSend = Context.CanSend(supplyPlanet);
 			if (canSend == 0) return moves;
 
-			int supplyPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(supplyPlanet);
+			//TODO path finding
+			Planet dest = Context.GetClosestPlanet(supplyPlanet, frontPlanets);
+			if (dest != null)
+			{
+				moves.Add(new Move(supplyPlanet.PlanetID(), dest.PlanetID(), canSend));
+			}
+			return moves;
+
+			/*int supplyPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(supplyPlanet);
 				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
 
 			Planets nearPlanets = Context.MyPlanets();
@@ -43,7 +56,7 @@ namespace Bot
 					return moves;
 				}
 			}
-			return moves;
+			return moves;*/
 		}
 
 		public override string GetAdviserName()
@@ -56,7 +69,7 @@ namespace Bot
 			Planets myPlanets = Context.MyPlanets();
 
 			List<MovesSet> movesSet = new List<MovesSet>();
-			if (Context.EnemyPlanets().Count == 0) return movesSet;
+			//if (Context.GetFrontPlanets().Count == 0) return movesSet;
 
 			foreach (Planet myPlanet in myPlanets)
 			{
