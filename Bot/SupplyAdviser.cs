@@ -26,7 +26,8 @@ namespace Bot
 			if (canSend == 0) return moves;
 
 			//TODO path finding
-			Planet dest = Context.GetClosestPlanet(supplyPlanet, frontPlanets);
+			IPathFinder pathFinder = new DirectPathFinder(Context);
+			Planet dest = pathFinder.FindNextPlanetInPath(supplyPlanet);
 			if (dest != null)
 			{
 				moves.Add(new Move(supplyPlanet.PlanetID(), dest.PlanetID(), canSend));

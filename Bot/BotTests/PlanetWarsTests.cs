@@ -452,6 +452,17 @@ namespace BotTests
 		}
 
 		[TestMethod]
+		public void TestGetSector2()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 2 1 5 0#0\n" +
+				"P 1 0 1 5 0#1\n" +
+				"go\n");
+
+			Assert.AreEqual(Sectors.SouthEast, pw.GetSector(pw.GetPlanet(0), pw.GetPlanet(1)));
+		}
+
+		[TestMethod]
 		public void TestGetClosestPlanetsToTargetBySectors()
 		{
 			PlanetWars pw = new PlanetWars(
@@ -464,6 +475,44 @@ namespace BotTests
 
 			Assert.AreEqual(1, closestPlanets.Count);
 			Assert.AreEqual(1, closestPlanets[0].PlanetID());
+		}
+
+		[TestMethod]
+		public void TestGetClosestPlanetsToTargetBySectors2()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 2 1 5 0#0\n" +
+				"P 0 4 1 5 0#1\n" +
+				"P 5 5 1 5 0#2\n" +
+				"P 9 5 1 5 0#3\n" +
+				"P 11 3 1 5 0#4\n" +
+				"P 11 2 2 5 0#5\n" +
+				"go\n");
+
+			Planets closestPlanets = pw.GetClosestPlanetsToTargetBySectors(pw.GetPlanet(0), pw.MyPlanets());
+
+			Assert.AreEqual(1, closestPlanets.Count);
+			Assert.AreEqual(1, closestPlanets[0].PlanetID());
+		}
+
+		[TestMethod]
+		public void TestGetClosestPlanetsToTargetBySectors3()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 2 1 5 0#0\n" +
+				"P 0 4 1 5 0#1\n" +
+				"P 1 0 1 5 0#2\n" +
+				"P 5 1 1 5 0#3\n" +
+				"P 5 5 1 5 0#4\n" +
+				"P 10 0 1 5 0#5\n" +
+				"P 9 5 1 5 0#6\n" +
+				"P 11 3 1 5 0#7\n" +
+				"P 11 2 2 5 0#8\n" +
+				"go\n");
+
+			Planets closestPlanets = pw.GetClosestPlanetsToTargetBySectors(pw.GetPlanet(0), pw.MyPlanets());
+
+			Assert.AreEqual(2, closestPlanets.Count);
 		}
 
 		[TestMethod]

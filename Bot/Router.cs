@@ -125,9 +125,9 @@ namespace Bot
 		private static void CalcSector(int basePlanetID, int objectPlanetID)
 		{
 			double baseX = planets[basePlanetID].X();
-			double baseY = planets[basePlanetID].X();
+			double baseY = planets[basePlanetID].Y();
 			double objectX = planets[objectPlanetID].X();
-			double objectY = planets[objectPlanetID].X();
+			double objectY = planets[objectPlanetID].Y();
 
 			Sectors result;
 			if (objectY >= baseY)

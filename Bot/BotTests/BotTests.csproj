@@ -40,6 +40,7 @@
     <Compile Include="AttackAdviserTests.cs" />
     <Compile Include="ComparerTests.cs" />
     <Compile Include="DefendAdviserTests.cs" />
+    <Compile Include="DijkstraPathFinderTests.cs" />
     <Compile Include="FirstMoveAdviserTests.cs" />
     <Compile Include="InvadeAdviserTests.cs" />
     <Compile Include="MyBotTests.cs" />
