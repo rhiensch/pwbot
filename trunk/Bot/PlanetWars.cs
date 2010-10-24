@@ -1265,6 +1265,7 @@ namespace Bot
 
 			foreach (Planet planet in planetList)
 			{
+				if (planet == target) continue;
 				Sectors sector = GetSector(target, planet);
 
 				foreach (Pair<Sectors, int> pair in pairs)
