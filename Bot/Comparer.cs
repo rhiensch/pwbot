@@ -122,5 +122,14 @@ namespace Bot
 		{
 			return (Math.Sign(set2.Score - set1.Score));
 		}
+
+		public int Coordinates(Planet planet1, Planet planet2)
+		{
+			/*int result = planet1.X() > planet2.X() ? 1 : -1;
+			if (planet1.X() == planet2.X())
+				result = planet1.Y() > planet2.Y() ? 1 : -1;
+			return result;*/
+			return 0;
+		}
 	}
 }

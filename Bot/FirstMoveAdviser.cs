@@ -121,7 +121,6 @@ namespace Bot
 				if (Context.Distance(myPlanet, neutralPlanet) < 
 					Context.Distance(enemyPlanet, neutralPlanet))
 				{
-					Logger.Log("planet" + neutralPlanet + " distance from my =" + Context.Distance(myPlanet, neutralPlanet) + " distance from enemy = " + Context.Distance(enemyPlanet, neutralPlanet));
 					planets.Add(neutralPlanet);
 				}
 			}

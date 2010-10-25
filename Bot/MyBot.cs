@@ -1,4 +1,4 @@
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -99,13 +99,10 @@ namespace Bot
 				foreach (Move move in moves)
 				{
 					isPossible = Context.IsValid(move);
-					if (!isPossible) Logger.Log("Invalid move " + move);
 					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
 					isPossible = isPossible && (move.NumSheeps <= canSend);
-					if (!isPossible) Logger.Log("Not possible: canSend  " + canSend + " need: " + move.NumSheeps);
 					if (!isPossible) break;
 				}
-				Logger.Log("move: " + movesSet + " ispossible: " + isPossible);
 				if (isPossible)
 				{
 					Context.IssueOrder(movesSet);
