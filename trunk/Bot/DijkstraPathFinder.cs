@@ -23,7 +23,6 @@ namespace Bot
 				}
 			}
 
-			Planets planets = Context.Planets();
 			Planets myPlanets = Context.MyPlanets();
 			foreach (Planet planet in myPlanets)
 			{

@@ -110,8 +110,6 @@ namespace BotTests
 			Config.InvadeSendMoreThanEnemyCanDefend = false;
 			List<MovesSet> movesList = adviser.RunAll();
 
-			Logger.Enabled = true;
-
 			bool sended = false;
 			foreach (MovesSet movesSet in movesList)
 			{

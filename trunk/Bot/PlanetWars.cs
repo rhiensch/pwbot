@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -23,6 +23,9 @@ namespace Bot
 			planets = new List<Planet>();
 			fleets = new Fleets();
 			ParseGameState(gameStatestring);
+
+			//planets.Sort(new Comparer(this).Coordinates);
+
 			Router.Init(planets);
 			planetHolders = new PlanetHolders(planets.Count);
 			foreach (Planet planet in planets)
@@ -1209,7 +1212,9 @@ namespace Bot
 			Moves moves = movesSet.GetMoves();
 			foreach (Move move in moves)
 			{
+#if DEBUG
 				Logger.Log(movesSet.AdviserName + ": " + move);
+#endif
 				IssueOrder(move);
 			}
 		}

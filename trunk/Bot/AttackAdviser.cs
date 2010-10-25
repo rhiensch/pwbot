@@ -1,4 +1,4 @@
-﻿#define  DEBUG
+﻿#undef  DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -46,7 +46,12 @@ namespace Bot
 				int needToSend = 1 + futurePlanet.NumShips();
 				needToSend -= myFleetsShipNum;
 				needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
-				if (targetPlanet.PlanetID() == 16) Logger.Log("EnemyAid : " + Context.GetEnemyAid(targetPlanet, targetDistance) + " distance: " + targetDistance);
+				/*if (targetPlanet.PlanetID() == 16)
+				{
+					Logger.Log("EnemyAid : " + Context.GetEnemyAid(targetPlanet, targetDistance) + " distance: " + targetDistance);
+					Logger.Log("Future NumShips" + Context.PlanetFutureStatus(targetPlanet, targetDistance).NumShips());
+					Logger.Log("myFleetsShipNum = " + myFleetsShipNum);
+				}*/
 				needToSend -= sendedShips;
 
 				if (needToSend <= 0) return moves;
