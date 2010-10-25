@@ -440,6 +440,20 @@ namespace BotTests
 		}
 
 		[TestMethod]
+		public void TestEnemyAidWithFleetsGoingFromFarerPlanets()
+		{
+			PlanetWars pw = new PlanetWars(
+				"P 0 0 1 10 5#0\n" +
+				"P 1 1 2 10 5#1\n" +
+				"P 3 3 2 10 5#2\n" +
+				"P 5 5 2 10 5#3\n" +
+				"F 2 20 1 1 8 3\n" +
+				"go\n");
+
+			Assert.AreEqual(10 + 5 * 4 + 10 + 5 * 1, pw.GetEnemyAid(pw.GetPlanet(0), 6));
+		}
+
+		[TestMethod]
 		public void TestGetSector()
 		{
 			PlanetWars pw = new PlanetWars(

@@ -20,7 +20,9 @@ namespace Bot
 
 			if (targetPlanet == null) return moves;
 
-			Planets nearestPlanets = Context.GetClosestPlanetsToTargetBySectors(targetPlanet, Context.MyPlanets());//Context.MyPlanets();//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
+			Planets nearestPlanets = Context.GetClosestPlanetsToTargetBySectors(targetPlanet, Context.MyPlanets());
+									//Context.MyPlanets();
+									//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
 			if (nearestPlanets.Count == 0) return moves;
 			
 			if (nearestPlanets.Count > 1)
@@ -40,7 +42,6 @@ namespace Bot
 
 				int distance = Context.Distance(targetPlanet, nearestPlanet);
 				int maxDistance = Math.Max(distance, farestFleet);
-				if (targetPlanet.PlanetID() == 13) Logger.Log("max " + maxDistance);
 
 				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, maxDistance);
 				if (futurePlanet.NumShips() == 2)//Error?

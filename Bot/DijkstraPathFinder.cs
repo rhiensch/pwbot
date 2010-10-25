@@ -3,7 +3,7 @@ using Planets = System.Collections.Generic.List<Bot.Planet>;
 
 namespace Bot
 {
-	public class DijkstraPathFinder
+	public class DijkstraPathFinder : IPathFinder
 	{
 		public PlanetWars Context;
 		public DijkstraPathFinder(PlanetWars context)
@@ -13,12 +13,21 @@ namespace Bot
 
 		public int[,] CreateGraph()
 		{
-			int[,] createGraph = new int[Context.Planets().Count, Context.Planets().Count];
-
-			Planets planets = Context.MyPlanets();
-			foreach (Planet planet in planets)
+			int count = Context.Planets().Count;
+			int[,] createGraph = new int[count, count];
+			for (int i = 0; i < count; i++)
 			{
-				Planets closestPlanets = Context.GetClosestPlanetsToTargetBySectors(planet, planets);
+				for (int j = 0; j < count; j++)
+				{
+					createGraph[i, j] = 0;
+				}
+			}
+
+			Planets planets = Context.Planets();
+			Planets myPlanets = Context.MyPlanets();
+			foreach (Planet planet in myPlanets)
+			{
+				Planets closestPlanets = Context.GetClosestPlanetsToTargetBySectors(planet, myPlanets);
 				foreach (Planet closestPlanet in closestPlanets)
 				{
 					if (createGraph[planet.PlanetID(), closestPlanet.PlanetID()] == 0)
@@ -26,8 +35,6 @@ namespace Bot
 						int distance = Context.Distance(planet, closestPlanet);
 						createGraph[planet.PlanetID(), closestPlanet.PlanetID()] = distance;
 						createGraph[closestPlanet.PlanetID(), planet.PlanetID()] = distance;
-
-						System.Console.WriteLine(planet.PlanetID() + " -> " + closestPlanet.PlanetID() + " = " + distance);
 					}
 				}
 			}
@@ -69,8 +76,6 @@ namespace Bot
 				s = v + "," +s;
 			}
 			path.Reverse();
-
-			System.Console.WriteLine(s);
 
 			return Context.GetPlanet(path[0]);
 		}
