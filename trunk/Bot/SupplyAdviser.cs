@@ -26,7 +26,7 @@ namespace Bot
 			if (canSend == 0) return moves;
 
 			//TODO path finding
-			IPathFinder pathFinder = new DirectPathFinder(Context);
+			IPathFinder pathFinder = new DijkstraPathFinder(Context);
 			Planet dest = pathFinder.FindNextPlanetInPath(supplyPlanet);
 			if (dest != null)
 			{

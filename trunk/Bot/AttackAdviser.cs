@@ -46,6 +46,7 @@ namespace Bot
 				int needToSend = 1 + futurePlanet.NumShips();
 				needToSend -= myFleetsShipNum;
 				needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
+				if (targetPlanet.PlanetID() == 16) Logger.Log("EnemyAid : " + Context.GetEnemyAid(targetPlanet, targetDistance) + " distance: " + targetDistance);
 				needToSend -= sendedShips;
 
 				if (needToSend <= 0) return moves;
