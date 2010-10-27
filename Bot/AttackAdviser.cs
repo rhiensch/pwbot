@@ -46,16 +46,18 @@ namespace Bot
 				//needToSend -= myFleetsShipNum;
 				needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
 
-				if (needToSend <= 0) return moves;
-
-				//delay closer moves
 				foreach (Move eachMove in moves)
+				{
+					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID));
+				}
+				//delay closer moves
+				/*foreach (Move eachMove in moves)
 				{
 					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
 					int turns = targetDistance - moveDistance;
 					eachMove.TurnsBefore = turns;
 					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID), turns);
-				}
+				}*/
 
 				if (needToSend <= 0) return moves;
 
@@ -80,13 +82,16 @@ namespace Bot
 			Planets enemyPlanets = Context.EnemyPlanets();
 
 			List<MovesSet> movesSet = new List<MovesSet>();
-			foreach (Planet enemyPlanet in enemyPlanets)
+			foreach (Planet planet in enemyPlanets)
 			{
-				Moves moves = Run(enemyPlanet);
+				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{
-					double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-					MovesSet set = new MovesSet(moves, score, GetAdviserName(), Context);
+					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
+					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
+					double score = (planet.NumShips() * Config.NumShipsKoef + set.MaxDistance * Config.DistanceKoef) / (double)planet.GrowthRate();
+					set.Score = score;
+
 					movesSet.Add(set);
 				}
 			}

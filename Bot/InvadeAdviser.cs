@@ -32,18 +32,14 @@ namespace Bot
 				nearestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 			}
 
-			Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
-			int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
-
 			foreach (Planet nearestPlanet in nearestPlanets)
 			{
 				int canSend = Context.CanSend(nearestPlanet);
 				if (canSend == 0) continue;
 
 				int distance = Context.Distance(targetPlanet, nearestPlanet);
-				int maxDistance = Math.Max(distance, farestFleet);
 
-				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, maxDistance);
+				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, distance);
 				if (futurePlanet.Owner() == 2)//Error?
 				{
 #if DEBUG
@@ -53,34 +49,32 @@ namespace Bot
 					return moves;
 				}
 
-				int needToSend = 0;
-				if (futurePlanet.Owner() != 1)
-					needToSend += 1 + futurePlanet.NumShips();
+				int needToSend = futurePlanet.NumShips() + 1;
 				if (Config.InvadeSendMoreThanEnemyCanDefend)
 				{
 					int extraTurns = (int)Math.Ceiling(targetPlanet.NumShips() / (double)targetPlanet.GrowthRate());
-					needToSend += Context.GetEnemyAid(targetPlanet, maxDistance + extraTurns);
+					needToSend += Context.GetEnemyAid(targetPlanet, distance + extraTurns);
 				}
+
+				foreach (Move eachMove in moves)
+				{
+					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID));
+				}
+				/*
 				//delay closer moves
 				foreach (Move eachMove in moves)
 				{
 					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
-					int turns = maxDistance - moveDistance;
+					int turns = distance - moveDistance;
 					eachMove.TurnsBefore = turns;
 					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID), turns);
-				}
-
-				//int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, distance);
-				//needToSend -= myFleetsShipNum;
-				if (futurePlanet.NumShips() == 1)
-					needToSend -= futurePlanet.NumShips();
+				}*/
 
 				if (needToSend <= 0) return moves;
 
 				canSend = Math.Min(needToSend, canSend);
 				needToSend -= canSend;
 				Move move = new Move(nearestPlanet, targetPlanet, canSend);
-				move.TurnsBefore = maxDistance - distance;
 				moves.Add(move);
 
 				if (needToSend <= 0) return moves;
@@ -104,17 +98,18 @@ namespace Bot
 				if (planet.GrowthRate() == 0) continue;
 
 				PlanetHolder planetHolder = Context.GetPlanetHolder(planet);
-				if (planetHolder.GetOwnerSwitchesFromNeutralToEnemy().Count > 0) continue;
+				if (planetHolder.OwnerSwitches.Count > 0) continue;
 
 				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{
 					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
 
-					int enemyAid = Context.GetEnemyAid(planet, set.MaxDistance);
+					/*int enemyAid = Context.GetEnemyAid(planet, set.MaxDistance);
 					double risk = 2.0;
 					if (enemyAid != 0) risk = set.SummaryNumShips / (double)enemyAid;
-					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));
+					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));*/
+					double score = (planet.NumShips()*Config.NumShipsKoef + set.MaxDistance*Config.DistanceKoef)/(double)planet.GrowthRate();
 					set.Score = score;
 
 					movesSet.Add(set);

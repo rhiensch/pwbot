@@ -32,25 +32,19 @@ namespace Bot
 			int needToSend = futurePlanet.NumShips() + 1;
 			needToSend += Context.GetEnemyAid(stealPlanet, turn);
 
-			int sendedShips = 0;
 			foreach (Planet myPlanet in myPlanets)
 			{
 				int canSend = Context.CanSend(myPlanet, turn);
 				if (canSend == 0) continue;
 
-				int send = Math.Min(canSend, needToSend - sendedShips);
+				int send = Math.Min(canSend, needToSend);
+				needToSend -= send;
 
 				Move move = new Move(myPlanet, stealPlanet, send);
 				int distance = Context.Distance(myPlanet, stealPlanet);
-				if (distance < turn)
-				{
-					move.TurnsBefore = turn - distance;
-				}
 				moves.Add(move);
 
-				sendedShips += send;
-
-				if (sendedShips >= needToSend) return moves;
+				if (needToSend <= 0) return moves;
 			}
 
 			moves.Clear();
@@ -76,8 +70,10 @@ namespace Bot
 				if (moves.Count > 0)
 				{
 					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-					double score = planet.GrowthRate() / set.AverageDistance;
+					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
+					double score = (planet.NumShips() * Config.NumShipsKoef + set.MaxDistance * Config.DistanceKoef) / (double)planet.GrowthRate();
 					set.Score = score;
+
 					movesSet.Add(set);
 				}
 			}

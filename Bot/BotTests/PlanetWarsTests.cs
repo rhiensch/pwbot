@@ -401,7 +401,7 @@ namespace BotTests
 			Assert.AreEqual(result, PlanetWars.SerializeGameState(pw, true));
 		}
 
-		[TestMethod]
+		/*[TestMethod]
 		public void TestGetPossibleDefendMoves()
 		{
 			PlanetWars pw = new PlanetWars(
@@ -424,7 +424,7 @@ namespace BotTests
 			Assert.AreEqual(2, moves[1].SourceID);
 			Assert.AreEqual(0, moves[1].TurnsBefore);
 			Assert.AreEqual(10, moves[1].NumSheeps);
-		}
+		}*/
 
 		[TestMethod]
 		public void TestEnemyAid()
