@@ -51,7 +51,7 @@ namespace Bot
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
-				RunAdviser(stealAdviser);
+				//RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
 
 				Config.InvadeSendMoreThanEnemyCanDefend = true;//(Context.MyProduction > Context.EnemyProduction*Config.DoInvadeKoef);

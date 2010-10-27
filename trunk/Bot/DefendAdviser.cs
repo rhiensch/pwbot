@@ -92,8 +92,11 @@ namespace Bot
 				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{
-					double score = planet.GrowthRate()/Context.AverageMovesDistance(moves);
-					MovesSet set = new MovesSet(moves, score, GetAdviserName(), Context);
+					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
+					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
+					double score = (planet.NumShips() * Config.NumShipsKoef + set.MaxDistance * Config.DistanceKoef) / (double)planet.GrowthRate();
+					set.Score = score;
+
 					movesSet.Add(set);
 				}
 			}

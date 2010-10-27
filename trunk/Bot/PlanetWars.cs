@@ -1097,11 +1097,10 @@ namespace Bot
 			return num;
 		}
 
-		public int EnemyCanSend(Planet planet, int passTurns)
+		/*public int EnemyCanSend(Planet planet, int passTurns)
 		{
 			if (planet.Owner() != 2) return 0;
 
-			//TODO make more intelligent strategy
 			int canSend = planet.NumShips() + passTurns * planet.GrowthRate();
 			Fleets myFleets = MyFleetsGoingToPlanet(planet);
 			foreach (Fleet myFleet in myFleets)
@@ -1142,7 +1141,7 @@ namespace Bot
 			}
 
 			return moves;
-		}
+		}*/
 
 		public Fleet MoveToFleet(int owner, Move move)
 		{
@@ -1340,6 +1339,16 @@ namespace Bot
 				}
 			}
 			return frontPlanets;
+		}
+
+		public Fleets GetFleetsCloserThan(Fleets fleetList, int treshold)
+		{
+			Fleets closerFleets = new Fleets();
+			foreach (Fleet fleet in fleetList)
+			{
+				if (fleet.TurnsRemaining() <= treshold) closerFleets.Add(fleet);
+			}
+			return closerFleets;
 		}
 	}
 }
