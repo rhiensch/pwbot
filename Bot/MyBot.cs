@@ -1,4 +1,4 @@
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -164,7 +164,7 @@ namespace Bot
 									bot.Context = pw;
 								bot.DoTurn();
 #if DEBUG
-								Logger.Log("  Turn time: " + (DateTime.Now - startTime).TotalMilliseconds);
+								//Logger.Log("  Turn time: " + (DateTime.Now - startTime).TotalMilliseconds);
 #endif
 								message = "";
 							}
