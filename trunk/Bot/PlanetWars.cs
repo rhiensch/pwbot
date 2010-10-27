@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef DEBUG
+#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,6 @@ namespace Bot
 			planets = new List<Planet>();
 			fleets = new Fleets();
 			ParseGameState(gameStatestring);
-
 			//planets.Sort(new Comparer(this).Coordinates);
 
 			Router.Init(planets);
@@ -886,7 +885,7 @@ namespace Bot
 		{
 			get
 			{
-				if (enemyProduction == -1)
+				if (enemyTotalShipCount == -1)
 				{
 					enemyTotalShipCount = CalcTotalShipCount(2);
 				}

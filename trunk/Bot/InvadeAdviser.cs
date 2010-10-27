@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define DEBUG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -22,7 +22,7 @@ namespace Bot
 
 			Planets nearestPlanets = Context.GetClosestPlanetsToTargetBySectors(targetPlanet, Context.MyPlanets());
 									//Context.MyPlanets();
-									//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);
+									//MyPlanetsWithinProximityToPlanet(planet, Config.InvokeDistanceForInvade);););
 			if (nearestPlanets.Count == 0) return moves;
 			
 			if (nearestPlanets.Count > 1)
@@ -44,7 +44,7 @@ namespace Bot
 				int maxDistance = Math.Max(distance, farestFleet);
 
 				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, maxDistance);
-				if (futurePlanet.NumShips() == 2)//Error?
+				if (futurePlanet.Owner() == 2)//Error?
 				{
 #if DEBUG
 					Logger.Log("InvadeAdvizer: Error?");
@@ -60,8 +60,6 @@ namespace Bot
 				{
 					int extraTurns = (int)Math.Ceiling(targetPlanet.NumShips() / (double)targetPlanet.GrowthRate());
 					needToSend += Context.GetEnemyAid(targetPlanet, maxDistance + extraTurns);
-					//if (targetPlanet.PlanetID() == 0)
-					//	Logger.Log("target planet: " + targetPlanet + " turns" + (maxDistance + extraTurns) + " Aid: " + Context.GetEnemyAid(targetPlanet, maxDistance + extraTurns));
 				}
 				//delay closer moves
 				foreach (Move eachMove in moves)

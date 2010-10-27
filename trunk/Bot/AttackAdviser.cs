@@ -1,4 +1,4 @@
-﻿#undef  DEBUG
+﻿#define  DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -27,10 +27,9 @@ namespace Bot
 			comparer.TargetPlanet = targetPlanet;
 			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
-			int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
+			//Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
+			//int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
 
-			int sendedShips = 0;
 			foreach (Planet myPlanet in myPlanets)
 			{
 				int targetDistance = Context.Distance(myPlanet, targetPlanet);
@@ -40,37 +39,32 @@ namespace Bot
 				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, targetDistance);
 				if (futurePlanet.Owner() != 2) continue;
 
-				int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, targetDistance);
-				targetDistance = Math.Max(targetDistance, farestFleet);
+				//int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, targetDistance);
+				//targetDistance = Math.Max(targetDistance, farestFleet);
 
 				int needToSend = 1 + futurePlanet.NumShips();
-				needToSend -= myFleetsShipNum;
+				//needToSend -= myFleetsShipNum;
 				needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
-				/*if (targetPlanet.PlanetID() == 16)
-				{
-					Logger.Log("EnemyAid : " + Context.GetEnemyAid(targetPlanet, targetDistance) + " distance: " + targetDistance);
-					Logger.Log("Future NumShips" + Context.PlanetFutureStatus(targetPlanet, targetDistance).NumShips());
-					Logger.Log("myFleetsShipNum = " + myFleetsShipNum);
-				}*/
-				needToSend -= sendedShips;
 
 				if (needToSend <= 0) return moves;
 
-				sendedShips += Math.Min(myCanSend, needToSend);
-
-				Move move = new Move(myPlanet, targetPlanet, Math.Min(myCanSend, needToSend));
-				moves.Add(move);
-				if (sendedShips >= needToSend)
+				//delay closer moves
+				foreach (Move eachMove in moves)
 				{
-					//delay closer moves
-					foreach (Move eachMove in moves)
-					{
-						int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
-						int maxDistance = targetDistance;
-						eachMove.TurnsBefore = maxDistance - moveDistance;
-					}
-					return moves;
+					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
+					int turns = targetDistance - moveDistance;
+					eachMove.TurnsBefore = turns;
+					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID), turns);
 				}
+
+				if (needToSend <= 0) return moves;
+
+				int canSend = Math.Min(needToSend, myCanSend);
+				needToSend -= canSend;
+				Move move = new Move(myPlanet, targetPlanet, canSend);
+				moves.Add(move);
+
+				if (needToSend <= 0) return moves;
 			}
 
 			return new Moves();

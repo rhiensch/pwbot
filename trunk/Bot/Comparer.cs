@@ -21,86 +21,32 @@ namespace Bot
 
 		public int CompareNumberOfShipsLT(Planet planet1, Planet planet2)
 		{
-			return (planet1.NumShips() - planet2.NumShips());
+			int result = (planet1.NumShips() - planet2.NumShips());
+			if (result == 0) result = planet1.PlanetID() - planet2.PlanetID();
+			return result;
 		}
 
 		public int CompareNumberOfShipsGT(Planet planet1, Planet planet2)
 		{
-			return (planet2.NumShips() - planet1.NumShips());
+			int result = (planet2.NumShips() - planet1.NumShips());
+			if (result == 0) result = planet1.PlanetID() - planet2.PlanetID();
+			return result;
 		}
 
 		public int CompareGrowsRateGT(Planet planet1, Planet planet2)
 		{
-			return (planet2.GrowthRate() - planet1.GrowthRate());
-		}
-
-		public int CompareImportanceOfPlanetsGT(Planet planet1, Planet planet2)
-		{
-			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
-
-			Planets myPlanets = Context.MyPlanets();
-
-			int growthDifference =
-				(planet1.GrowthRate() -
-				 planet2.GrowthRate())
-				* Config.GrowsRateKoef;
-			int distanceDifference =
-				(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
-				 Context.GetPlanetSummaryDistance(myPlanets, planet2))
-				* Config.DistanceKoef;
-
-			return growthDifference + distanceDifference;
-		}
-
-		public int CompareImportanceOfNeutralPlanetsGT(Planet planet1, Planet planet2)
-		{
-			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
-
-			Planets myPlanets = Context.MyPlanets();
-
-			int growthDifference =
-				(planet1.GrowthRate() -
-				 planet2.GrowthRate())
-				* Config.GrowsRateKoef;
-			int distanceDifference =
-				(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
-				 Context.GetPlanetSummaryDistance(myPlanets, planet2))
-				* Config.DistanceKoef;
-			int numFleetsDifference =
-				(planet1.NumShips() -
-				 planet2.NumShips())
-				* Config.NumShipsKoef;
-
-			return growthDifference + distanceDifference + numFleetsDifference;
-		}
-
-		public int CompareImportanceOfEnemyPlanetsGT(Planet planet1, Planet planet2)
-		{
-			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
-
-			Planets myPlanets = Context.MyPlanets();
-
-			int growthDifference =
-				(planet1.GrowthRate() -
-				 planet2.GrowthRate())
-				* Config.GrowsRateKoef;
-			int numFleetsDifference=
-				(planet1.NumShips() -
-				 planet2.NumShips())
-				* Config.NumShipsKoef;
-			int distanceDifference =
-				(Context.GetClosestMyPlanetDistance(planet1) -
-				 Context.GetClosestMyPlanetDistance(planet2))
-				//(Context.GetPlanetSummaryDistance(myPlanets, planet1) -
-				// Context.GetPlanetSummaryDistance(myPlanets, planet2))
-				* Config.DistanceKoef;
-
-			return growthDifference + numFleetsDifference + distanceDifference;
+			int result = (planet2.GrowthRate() - planet1.GrowthRate());
+			if (result == 0) result = planet1.PlanetID() - planet2.PlanetID();
+			return result;
 		}
 
 		public int CompareTurnsRemainingLT(Fleet fleet1, Fleet fleet2)
 		{
-			return (fleet1.TurnsRemaining() - fleet2.TurnsRemaining());
+			int result = (fleet1.TurnsRemaining() - fleet2.TurnsRemaining());
+			if (result == 0) result = fleet1.NumShips() - fleet2.NumShips();
+			if (result == 0) result = fleet1.SourcePlanet() - fleet2.SourcePlanet();
+			if (result == 0) result = fleet1.DestinationPlanet() - fleet2.DestinationPlanet();
+			return result;
 		}
 
 		private Planet targetPlanet;
@@ -113,23 +59,20 @@ namespace Bot
 		public int CompareDistanceToTargetPlanetLT(Planet planet1, Planet planet2)
 		{
 			if (TargetPlanet == null) throw new ArgumentNullException("planet1", "Target planet is not defined!");
-			if (planet1.PlanetID() == planet2.PlanetID()) return 0;
+			if (planet1.PlanetID() == planet2.PlanetID()) return planet1.PlanetID() - planet2.PlanetID(); ;
 
-			return (Context.Distance(planet1, TargetPlanet) - Context.Distance(planet2, TargetPlanet));
+			int result = (Context.Distance(planet1, TargetPlanet) - Context.Distance(planet2, TargetPlanet));
+			if (result == 0) result = planet1.PlanetID() - planet2.PlanetID();
+
+			return result;
 		}
 
 		public int CompareSetScoreGT(MovesSet set1, MovesSet set2)
 		{
-			return (Math.Sign(set2.Score - set1.Score));
-		}
-
-		public int Coordinates(Planet planet1, Planet planet2)
-		{
-			/*int result = planet1.X() > planet2.X() ? 1 : -1;
-			if (planet1.X() == planet2.X())
-				result = planet1.Y() > planet2.Y() ? 1 : -1;
-			return result;*/
-			return 0;
+			int result = Math.Sign(set2.Score - set1.Score);
+			if (result == 0) result = Math.Sign(set1.AverageDistance - set2.AverageDistance);
+			if (result == 0) result = set1.MinDistance - set2.MinDistance;
+			return result;
 		}
 	}
 }
