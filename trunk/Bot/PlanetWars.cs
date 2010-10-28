@@ -207,13 +207,13 @@ namespace Bot
 
 		public int Distance(Planet source, Planet destination)
 		{
-			double dx = source.X() - destination.X();
+			/*double dx = source.X() - destination.X();
 			double dy = source.Y() - destination.Y();
 			double squared = dx * dx + dy * dy;
 			double rooted = Math.Sqrt(squared);
 			int result = (int)Math.Ceiling(rooted);
-			return result;
-			//return Router.Distance(source, destination);
+			return result;*/
+			return Router.Distance(source, destination);
 		}
 
 		public bool IsValid(int sourcePlanetID, int destPlanetID, int numShips)

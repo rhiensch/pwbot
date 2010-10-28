@@ -109,7 +109,7 @@ namespace Bot
 					double risk = 2.0;
 					if (enemyAid != 0) risk = set.SummaryNumShips / (double)enemyAid;
 					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));*/
-					double score = (planet.NumShips()*Config.NumShipsKoef + set.MaxDistance*Config.DistanceKoef)/(double)planet.GrowthRate();
+					double score = planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns - planet.NumShips();
 					set.Score = score;
 
 					movesSet.Add(set);
