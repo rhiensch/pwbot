@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AttackAdviser.cs" />
     <Compile Include="BaseAdviser.cs" />
+    <Compile Include="ClosestPathFinder.cs" />
     <Compile Include="Dijkstra.cs" />
     <Compile Include="DirectPathFinder.cs" />
     <Compile Include="Comparer.cs" />

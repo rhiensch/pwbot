@@ -63,43 +63,6 @@ namespace Bot
 			return markedPlanets;
 		}
 
-		public static Planets GetTargetPlanets(Planets candidates, int canSend)
-		{
-			PlanetsCombination allCombination = new PlanetsCombination();
-			int maximum = 1 << candidates.Count;
-			for (int i = 0; i < maximum; i++)
-			{
-				Planets combination = new Planets();
-				int set = i;
-				for (int j = 0; j < candidates.Count; j++, set >>= 1)
-					if ((set & 0x01) == 1)
-						combination.Add(candidates[j]);
-				allCombination.Add(combination);
-			}
-
-			Planets bestTargets = null;
-			int bestScore = 0;
-			foreach (Planets planets in allCombination)
-			{
-				int score = 0;
-				int sheepsNeeded = 0;
-				foreach (Planet planet in planets)
-				{
-					sheepsNeeded += planet.NumShips() + 1;
-					if (sheepsNeeded > canSend) break;
-					score += planet.GrowthRate();
-				}
-				if (sheepsNeeded > canSend) continue;
-				if (score > bestScore)
-				{
-					bestScore = score;
-					bestTargets = planets;
-				}
-			}
-
-			return bestTargets;
-		}
-
 		public override Moves Run(Planet planet)
 		{
 			throw new NotImplementedException();
@@ -112,13 +75,25 @@ namespace Bot
 			Planet myPlanet = Context.MyPlanets()[0];
 			Planet enemyPlanet = Context.EnemyPlanets()[0];
 
-			int canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
+			//int canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
+			int canSend = myPlanet.NumShips();
+			int distance = Context.Distance(myPlanet, enemyPlanet);
+			if (distance <= 5)
+			{
+				//kamikadze attack
+				return KamikadzeAttack(myPlanet, enemyPlanet);
+			}
+
+			if (distance < 10)
+			{
+				canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
+			}
 
 			Planets neutralPlanets = Context.NeutralPlanets();
 			Planets planets = new Planets();
 			foreach (Planet neutralPlanet in neutralPlanets)
 			{
-				if (Context.Distance(myPlanet, neutralPlanet) < 
+				if (Context.Distance(myPlanet, neutralPlanet) <
 					Context.Distance(enemyPlanet, neutralPlanet))
 				{
 					planets.Add(neutralPlanet);
@@ -133,7 +108,7 @@ namespace Bot
 				sendedShips += targetPlanet.NumShips() + 1;
 				if (sendedShips > myPlanet.NumShips()) break; //ERROR!
 
-				Move move = new Move(myPlanet, targetPlanet, targetPlanet.NumShips() + 1);
+				Move move = new Move(myPlanet, targetPlanet,targetPlanet.NumShips() + 1);
 				Moves moves = new Moves(1);
 				moves.Add(move);
 
@@ -144,6 +119,19 @@ namespace Bot
 				setList.Add(set);
 			}
 
+			return setList;
+		}
+
+		private List<MovesSet> KamikadzeAttack(Planet myPlanet, Planet enemyPlanet)
+		{
+			List<MovesSet> setList = new List<MovesSet>(1);
+			Move move = new Move(myPlanet, enemyPlanet, myPlanet.NumShips());
+			Moves moves = new Moves(1);
+			moves.Add(move);
+
+			MovesSet set = new MovesSet(moves, 0, GetAdviserName() + " kamikadze", Context);
+
+			setList.Add(set);
 			return setList;
 		}
 

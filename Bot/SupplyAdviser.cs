@@ -25,38 +25,14 @@ namespace Bot
 			int canSend = Context.CanSend(supplyPlanet);
 			if (canSend == 0) return moves;
 
-			IPathFinder pathFinder = new DijkstraPathFinder(Context);
+			IPathFinder pathFinder = new ClosestPathFinder(Context);
+				//new DijkstraPathFinder(Context);
 			Planet dest = pathFinder.FindNextPlanetInPath(supplyPlanet);
 			if (dest != null)
 			{
 				moves.Add(new Move(supplyPlanet.PlanetID(), dest.PlanetID(), canSend));
 			}
 			return moves;
-
-			/*int supplyPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(supplyPlanet);
-				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
-
-			Planets nearPlanets = Context.MyPlanets();
-			if (nearPlanets.Count == 0) return moves;
-
-			Comparer comparer = new Comparer(Context);
-			comparer.TargetPlanet = supplyPlanet;
-			nearPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
-
-			foreach (Planet nearPlanet in nearPlanets)
-			{
-				if (nearPlanet == supplyPlanet) continue;
-
-				int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
-					//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
-
-				if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
-				{
-					moves.Add(new Move(supplyPlanet.PlanetID(), nearPlanet.PlanetID(), canSend));
-					return moves;
-				}
-			}
-			return moves;*/
 		}
 
 		public override string GetAdviserName()

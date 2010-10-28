@@ -15,6 +15,7 @@ namespace Bot
 		public int MinDistance;
 		public int SumDistance;
 		public int SummaryNumShips;
+		public int NumShipsByTurns;
 
 		public Moves GetMoves()
 		{
@@ -29,6 +30,7 @@ namespace Bot
 			if (newDistance > MaxDistance) MaxDistance = newDistance;
 			if (newDistance < MinDistance) MinDistance = newDistance;
 			SumDistance += newDistance;
+			NumShipsByTurns += newMove.NumSheeps * newMove.TurnsBefore;
 			
 			moves.Add(newMove);
 
@@ -42,6 +44,7 @@ namespace Bot
 			MinDistance = Int32.MaxValue;
 			AverageDistance = 0;
 			SummaryNumShips = 0;
+			NumShipsByTurns = 0;
 
 			moves = new Moves();
 			foreach (Move move in movesSet)

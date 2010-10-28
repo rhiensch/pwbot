@@ -17,17 +17,29 @@ namespace Bot
 		{
 			Moves moves = new Moves();
 
+			Logger.Log("steal: " + stealPlanet);
+
 			PlanetHolder planetHolder = Context.GetPlanetHolder(stealPlanet);
 			List<PlanetOwnerSwitch> switches = planetHolder.GetOwnerSwitchesFromNeutralToEnemy();
 			if (switches.Count == 0) return moves;
 
-			int turn = switches[0].TurnsBefore + 1;
+			Planet futurePlanet = null;
+			int turn = 0;
+			for (int i = 0; i < switches.Count; i++)
+			{
+				turn = switches[0].TurnsBefore + 1;
+				futurePlanet = Context.PlanetFutureStatus(stealPlanet, turn);
+				if (futurePlanet.Owner() != 1)
+				{
+					break;
+				}
+				futurePlanet = null;
+			}
+			if (futurePlanet == null) return moves;
+			
 
 			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, turn);
 			if (myPlanets.Count == 0) return moves;
-
-			Planet futurePlanet = Context.PlanetFutureStatus(stealPlanet, turn);
-			if (futurePlanet.Owner() < 2) return moves;
 
 			int needToSend = futurePlanet.NumShips() + 1;
 			needToSend += Context.GetEnemyAid(stealPlanet, turn);
@@ -42,7 +54,9 @@ namespace Bot
 
 				Move move = new Move(myPlanet, stealPlanet, send);
 				int distance = Context.Distance(myPlanet, stealPlanet);
+				if (distance < turn) move.TurnsBefore = turn - distance;
 				moves.Add(move);
+				
 
 				if (needToSend <= 0) return moves;
 			}
@@ -70,8 +84,7 @@ namespace Bot
 				if (moves.Count > 0)
 				{
 					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-					double score = (planet.NumShips() * Config.NumShipsKoef + set.MaxDistance * Config.DistanceKoef) / (double)planet.GrowthRate();
+					double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
 					set.Score = score;
 
 					movesSet.Add(set);
