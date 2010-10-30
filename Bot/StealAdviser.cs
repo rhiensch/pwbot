@@ -17,8 +17,6 @@ namespace Bot
 		{
 			Moves moves = new Moves();
 
-			Logger.Log("steal: " + stealPlanet);
-
 			PlanetHolder planetHolder = Context.GetPlanetHolder(stealPlanet);
 			List<PlanetOwnerSwitch> switches = planetHolder.GetOwnerSwitchesFromNeutralToEnemy();
 			if (switches.Count == 0) return moves;
@@ -27,22 +25,20 @@ namespace Bot
 			int turn = 0;
 			for (int i = 0; i < switches.Count; i++)
 			{
-				turn = switches[0].TurnsBefore + 1;
+				turn = switches[i].TurnsBefore + 1;
 				futurePlanet = Context.PlanetFutureStatus(stealPlanet, turn);
-				if (futurePlanet.Owner() != 1)
-				{
-					break;
-				}
+				if (futurePlanet.Owner() != 1) break;
 				futurePlanet = null;
 			}
 			if (futurePlanet == null) return moves;
 			
+			Logger.Log("Steal " + Context.GetPlanet(futurePlanet.PlanetID()));
 
 			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, turn);
 			if (myPlanets.Count == 0) return moves;
 
 			int needToSend = futurePlanet.NumShips() + 1;
-			needToSend += Context.GetEnemyAid(stealPlanet, turn);
+			//needToSend += Context.GetEnemyAid(stealPlanet, turn);
 
 			foreach (Planet myPlanet in myPlanets)
 			{
@@ -80,6 +76,7 @@ namespace Bot
 
 				PlanetHolder planetHolder = Context.GetPlanetHolder(planet);
 				if (planetHolder.GetOwnerSwitchesFromNeutralToEnemy().Count == 0) continue;
+
 				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{

@@ -1,3 +1,5 @@
+using System;
+
 namespace Bot
 {
 	public class Fleet
@@ -113,6 +115,11 @@ namespace Bot
 			destinationPlanet = f.destinationPlanet;
 			totalTripLength = f.totalTripLength;
 			turnsRemaining = f.turnsRemaining;
+		}
+
+		public void AddShips(int num)
+		{
+			numShips += num;
 		}
 	}
 }

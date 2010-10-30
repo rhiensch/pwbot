@@ -372,6 +372,7 @@ namespace Bot
 			fleets.Clear();
 			int planetID = 0;
 			string[] lines = s.Split('\n');
+			Console.WriteLine(lines.Length);
 			for (int i = 0; i < lines.Length; ++i)
 			{
 				string line = lines[i];
@@ -424,25 +425,33 @@ namespace Bot
 					int turnsRemaining = Int32.Parse(tokens[6]);
 					if (numShips > 0)
 					{
-						Fleet newFleet = null;
-						foreach (Fleet fleet in fleets)
+						/*fleets.Add(new Fleet(owner,
+												numShips,
+												source,
+												destination,
+												totalTripLength,
+												turnsRemaining));*/
+
+						bool found = false;
+						for (int index = 0; index < fleets.Count; index++)
 						{
+							Fleet fleet = fleets[index];
 							if (fleet.DestinationPlanet() == destination &&
-								fleet.TurnsRemaining() == turnsRemaining)
+							    fleet.TurnsRemaining() == turnsRemaining)
 							{
-								newFleet = fleet;
+								fleet.AddShips(numShips);
+								found = true;
 								break;
 							}
 						}
-						if (newFleet == null)
+						if (!found)
 						{
-							newFleet = new Fleet(owner,
+							fleets.Add(new Fleet(owner,
 							                    numShips,
 							                    source,
 							                    destination,
 							                    totalTripLength,
-							                    turnsRemaining);
-							fleets.Add(newFleet);
+							                    turnsRemaining));
 						}
 					}
 				}
@@ -933,21 +942,26 @@ namespace Bot
 			if (switches.Count == 0) return saveSteps;
 
 			//Save from closest danger. From next dangers we will find steps on next turns
-			int turn = switches[0].TurnsBefore;
+			
 
-			Step step = null;
-			Planet planetInFuture = planetHolder.GetFutureState(turn);
-			if (planetInFuture.Owner() != 1)
+			for (int i = 0; i < switches.Count; i++)
 			{
-				step = new Step(0, turn, planetInFuture.NumShips() + Config.MinShipsOnPlanetsAfterDefend);
-			}
-			else if (planetInFuture.NumShips() < Config.MinShipsOnPlanetsAfterDefend)
-			{
-				step = new Step(0, turn, Config.MinShipsOnPlanetsAfterDefend - planetInFuture.NumShips());
-			}
+				Step step = null;
+				int turn = switches[i].TurnsBefore;
 
-			if (step != null) saveSteps.Add(step);
+				Planet planetInFuture = planetHolder.GetFutureState(turn);
+				if (planetInFuture.Owner() != 1)
+				{
+					step = new Step(0, turn, planetInFuture.NumShips() + Config.MinShipsOnPlanetsAfterDefend);
+				}
+				else if (planetInFuture.NumShips() < Config.MinShipsOnPlanetsAfterDefend)
+				{
+					step = new Step(0, turn, Config.MinShipsOnPlanetsAfterDefend - planetInFuture.NumShips());
+				}
 
+				if (step != null) saveSteps.Add(step);
+
+			}
 			return saveSteps;
 
 		}
