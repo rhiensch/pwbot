@@ -2,15 +2,19 @@
 
 $root_dir = "C:\Projects\pw\"
 $my_bot = "bot.exe"
-$enemy_bot = "bot_exe\bot3.exe"
+#$enemy_bot = "bot_exe\bot3.exe"
 
-cd $root_dir
-[IO.Directory]::SetCurrentDirectory($root_dir)
+#cd $root_dir
+#[IO.Directory]::SetCurrentDirectory($root_dir)
 
-#$bots = Get-ChildItem ("example_bots") | where {$_.extension -eq ".jar"}
+$bots = Get-ChildItem ("bot_exe") | where {$_.extension -eq ".exe"}
 
-#foreach($bot in $bots) {
-    $botname = "bot3"#$bot.name 
+foreach($bot in $bots) {
+    $botname = $bot.name 
+    if ($botname -match ".jar") 
+    {
+        $botname = "java -jar " + $botname
+    }
     "Bot: " + $botname
     
     $player_1_counter=0
@@ -19,11 +23,11 @@ cd $root_dir
     $maps_played=0
     
     foreach($i in (1..100)) {   
-        $output = .\CSharpEngine.exe maps\map$i.txt 3000 200 log.txt $my_bot $enemy_bot 2>&1
+        $output = .\CSharpEngine.exe maps\map$i.txt 3000 200 log.txt $my_bot bot_exe\$botname 2>&1
         
         if($output -match "Player 1 Wins!") {
             $player_1_counter = $player_1_counter + 1
-            $i.toString() + " - win"
+            #$i.toString() + " - win"
         }
         elseif($output -match "Player 2 Wins!") {
             $player_2_counter = $player_2_counter + 1
@@ -40,4 +44,4 @@ cd $root_dir
     "won against " + $botname + ": " + $player_1_counter + "/" + $maps_played
     "lost against " + $botname + ": " + $player_2_counter+"/"+$maps_played
     "draws: " + $draw_counter+"/"+$maps_played
-#}
+}

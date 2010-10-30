@@ -25,10 +25,34 @@ namespace Bot
 			private set { context = value; }
 		}
 
+		private Dictionary<string, int> lastMove;
+
 		public MyBot(PlanetWars planetWars)
 		{
 			Context = planetWars;
 			DoCheckTime = true;
+			InitLastMove();
+		}
+
+		private void InitLastMove()
+		{
+			lastMove = new Dictionary<string, int>(7);
+
+			FirstMoveAdviser firstMoveAdviser = new FirstMoveAdviser(Context);
+			DefendAdviser defendAdviser = new DefendAdviser(Context);
+			InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
+			AttackAdviser attackAdviser = new AttackAdviser(Context);
+			SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
+			StealAdviser stealAdviser = new StealAdviser(Context);
+			AntiCrisisAdviser antiCrisiAdviser = new AntiCrisisAdviser(Context);
+
+			lastMove.Add(firstMoveAdviser.GetAdviserName(), 0);
+			lastMove.Add(defendAdviser.GetAdviserName(), 0);
+			lastMove.Add(invadeAdviser.GetAdviserName(), 0);
+			lastMove.Add(attackAdviser.GetAdviserName(), 0);
+			lastMove.Add(supplyAdviser.GetAdviserName(), 0);
+			lastMove.Add(stealAdviser.GetAdviserName(), 0);
+			lastMove.Add(antiCrisiAdviser.GetAdviserName(), 0);
 		}
 
 		public void DoTurn()
@@ -46,12 +70,25 @@ namespace Bot
 				AttackAdviser attackAdviser = new AttackAdviser(Context);
 				SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
 				StealAdviser stealAdviser = new StealAdviser(Context);
+				AntiCrisisAdviser antiCrisiAdviser = new AntiCrisisAdviser(Context);
 
-				
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
-				if (turn == 29) Logger.Log(PlanetWars.SerializeGameState(Context, true));
+				if (Context.MyProduction < Context.EnemyProduction)
+				{
+					if (turn - lastMove[attackAdviser.GetAdviserName()] > 5 &&
+						turn - lastMove[invadeAdviser.GetAdviserName()] > 5 &&
+						turn - lastMove[stealAdviser.GetAdviserName()] > 5)
+					{
+						Logger.Log("stop!");
+
+						RunAdviser(antiCrisiAdviser);
+						if (!CheckTime()) return;
+						//Console.WriteLine("stop!");
+					}
+				}
+
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
 
@@ -95,7 +132,7 @@ namespace Bot
 
 			foreach (MovesSet movesSet in setList)
 			{
-				bool isPossible = true;
+				bool isPossible = false;
 				Moves moves = movesSet.GetMoves();
 				foreach (Move move in moves)
 				{
@@ -106,6 +143,8 @@ namespace Bot
 				}
 				if (isPossible)
 				{
+					if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
+					else lastMove[movesSet.AdviserName] = turn;
 					Context.IssueOrder(movesSet);
 				}
 			}
@@ -144,7 +183,6 @@ namespace Bot
 							line = line.Trim();
 							if (line.Equals("go"))
 							{
-								Logger.Log(message);
 								PlanetWars pw = new PlanetWars(message);
 #if DEBUG
 								Logger.Log("");
