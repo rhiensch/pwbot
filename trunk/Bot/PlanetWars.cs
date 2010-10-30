@@ -372,7 +372,6 @@ namespace Bot
 			fleets.Clear();
 			int planetID = 0;
 			string[] lines = s.Split('\n');
-			Console.WriteLine(lines.Length);
 			for (int i = 0; i < lines.Length; ++i)
 			{
 				string line = lines[i];
@@ -392,7 +391,6 @@ namespace Bot
 				}
 				if (tokens[0].Equals("P"))
 				{
-					
 					if (tokens.Length != 6)
 					{
 						throw new ArgumentException("Planet must have 6 parameters (actual: " +
@@ -940,9 +938,6 @@ namespace Bot
 
 			List<PlanetOwnerSwitch> switches = planetHolder.GetOwnerSwitchesFromMyToEnemy();
 			if (switches.Count == 0) return saveSteps;
-
-			//Save from closest danger. From next dangers we will find steps on next turns
-			
 
 			for (int i = 0; i < switches.Count; i++)
 			{
