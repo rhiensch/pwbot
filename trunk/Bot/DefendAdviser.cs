@@ -18,21 +18,21 @@ namespace Bot
 			Planets myEndangeredPlanets = Context.MyEndangeredPlanets();
 			//myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
 
-			if (usedPlanets.Count > 0)
+			i"F (usedPlanets.Count > 0)
 			{
 				foreach (Planet usedPlanet in usedPlanets)
 				{
 					int index = myEndangeredPlanets.IndexOf(usedPlanet);
-					if (index != -1) myEndangeredPlanets.RemoveAt(index);
+					i"F (index != -1) myEndangeredPlanets.RemoveAt(index);
 				}
 			}
 
-			if (myEndangeredPlanets.Count == 0)
+			i"F (myEndangeredPlanets.Count == 0)
 			{
 				IsWorkFinished = true;
 				return null;
 			}
-			if (myEndangeredPlanets.Count == 1)
+			i"F (myEndangeredPlanets.Count == 1)
 			{
 				usedPlanets.Add(myEndangeredPlanets[0]);
 				return myEndangeredPlanets[0];
@@ -109,3 +109,14 @@ namespace Bot
 		}
 	}
 }
+
+
+
+
+
+
+
+/*
+
+
+ */

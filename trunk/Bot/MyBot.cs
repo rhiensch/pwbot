@@ -51,6 +51,7 @@ namespace Bot
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
+				if (turn == 29) Logger.Log(PlanetWars.SerializeGameState(Context, true));
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
 
@@ -143,6 +144,7 @@ namespace Bot
 							line = line.Trim();
 							if (line.Equals("go"))
 							{
+								Logger.Log(message);
 								PlanetWars pw = new PlanetWars(message);
 #if DEBUG
 								Logger.Log("");
