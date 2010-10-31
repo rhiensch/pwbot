@@ -1,4 +1,4 @@
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -77,12 +77,10 @@ namespace Bot
 
 				if (Context.MyProduction < Context.EnemyProduction)
 				{
-					if (turn - lastMove[attackAdviser.GetAdviserName()] > 5 &&
-						turn - lastMove[invadeAdviser.GetAdviserName()] > 5 &&
-						turn - lastMove[stealAdviser.GetAdviserName()] > 5)
+					if (turn - lastMove[attackAdviser.GetAdviserName()] > Config.IdleTurns &&
+						turn - lastMove[invadeAdviser.GetAdviserName()] > Config.IdleTurns &&
+						turn - lastMove[stealAdviser.GetAdviserName()] > Config.IdleTurns)
 					{
-						Logger.Log("stop!");
-
 						RunAdviser(antiCrisiAdviser);
 						if (!CheckTime()) return;
 						//Console.WriteLine("stop!");

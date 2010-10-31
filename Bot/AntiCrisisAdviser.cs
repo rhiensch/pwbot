@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 
@@ -44,16 +45,35 @@ namespace Bot
 		{
 			List<MovesSet> movesSet = new List<MovesSet>();
 
-			/*Planets myPlanets = Context.MyPlanets();
-			foreach (Planet myPlanet in myPlanets)
+			Planets myPlanets = Context.MyStrongestPlanets(1);
+			if (myPlanets.Count == 0) return movesSet;
+
+			Planet myStrongestPlanet = myPlanets[0];
+
+			int canSend = Context.CanSend(myStrongestPlanet);
+
+			Planets targetFuturePlanets = new Planets();
+			foreach (Planet neutralPlanet in Context.NeutralPlanets())
 			{
-				Moves moves = Run(myPlanet);
-				if (moves.Count > 0)
+				int distance = Context.Distance(myStrongestPlanet, neutralPlanet);
+				Planet futurePlanet = Context.PlanetFutureStatus(neutralPlanet, distance);
+
+				if (futurePlanet.Owner() == 0 && canSend > futurePlanet.NumShips() + 1)
 				{
-					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-					movesSet.Add(set);
+					targetFuturePlanets.Add(futurePlanet);
 				}
-			}*/
+			}
+
+			if (targetFuturePlanets.Count == 0) return movesSet;
+
+			Comparer comparer = new Comparer(Context);
+			comparer.TargetPlanet = myStrongestPlanet;
+			targetFuturePlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
+			Moves moves = new Moves(1);
+			moves.Add(new Move(myStrongestPlanet, targetFuturePlanets[0], Math.Min(canSend, targetFuturePlanets[0].NumShips() + 1)));
+			movesSet.Add(new MovesSet(moves, 99999, GetAdviserName(), Context));
+
 			return movesSet;
 		}
 	}

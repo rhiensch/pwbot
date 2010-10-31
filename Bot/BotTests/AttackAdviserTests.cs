@@ -125,41 +125,5 @@ namespace BotTests
 			Assert.AreEqual(2, moves.Count);
 			Assert.AreEqual(120, moves[0].NumSheeps + moves[1].NumSheeps);
 		}
-
-		[TestMethod]
-		public void TestDoAttackWhenPossible()
-		{
-			PlanetWars pw = new PlanetWars(
-				"P 9.790385 11.939511 1 23 4#0\n" +
-				"P 13.135618 2.07503 1 5 5#1\n" +
-				"P 6.4451513 21.803991 2 320 5#2\n" +
-				"P 0 3.3089578 0 58 1#3\n" +
-				"P 19.58077 20.570065 0 58 1#4\n" +
-				"P 11.975901 0.2549936 0 69 1#5\n" +
-				"P 7.604869 23.624027 0 69 1#6\n" +
-				"P 4.7522573 6.9940777 0 48 1#7\n" +
-				"P 14.828512 16.884945 0 48 1#8\n" +
-				"P 14.284102 12.164202 0 82 2#9\n" +
-				"P 5.296667 11.71482 0 82 2#10\n" +
-				"P 18.723335 9.709133 1 16 4#11\n" +
-				"P 0.8574339 14.1698885 1 27 4#12\n" +
-				"P 18.553186 5.650815 1 7 4#13\n" +
-				"P 1.0275841 18.228207 1 357 4#14\n" +
-				"P 3.260637 6.3643866 0 47 2#15\n" +
-				"P 16.320133 17.514635 0 47 2#16\n" +
-				"P 6.901025 0 0 49 2#17\n" +
-				"P 12.679745 23.879023 0 49 2#18\n" +
-				"P 18.747196 2.6167994 1 3 3#19\n" +
-				"P 0.8335743 21.262222 0 28 3#20\n" +
-				"P 5.718854 1.5311116 1 3 3#21\n" +
-				"P 13.861916 22.34791 1 3 3#22\n" +
-				"go\n");
-
-			AttackAdviser adviser = new AttackAdviser(pw);
-			List<MovesSet> moves = adviser.RunAll();
-
-			Assert.IsTrue(moves.Count > 0);
-			Assert.AreEqual(357, moves[0].GetMove(0).NumSheeps);
-		}
 	}
 }

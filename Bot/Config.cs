@@ -20,6 +20,7 @@ namespace Bot
 		public static int NumShipsKoef { get { return 60; } }
 		public static int ScoreKoef { get { return 1000; } }
 		public static int ScoreTurns { get { return 30; } }
+		public static int IdleTurns { get { return 15; } }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
 		private static double doInvadeKoef;
 		private static bool invadeSendMoreThanEnemyCanDefend;

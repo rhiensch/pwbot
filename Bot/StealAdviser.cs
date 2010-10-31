@@ -32,8 +32,6 @@ namespace Bot
 			}
 			if (futurePlanet == null) return moves;
 			
-			Logger.Log("Steal " + Context.GetPlanet(futurePlanet.PlanetID()));
-
 			Planets myPlanets = Context.MyPlanetsWithinProximityToPlanet(stealPlanet, turn);
 			if (myPlanets.Count == 0) return moves;
 
@@ -42,15 +40,15 @@ namespace Bot
 
 			foreach (Planet myPlanet in myPlanets)
 			{
-				int canSend = Context.CanSend(myPlanet, turn);
+				int distance = Context.Distance(myPlanet, stealPlanet);
+				int canSend = Context.CanSend(myPlanet, turn - distance);
 				if (canSend == 0) continue;
 
 				int send = Math.Min(canSend, needToSend);
 				needToSend -= send;
 
 				Move move = new Move(myPlanet, stealPlanet, send);
-				int distance = Context.Distance(myPlanet, stealPlanet);
-				if (distance < turn) move.TurnsBefore = turn - distance;
+				move.TurnsBefore = turn - distance;
 				moves.Add(move);
 				
 
