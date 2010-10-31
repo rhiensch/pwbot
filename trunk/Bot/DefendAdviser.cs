@@ -13,36 +13,6 @@ namespace Bot
 		{
 		}
 
-		/*private Planet SelectPlanetForAdvise()
-		{
-			Planets myEndangeredPlanets = Context.MyEndangeredPlanets();
-			//myPlanetsUnderAttack.AddRange(Context.MyInvasionNeutralPlanetsUnderAttack());
-
-			i"F (usedPlanets.Count > 0)
-			{
-				foreach (Planet usedPlanet in usedPlanets)
-				{
-					int index = myEndangeredPlanets.IndexOf(usedPlanet);
-					i"F (index != -1) myEndangeredPlanets.RemoveAt(index);
-				}
-			}
-
-			i"F (myEndangeredPlanets.Count == 0)
-			{
-				IsWorkFinished = true;
-				return null;
-			}
-			i"F (myEndangeredPlanets.Count == 1)
-			{
-				usedPlanets.Add(myEndangeredPlanets[0]);
-				return myEndangeredPlanets[0];
-			}
-
-			myEndangeredPlanets.Sort(new Comparer(Context).CompareImportanceOfPlanetsGT);
-			usedPlanets.Add(myEndangeredPlanets[0]);
-			return myEndangeredPlanets[0];
-		}*/
-
 		public override Moves Run(Planet planet)
 		{
 			Moves moves = new Moves();

@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define DEBUG
+#undef DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -435,7 +435,8 @@ namespace Bot
 						{
 							Fleet fleet = fleets[index];
 							if (fleet.DestinationPlanet() == destination &&
-							    fleet.TurnsRemaining() == turnsRemaining)
+							    fleet.TurnsRemaining() == turnsRemaining &&
+								fleet.Owner() == owner)
 							{
 								fleet.AddShips(numShips);
 								found = true;
@@ -954,7 +955,10 @@ namespace Bot
 					step = new Step(0, turn, Config.MinShipsOnPlanetsAfterDefend - planetInFuture.NumShips());
 				}
 
-				if (step != null) saveSteps.Add(step);
+				if (step != null)
+				{
+					saveSteps.Add(step);
+				}
 
 			}
 			return saveSteps;

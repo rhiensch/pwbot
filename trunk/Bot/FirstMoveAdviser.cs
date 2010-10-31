@@ -25,7 +25,9 @@ namespace Bot
 			{
 				// here weights and values are numShips and growthRate respectively 
 				// you can change this to something more complex if you like...
-				weights.Add(p.NumShips() + 1);
+				int value = p.NumShips() + 1;
+				weights.Add((p.PlanetID() == 0) ? value + 1 : value );
+				
 				values.Add(GetTargetScore(p));
 			}
 
@@ -93,7 +95,7 @@ namespace Bot
 			Planets planets = new Planets();
 			foreach (Planet neutralPlanet in neutralPlanets)
 			{
-				if (Context.Distance(myPlanet, neutralPlanet) <
+				if (Context.Distance(myPlanet, neutralPlanet) <=
 					Context.Distance(enemyPlanet, neutralPlanet))
 				{
 					planets.Add(neutralPlanet);

@@ -62,6 +62,7 @@ namespace Bot
 			if (planet1.PlanetID() == planet2.PlanetID()) return planet1.PlanetID() - planet2.PlanetID(); ;
 
 			int result = (Context.Distance(planet1, TargetPlanet) - Context.Distance(planet2, TargetPlanet));
+			if (result == 0) result = planet2.GrowthRate() - planet1.GrowthRate();
 			if (result == 0) result = planet1.PlanetID() - planet2.PlanetID();
 
 			return result;
