@@ -39,7 +39,7 @@ namespace BotTests
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(3, moves[0].SourceID);
 			Assert.AreEqual(0, moves[0].DestinationID);
-			Assert.AreEqual(10, moves[0].NumSheeps);
+			Assert.AreEqual(10, moves[0].NumShips);
 		}
 
 		[TestMethod]

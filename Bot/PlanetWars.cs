@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef DEBUG
+#define LOG
 
 using System;
 using System.Collections.Generic;
@@ -234,37 +234,25 @@ namespace Bot
 		public bool IsValid(Move move)
 		{
 			if (move.TurnsBefore > 0) return true;
-			return IsValid(move.SourceID, move.DestinationID, move.NumSheeps);
+			return IsValid(move.SourceID, move.DestinationID, move.NumShips);
 		}
-
-		/*public void IssueOrder(int sourcePlanet, int destinationPlanet, int numShips)
-		{
-			Move move = new Move(sourcePlanet, destinationPlanet, numShips);
-			IssueOrder(move);
-		}
-
-		public void IssueOrder(Planet source, Planet dest, int numShips)
-		{
-			Move move = new Move(source.PlanetID(), dest.PlanetID(), numShips);
-			IssueOrder(move);
-		}*/
 
 		public void IssueOrder(Move move)
 		{
 			if (!IsValid(move))
 			{
-			#if DEBUG
-				Logger.Log("  !Invalid move: from " + move.SourceID + " to " + move.DestinationID + " num " + move.NumSheeps);
+			#if LOG
+				Logger.Log("  !Invalid move: from " + move.SourceID + " to " + move.DestinationID + " num " + move.NumShips);
 			#endif
 				return;
 			}
 
 			if (move.TurnsBefore == 0)
 			{
-				Console.WriteLine("" + move.SourceID + " " + move.DestinationID + " " + move.NumSheeps);
+				Console.WriteLine("" + move.SourceID + " " + move.DestinationID + " " + move.NumShips);
 				Console.Out.Flush();
 			}
-#if DEBUG
+#if LOG
 			//Logger.Log("" + move.SourceID + " " + move.DestinationID +" " + move.NumSheeps);
 #endif
 
@@ -273,8 +261,38 @@ namespace Bot
 
 		private void MakeMove(Move move)
 		{
-			fleets.Add(MoveToFleet(1, move));
-			GetPlanet(move.SourceID).RemoveShips(move.NumSheeps);
+			if (move.TurnsBefore == 0)
+			{
+				fleets.Add(MoveToFleet(1, move));
+				GetPlanet(move.SourceID).RemoveShips(move.NumShips);
+			}
+			else
+			{
+				int min = move.NumShips;
+				for (int i = 0; i < move.TurnsBefore; i++)
+				{
+					Planet futurePlanet = PlanetFutureStatus(GetPlanet(move.SourceID), i + 1);
+					if (futurePlanet.Owner() != 1)
+					{
+						min = 0;
+						break;
+					}
+					if (min > futurePlanet.NumShips()) min = futurePlanet.NumShips();
+				}
+
+				int canSend = min - move.NumShips;
+				if (canSend < 0)
+				{
+#if LOG
+					Logger.Log("Inalid future move: " + move);
+#endif
+					GetPlanet(move.SourceID).RemoveShips(move.NumShips);
+				}
+				else
+				{
+					GetPlanet(move.SourceID).RemoveShips(canSend);
+				}
+			}
 			GetPlanetHolder(move.SourceID).ResetFutureStates();
 		}
 
@@ -284,7 +302,7 @@ namespace Bot
 		{
 			Console.WriteLine("go");
 			Console.Out.Flush();
-#if DEBUG
+#if LOG
 			Logger.Log("go");
 #endif
 		}
@@ -978,18 +996,18 @@ namespace Bot
 		}
 
 		//# Returns a string representation of the entire game state.
-		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets, bool forDebug)
+		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets, bool forLOG)
 		{
 			string message = "";
 			int n = 0;
 			foreach (Planet p in planets)
 			{
 				message += 
-					(forDebug ? "\"" : "") + 
+					(forLOG ? "\"" : "") + 
 					SerializePlanet(p) + 
 					"#" + 
 					n++ + 
-					(forDebug ? "\\n\" +" : "") +
+					(forLOG ? "\\n\" +" : "") +
 					"\n";
 			}
 			message += "\n";
@@ -997,25 +1015,25 @@ namespace Bot
 			foreach (Fleet f in fleets)
 			{
 				message +=
-					(forDebug ? "\"" : "") + 
+					(forLOG ? "\"" : "") + 
 					SerializeFleet(f) +
-					(forDebug ? "\\n\" +" : "") +
+					(forLOG ? "\\n\" +" : "") +
 					"\n";
 			}
 
 			message +=
 				//"\n" + 
-				(forDebug ? "\"" : "") +
+				(forLOG ? "\"" : "") +
 				"go" +
-				(forDebug ? "\\n\"" : "")+
+				(forLOG ? "\\n\"" : "")+
 				"\n";
 			message = message.Replace("\n\n", "\n");
 			return message;
 		}
 
-		public static string SerializeGameState(PlanetWars pw, bool forDebug)
+		public static string SerializeGameState(PlanetWars pw, bool forLOG)
 		{
-			return SerializeGameState(pw.Planets(), pw.Fleets(), forDebug);
+			return SerializeGameState(pw.Planets(), pw.Fleets(), forLOG);
 		}
 
 		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets)
@@ -1110,58 +1128,12 @@ namespace Bot
 			return num;
 		}
 
-		/*public int EnemyCanSend(Planet planet, int passTurns)
-		{
-			if (planet.Owner() != 2) return 0;
-
-			int canSend = planet.NumShips() + passTurns * planet.GrowthRate();
-			Fleets myFleets = MyFleetsGoingToPlanet(planet);
-			foreach (Fleet myFleet in myFleets)
-			{
-				if (myFleet.TurnsRemaining() <= passTurns) canSend -= myFleet.NumShips();
-			}
-
-			Fleets enemyFleets = EnemyFleetsGoingToPlanet(planet);
-			foreach (Fleet enemyFleet in enemyFleets)
-			{
-				if (enemyFleet.TurnsRemaining() <= passTurns) canSend += enemyFleet.NumShips();
-			}
-
-			return canSend < 0 ? 0 : canSend;
-		}
-
-		public Moves GetPossibleDefendMoves(Planet defendPlanet, Planets planetList, int numTurns)
-		{
-			Moves moves = new Moves();
-
-			foreach (Planet planet in planetList)
-			{
-				if (planet == defendPlanet) continue;
-
-				int distance = Distance(defendPlanet, planet);
-
-				int moveTurn = numTurns - distance;
-				if (moveTurn < 0) continue;
-
-				int canSend = EnemyCanSend(planet, moveTurn);
-				if (canSend > 0)
-				{
-					Move move = new Move(planet.PlanetID(), defendPlanet.PlanetID(), canSend);
-					move.TurnsBefore = moveTurn;
-
-					moves.Add(move);
-				}
-			}
-
-			return moves;
-		}*/
-
 		public Fleet MoveToFleet(int owner, Move move)
 		{
 			int distance = Distance(move.SourceID, move.DestinationID) + move.TurnsBefore;
 			Fleet fleet = new Fleet(
 				owner,
-				move.NumSheeps,
+				move.NumShips,
 				move.SourceID,
 				move.DestinationID,
 				distance,
@@ -1223,7 +1195,7 @@ namespace Bot
 			Moves moves = movesSet.GetMoves();
 			foreach (Move move in moves)
 			{
-#if DEBUG
+#if LOG
 				Logger.Log(movesSet.AdviserName + ": " + move);
 #endif
 				IssueOrder(move);

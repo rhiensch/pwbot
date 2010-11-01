@@ -79,7 +79,7 @@ namespace BotTests
 			Assert.AreEqual(1, moves.Count);
 			Assert.AreEqual(1, moves[0].GetMoves().Count);
 			Assert.AreEqual(1, moves[0].GetMove(0).DestinationID);
-			Assert.AreEqual(7, moves[0].GetMove(0).NumSheeps);
+			Assert.AreEqual(7, moves[0].GetMove(0).NumShips);
 			Assert.AreEqual(2, moves[0].GetMove(0).TurnsBefore);
 		}
 	}

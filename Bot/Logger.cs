@@ -1,6 +1,6 @@
-﻿#undef DEBUG
+﻿#define LOG
 
-#if DEBUG
+#if LOG
 using System;
 using System.IO;
 using System.Text;

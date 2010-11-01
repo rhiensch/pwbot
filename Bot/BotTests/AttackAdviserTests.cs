@@ -105,7 +105,7 @@ namespace BotTests
 			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
 			Assert.AreEqual(1, moves.Count);
-			Assert.AreEqual(100, moves[0].NumSheeps);
+			Assert.AreEqual(100, moves[0].NumShips);
 		}
 
 		[TestMethod]
@@ -123,7 +123,7 @@ namespace BotTests
 			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
 			Assert.AreEqual(2, moves.Count);
-			Assert.AreEqual(120, moves[0].NumSheeps + moves[1].NumSheeps);
+			Assert.AreEqual(120, moves[0].NumShips + moves[1].NumShips);
 		}
 	}
 }
