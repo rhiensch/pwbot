@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define LOG
 
 using System;
 using System.Collections.Generic;
@@ -53,9 +53,6 @@ namespace Bot
 			double newControlSum = GetControlSum(planetList);
 			if (newControlSum == controlSum) return;
 
-#if DEBUG
-			Logger.Log("Router reinitialized!");
-#endif
 			controlSum = newControlSum;
 			planets = new Planets(planetList);
 			distances = new int[planets.Count, planets.Count];

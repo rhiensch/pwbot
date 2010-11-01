@@ -385,7 +385,7 @@ namespace BotTests
 		}
 
 		[TestMethod]
-		public void TestSerializationForDebug()
+		public void TestSerializationForLOG()
 		{
 			PlanetWars pw = new PlanetWars(
 				"P 0 0 2 10 5#0\n" +

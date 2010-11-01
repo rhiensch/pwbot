@@ -1,4 +1,4 @@
-#undef DEBUG
+#define LOG
 
 using System;
 using System.Collections.Generic;
@@ -136,7 +136,7 @@ namespace Bot
 				{
 					isPossible = Context.IsValid(move);
 					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
-					isPossible = isPossible && (move.NumSheeps <= canSend);
+					isPossible = isPossible && (move.NumShips <= canSend);
 					if (!isPossible) break;
 				}
 				if (isPossible)
@@ -167,9 +167,6 @@ namespace Bot
 			turn = 0;
 			string line = "";
 			string message = "";
-#if DEBUG
-			Logger.Log("\n\n\nNew Game\n\n\n");
-#endif
 			try
 			{
 				int c;
@@ -182,10 +179,11 @@ namespace Bot
 							if (line.Equals("go"))
 							{
 								PlanetWars pw = new PlanetWars(message);
-#if DEBUG
+								//turn++;
+#if LOG
 								Logger.Log("");
 								Logger.Log(
-									"Turn " + Convert.ToString(++turn) +
+									"Turn " + Convert.ToString(turn) +
 									" (" +
 									"ships " +
 									Convert.ToString(pw.MyTotalShipCount) + "/" + Convert.ToString(pw.EnemyTotalShipCount) + " " +
@@ -201,7 +199,7 @@ namespace Bot
 								else
 									bot.Context = pw;
 								bot.DoTurn();
-#if DEBUG
+#if LOG
 								//Logger.Log("  Turn time: " + (DateTime.Now - startTime).TotalMilliseconds);
 #endif
 								message = "";
@@ -230,13 +228,6 @@ namespace Bot
 				// Owned.
 			}
 		}
-
-#if DEBUG
-		~MyBot()
-		{
-			Logger.Close();
-		}
-#endif
 	}
 }
 

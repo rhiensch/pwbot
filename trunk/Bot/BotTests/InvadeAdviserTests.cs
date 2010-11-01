@@ -58,7 +58,7 @@ namespace BotTests
 			int extraTurns = (int)Math.Ceiling(planetWars.GetPlanet(4).NumShips() / (double)planetWars.GetPlanet(4).GrowthRate());
 
 			Assert.AreEqual(2, moves.Count);
-			Assert.AreEqual(21 + 100 + 5 * 2 + 1, moves[0].NumSheeps + moves[1].NumSheeps);
+			Assert.AreEqual(21 + 100 + 5 * 2 + 1, moves[0].NumShips + moves[1].NumShips);
 		}
 
 		[TestMethod]
@@ -122,7 +122,7 @@ namespace BotTests
 					if (move.DestinationID == 0)
 					{
 						sended = true;
-						Assert.AreEqual(1, move.NumSheeps);
+						Assert.AreEqual(1, move.NumShips);
 						Assert.AreEqual(0, move.TurnsBefore);
 					}
 				}

@@ -1,4 +1,4 @@
-﻿#undef DEBUG
+﻿#define LOG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -42,7 +42,7 @@ namespace Bot
 				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, distance);
 				if (futurePlanet.Owner() == 2)//Error?
 				{
-#if DEBUG
+#if LOG
 					Logger.Log("InvadeAdvizer: Error?");
 #endif
 					moves.Clear();

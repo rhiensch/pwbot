@@ -25,12 +25,12 @@ namespace Bot
 
 		public void AddMove(Move newMove)
 		{
-			SummaryNumShips += newMove.NumSheeps;
+			SummaryNumShips += newMove.NumShips;
 			int newDistance = context.Distance(newMove.SourceID, newMove.DestinationID);
 			if (newDistance > MaxDistance) MaxDistance = newDistance;
 			if (newDistance < MinDistance) MinDistance = newDistance;
 			SumDistance += newDistance;
-			NumShipsByTurns += newMove.NumSheeps * newMove.TurnsBefore;
+			NumShipsByTurns += newMove.NumShips * newMove.TurnsBefore;
 			
 			moves.Add(newMove);
 
