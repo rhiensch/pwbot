@@ -25,10 +25,20 @@ namespace Bot
 			{
 				// here weights and values are numShips and growthRate respectively 
 				// you can change this to something more complex if you like...
-				int value = p.NumShips() + 1;
-				weights.Add((p.PlanetID() == 0) ? value + 1 : value );
 				
-				values.Add(GetTargetScore(p));
+				weights.Add(GetTargetWeight(p));
+				
+				values.Add(GetTargetValue(p));
+
+				int distance = Context.Distance(enemyPlanet, p);
+				int extraTurns = (int) Math.Ceiling((p.NumShips())/(double) p.GrowthRate());
+				Context.GetEnemyAid(p, distance + extraTurns);
+				Logger.Log(
+					"planet: " + p +
+					" value: " + GetTargetValue(p) +
+					" distance: " + Context.Distance(myPlanet, p) +
+					" weight: " + GetTargetWeight(p)+
+					" canSend: " + Context.GetEnemyAid(p, distance + extraTurns));
 			}
 
 			int[,] knapsack = new int[weights.Count + 1, maxWeight];
@@ -70,12 +80,15 @@ namespace Bot
 			throw new NotImplementedException();
 		}
 
+		private Planet myPlanet;
+		private Planet enemyPlanet;
+
 		public override List<MovesSet> RunAll()
 		{
 			List<MovesSet> setList = new List<MovesSet>();
 
-			Planet myPlanet = Context.MyPlanets()[0];
-			Planet enemyPlanet = Context.EnemyPlanets()[0];
+			myPlanet = Context.MyPlanets()[0];
+			enemyPlanet = Context.EnemyPlanets()[0];
 
 			//int canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
 			int canSend = myPlanet.NumShips();
@@ -83,7 +96,7 @@ namespace Bot
 			if (distance <= 5)
 			{
 				//kamikadze attack
-				return KamikadzeAttack(myPlanet, enemyPlanet);
+				return KamikadzeAttack();
 			}
 
 			if (distance < 10)
@@ -110,13 +123,15 @@ namespace Bot
 				sendedShips += targetPlanet.NumShips() + 1;
 				if (sendedShips > myPlanet.NumShips()) break; //ERROR!
 
-				Move move = new Move(myPlanet, targetPlanet,targetPlanet.NumShips() + 1);
+				int ships = GetTargetWeight(targetPlanet);
+
+				Move move = new Move(myPlanet, targetPlanet, ships);
 				Moves moves = new Moves(1);
 				moves.Add(move);
 
 				//Logger.Log("move" + move);
 
-				MovesSet set = new MovesSet(moves, GetTargetScore(targetPlanet), GetAdviserName(), Context);
+				MovesSet set = new MovesSet(moves, GetTargetValue(targetPlanet), GetAdviserName(), Context);
 
 				setList.Add(set);
 			}
@@ -124,7 +139,7 @@ namespace Bot
 			return setList;
 		}
 
-		private List<MovesSet> KamikadzeAttack(Planet myPlanet, Planet enemyPlanet)
+		private List<MovesSet> KamikadzeAttack()
 		{
 			List<MovesSet> setList = new List<MovesSet>(1);
 			Move move = new Move(myPlanet, enemyPlanet, myPlanet.NumShips());
@@ -137,10 +152,26 @@ namespace Bot
 			return setList;
 		}
 
-		private int GetTargetScore(Planet planet)
+		private int GetTargetValue(Planet planet)
 		{
-			double score = planet.GrowthRate()/(double)(Context.Distance(Context.MyPlanets()[0], planet));
-			return Convert.ToInt32(score * 1000);
+			/*double score = planet.GrowthRate() * Config.ScoreTurns - 
+				planet.NumShips() * Context.Distance(myPlanet, planet) - 
+				planet.NumShips();*/
+			int score = Context.Distance(myPlanet, planet) + 
+				(int)Math.Ceiling((planet.NumShips()) / (double)planet.GrowthRate());
+			return 200 - score;
+		}
+
+		private int GetTargetWeight(Planet planet)
+		{
+			int distance = Context.Distance(enemyPlanet, planet);
+			int extraTurns = (int) Math.Ceiling((planet.NumShips())/(double) planet.GrowthRate());
+			int weight = Context.GetEnemyAid(planet, distance + extraTurns);
+
+			if (weight <= planet.NumShips())
+				weight = planet.NumShips() + 1;
+
+			return weight;
 		}
 
 		public override string GetAdviserName()

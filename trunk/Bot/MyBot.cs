@@ -179,7 +179,7 @@ namespace Bot
 							if (line.Equals("go"))
 							{
 								PlanetWars pw = new PlanetWars(message);
-								//turn++;
+								turn++;
 #if LOG
 								Logger.Log("");
 								Logger.Log(
