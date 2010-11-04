@@ -52,7 +52,7 @@ namespace Bot
 
 			int canSend = Context.CanSend(myStrongestPlanet);
 
-			Planets targetFuturePlanets = new Planets();
+			Planets targetFuturePlanets = new Planets(Config.MaxPlanets);
 			foreach (Planet neutralPlanet in Context.NeutralPlanets())
 			{
 				int distance = Context.Distance(myStrongestPlanet, neutralPlanet);
