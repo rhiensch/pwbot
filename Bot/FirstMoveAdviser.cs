@@ -32,7 +32,7 @@ namespace Bot
 
 				int distance = Context.Distance(enemyPlanet, p);
 				int extraTurns = (int) Math.Ceiling((p.NumShips())/(double) p.GrowthRate());
-				Context.GetEnemyAid(p, distance + extraTurns);
+				//Context.GetEnemyAid(p, distance + extraTurns);
 				Logger.Log(
 					"planet: " + p +
 					" value: " + GetTargetValue(p) +
@@ -61,7 +61,7 @@ namespace Bot
 			// get the planets in the solution
 			i = weights.Count;
 			int currentW = maxWeight - 1;
-			Planets markedPlanets = new Planets();
+			Planets markedPlanets = new Planets(Config.MaxPlanets);
 
 			while ((i > 0) && (currentW >= 0))
 			{
@@ -105,11 +105,12 @@ namespace Bot
 			}
 
 			Planets neutralPlanets = Context.NeutralPlanets();
-			Planets planets = new Planets();
+			Planets planets = new Planets(Config.MaxPlanets);
 			foreach (Planet neutralPlanet in neutralPlanets)
 			{
-				if (Context.Distance(myPlanet, neutralPlanet) <=
-					Context.Distance(enemyPlanet, neutralPlanet))
+				if ((Context.Distance(myPlanet, neutralPlanet) <
+					Context.Distance(enemyPlanet, neutralPlanet)) &&
+					neutralPlanet.GrowthRate() > 0)
 				{
 					planets.Add(neutralPlanet);
 				}
@@ -157,21 +158,21 @@ namespace Bot
 			/*double score = planet.GrowthRate() * Config.ScoreTurns - 
 				planet.NumShips() * Context.Distance(myPlanet, planet) - 
 				planet.NumShips();*/
-			int score = Context.Distance(myPlanet, planet) + 
-				(int)Math.Ceiling((planet.NumShips()) / (double)planet.GrowthRate());
-			return 200 - score;
+			//int score = Context.Distance(myPlanet, planet) + 
+			//	(int)Math.Ceiling((planet.NumShips()) / (double)planet.GrowthRate());
+			return 200;// -score;
 		}
 
 		private int GetTargetWeight(Planet planet)
 		{
-			int distance = Context.Distance(enemyPlanet, planet);
-			int extraTurns = (int) Math.Ceiling((planet.NumShips())/(double) planet.GrowthRate());
-			int weight = Context.GetEnemyAid(planet, distance + extraTurns);
+			//int distance = Context.Distance(enemyPlanet, planet);
+			//int extraTurns = (int) Math.Ceiling((planet.NumShips())/(double) planet.GrowthRate());
+			//int weight = Context.GetEnemyAid(planet, distance + extraTurns);
 
-			if (weight <= planet.NumShips())
-				weight = planet.NumShips() + 1;
+			//if (weight <= planet.NumShips())
+			//	weight = planet.NumShips() + 1;
 
-			return weight;
+			return 0;//weight;
 		}
 
 		public override string GetAdviserName()
