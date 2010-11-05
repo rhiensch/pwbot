@@ -75,6 +75,57 @@ namespace Bot
 			return markedPlanets;
 		}
 
+		public MovesSet BruteForce(Planets planets, int canSend)
+		{
+			int n = planets.Count;
+
+			/*Planets targetPlanets = new Planets(planets.Count);
+			foreach (Planet planet in planets)
+			{
+				Planet newPlanet = new Planet(planet);
+				newPlanet.NumShips(newPlanet.NumShips() + )
+			}*/
+
+			List<MovesSet> sets = new List<MovesSet>();
+
+			int size = (1 << n);
+			for (int i = 0; i < size; i++)
+			{
+				int ships = canSend;
+				int score = 0;
+				Moves moves = new Moves();
+				for (int j = 0; j < n; j++)
+				{
+					if ((i & (1 << j)) > 0)
+					{
+						Planet target = planets[j];
+						score += (Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID()))*
+								 target.GrowthRate() - 
+								 target.NumShips() + 1;
+						moves.Add(
+							new Move(
+								myPlanet.PlanetID(),
+								target.PlanetID(),
+								target.NumShips() + 1)
+							);
+						ships -= target.NumShips() + 1;
+						if (ships < 0) break;
+					}
+				}
+				if (ships < 0) continue;
+
+				score += Config.ScoreTurns * myPlanet.GrowthRate();
+				sets.Add(new MovesSet(moves, score, GetAdviserName(), Context));
+				Logger.Log("set: " + sets[sets.Count - 1]);
+			}
+			if (sets.Count == 0) return null;
+			if (sets.Count > 1)
+			{
+				sets.Sort(new Comparer(null).CompareSetScoreGT);
+			}
+			return sets[0];
+		}
+
 		public override Moves Run(Planet planet)
 		{
 			throw new NotImplementedException();
@@ -116,7 +167,7 @@ namespace Bot
 				}
 			}
 
-			Planets targetPlanets = Knapsack01(planets, canSend);
+			/*Planets targetPlanets = Knapsack01(planets, canSend);
 				//GetTargetPlanets(planets, canSend);
 			int sendedShips = 0;
 			foreach (Planet targetPlanet in targetPlanets)
@@ -135,9 +186,11 @@ namespace Bot
 				MovesSet set = new MovesSet(moves, GetTargetValue(targetPlanet), GetAdviserName(), Context);
 
 				setList.Add(set);
-			}
+			}*/
 
+			setList.Add(BruteForce(planets, canSend));
 			return setList;
+			//return setList;
 		}
 
 		private List<MovesSet> KamikadzeAttack()
@@ -158,21 +211,21 @@ namespace Bot
 			/*double score = planet.GrowthRate() * Config.ScoreTurns - 
 				planet.NumShips() * Context.Distance(myPlanet, planet) - 
 				planet.NumShips();*/
-			//int score = Context.Distance(myPlanet, planet) + 
-			//	(int)Math.Ceiling((planet.NumShips()) / (double)planet.GrowthRate());
-			return 200;// -score;
+			int score = Context.Distance(myPlanet, planet) + 
+				(int)Math.Ceiling((planet.NumShips()) / (double)planet.GrowthRate());
+			return 200 -score;
 		}
 
 		private int GetTargetWeight(Planet planet)
 		{
-			//int distance = Context.Distance(enemyPlanet, planet);
-			//int extraTurns = (int) Math.Ceiling((planet.NumShips())/(double) planet.GrowthRate());
-			//int weight = Context.GetEnemyAid(planet, distance + extraTurns);
+			int distance = Context.Distance(enemyPlanet, planet);
+			int extraTurns = (int) Math.Ceiling((planet.NumShips())/(double) planet.GrowthRate());
+			int weight = Context.GetEnemyAid(planet, distance + extraTurns);
 
-			//if (weight <= planet.NumShips())
-			//	weight = planet.NumShips() + 1;
+			if (weight <= planet.NumShips())
+				weight = planet.NumShips() + 1;
 
-			return 0;//weight;
+			return weight;
 		}
 
 		public override string GetAdviserName()

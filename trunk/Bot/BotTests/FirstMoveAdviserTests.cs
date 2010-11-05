@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Bot;
@@ -100,6 +101,15 @@ namespace BotTests
 				{
 					Assert.IsFalse(move.DestinationID == 3);
 				}
+			}
+		}
+
+		[TestMethod]
+		public void Test2Pow()
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				Console.WriteLine(1 << i);
 			}
 		}
 
