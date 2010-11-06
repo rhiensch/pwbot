@@ -137,7 +137,10 @@ namespace Bot
 					isPossible = Context.IsValid(move);
 					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
 					isPossible = isPossible && (move.NumShips <= canSend);
-					if (!isPossible) break;
+					if (!isPossible)
+					{
+						break;
+					}
 				}
 				if (isPossible)
 				{
@@ -178,8 +181,8 @@ namespace Bot
 							line = line.Trim();
 							if (line.Equals("go"))
 							{
-								PlanetWars pw = new PlanetWars(message);
 								turn++;
+								PlanetWars pw = new PlanetWars(message);
 #if LOG
 								Logger.Log("");
 								Logger.Log(
@@ -193,7 +196,7 @@ namespace Bot
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
 #endif
-
+								if (turn == 5) Logger.Log(PlanetWars.SerializeGameState(pw.Planets(), new List<Fleet>()));
 								if (bot == null)
 									bot = new MyBot(pw);
 								else

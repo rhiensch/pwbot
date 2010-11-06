@@ -30,7 +30,10 @@ namespace Bot
 			Planet dest = pathFinder.FindNextPlanetInPath(supplyPlanet);
 			if (dest != null)
 			{
-				moves.Add(new Move(supplyPlanet.PlanetID(), dest.PlanetID(), canSend));
+				Logger.Log("wtf " + supplyPlanet);
+				Move move = new Move(supplyPlanet, dest, canSend);
+				moves.Add(move);
+				if (!Context.IsValid(move)) Logger.Log("move " +move);
 			}
 			return moves;
 		}
@@ -46,6 +49,11 @@ namespace Bot
 
 			List<MovesSet> movesSet = new List<MovesSet>();
 			//if (Context.GetFrontPlanets().Count == 0) return movesSet;
+			Planets frontPlanets = Context.GetFrontPlanets();
+			foreach (Planet frontPlanet in frontPlanets)
+			{
+				Logger.Log("front: " + frontPlanet);
+			}
 
 			foreach (Planet myPlanet in myPlanets)
 			{

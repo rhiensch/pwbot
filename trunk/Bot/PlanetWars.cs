@@ -25,9 +25,10 @@ namespace Bot
 			ParseGameState(gameStatestring);
 			//planets.Sort(new Comparer(this).Coordinates);
 
-			Router.Init(planets);
-			planetHolders = new PlanetHolders(planets.Count);
-			foreach (Planet planet in planets)
+			Planets allPlanets = Planets();
+			Router.Init(allPlanets);
+			planetHolders = new PlanetHolders(allPlanets.Count);
+			foreach (Planet planet in allPlanets)
 			{
 				PlanetHolder planetHolder = new PlanetHolder(planet, FleetsGoingToPlanet(Fleets(), planet));
 				planetHolders.Add(planetHolder);
@@ -38,19 +39,30 @@ namespace Bot
 		// Returns the number of planets. Planets are numbered starting with 0.
 		public int NumPlanets()
 		{
-			return planets.Count;
+			return Planets().Count;
 		}
 
 		// Returns the planet with the given planet_id. There are NumPlanets()
 		// planets. They are numbered starting at 0.
 		public Planet GetPlanet(int planetID)
 		{
-			return planets[planetID];
+			Planets allPlanets = Planets();
+			foreach (Planet planet in allPlanets)
+			{
+				if (planet.PlanetID() == planetID) return planet;
+			}
+			return null;
+			//return planets[planetID];
 		}
 
 		public PlanetHolder GetPlanetHolder(int planetID)
 		{
-			return planetHolders[planetID];
+			foreach (PlanetHolder planetHolder in planetHolders)
+			{
+				if (planetHolder.GetPlanet().PlanetID() == planetID) return planetHolder;
+			}
+			return null;
+			//return planetHolders[planetID];
 		}
 
 		public PlanetHolder GetPlanetHolder(Planet planet)
@@ -87,7 +99,7 @@ namespace Bot
 		// convention, the current player is always player number 1.
 		public Planets MyPlanets()
 		{
-			Planets myPlanets = new Planets();
+			Planets myPlanets = new Planets(Config.MaxPlanets);
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() == 1)
@@ -129,7 +141,7 @@ namespace Bot
 		// Return a list of all neutral planets.
 		public Planets NeutralPlanets()
 		{
-			Planets neutralPlanets = new Planets();
+			Planets neutralPlanets = new Planets(Config.MaxPlanets);
 			foreach (Planet p in planets)
 			{
 				if (p.Owner() == 0)
@@ -144,23 +156,10 @@ namespace Bot
 		// planets owned by the current player, as well as neutral planets.
 		public Planets EnemyPlanets()
 		{
-			Planets enemyPlanets = new Planets();
+			Planets enemyPlanets = new Planets(Config.MaxPlanets);
 			foreach (Planet p in planets)
 				if (p.Owner() >= 2) enemyPlanets.Add(p);
 			return enemyPlanets;
-		}
-
-		// Return a list of all the planets that are not owned by the current
-		// player. This includes all enemy planets and neutral planets.
-		public Planets NotMyPlanets()
-		{
-			Planets notMyPlanets = new Planets();
-			foreach (Planet p in planets)
-			{
-				if (p.Owner() != 1)
-					notMyPlanets.Add(p);
-			}
-			return notMyPlanets;
 		}
 
 		// Return a list of all the fleets.
@@ -223,7 +222,7 @@ namespace Bot
 			return IsValid(source, dest, numShips);
 		}
 
-		public static bool IsValid(Planet source, Planet dest, int numShips)
+		public bool IsValid(Planet source, Planet dest, int numShips)
 		{
 			if (source.Owner() != 1) return false;
 			if (numShips > source.NumShips()) return false;
@@ -305,81 +304,6 @@ namespace Bot
 #if LOG
 			Logger.Log("go");
 #endif
-		}
-
-		// Returns true if the named player owns at least one planet or fleet.
-		// Otherwise, the player is deemed to be dead and false is returned.
-		public bool IsAlive(int playerID)
-		{
-			foreach (Planet p in planets)
-			{
-				if (p.Owner() == playerID)
-				{
-					return true;
-				}
-			}
-			foreach (Fleet f in fleets)
-			{
-				if (f.Owner() == playerID)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		// If the game is not yet over (ie: at least two players have planets or
-		// fleets remaining), returns -1. If the game is over (ie: only one player
-		// is left) then that player's number is returned. If there are no
-		// remaining players, then the game is a draw and 0 is returned.
-		public int Winner()
-		{
-			List<int> remainingPlayers = new List<int>();
-			foreach (Planet p in planets)
-			{
-				if (!remainingPlayers.Contains(p.Owner()))
-				{
-					remainingPlayers.Add(p.Owner());
-				}
-			}
-			foreach (Fleet f in fleets)
-			{
-				if (!remainingPlayers.Contains(f.Owner()))
-				{
-					remainingPlayers.Add(f.Owner());
-				}
-			}
-			switch (remainingPlayers.Count)
-			{
-				case 0:
-					return 0;
-				case 1:
-					return remainingPlayers[0];
-				default:
-					return -1;
-			}
-		}
-
-		// Returns the number of ships that the current player has, either located
-		// on planets or in flight.
-		public int NumShips(int playerID)
-		{
-			int numShips = 0;
-			foreach (Planet p in planets)
-			{
-				if (p.Owner() == playerID)
-				{
-					numShips += p.NumShips();
-				}
-			}
-			foreach (Fleet f in fleets)
-			{
-				if (f.Owner() == playerID)
-				{
-					numShips += f.NumShips();
-				}
-			}
-			return numShips;
 		}
 
 		// Parses a game state from a string. On success, returns 1. On failure,
@@ -631,7 +555,7 @@ namespace Bot
 				return planetList;
 			}
 
-			Planets selectedPlanets = new Planets();
+			Planets selectedPlanets = new Planets(Config.MaxPlanets);
 
 			foreach (Planet planet in planetList)
 			{
@@ -687,7 +611,7 @@ namespace Bot
 		private Planets PlanetsUnderAttack(int ownerID)
 		{
 			Fleets enemyFleets = EnemyFleets();
-			Planets attackedPlanets = new Planets();
+			Planets attackedPlanets = new Planets(Config.MaxPlanets);
 
 			foreach (Fleet enemyFleet in enemyFleets)
 			{
@@ -710,7 +634,7 @@ namespace Bot
 		/*public Planets MyInvasionNeutralPlanetsUnderAttack()
 		{
 			Planets neutralPlanetsUnderAttack = NeutralPlanetsUnderAttack();
-			Planets myInvasionNeutralPlanetsUnderAttack = new Planets();
+			Planets myInvasionNeutralPlanetsUnderAttack = new Planets(Config.MaxPlanets);
 			Fleets myFleets = MyFleets();
 			foreach (Fleet fleet in myFleets)
 			{
@@ -726,7 +650,7 @@ namespace Bot
 
 		public Planets PlanetsWithinProximityToPlanet(Planets planetList, Planet thisPlanet, int proximityTreshold)
 		{
-			Planets nearbyPlanets = new Planets();
+			Planets nearbyPlanets = new Planets(Config.MaxPlanets);
 
 			foreach (Planet planet in planetList)
 			{
@@ -766,11 +690,11 @@ namespace Bot
 		public Planets MyEndangeredPlanets()
 		{
 			PlanetHolders myPlanetHolders = PlanetHolders(); //MyPlanetHolders();
-			Planets endangeredPlanets = new Planets();
+			Planets endangeredPlanets = new Planets(Config.MaxPlanets);
 
 			foreach (PlanetHolder planetHolder in myPlanetHolders)
 			{
-				if (planetHolder.GetOwnerSwitchesFromMyToEnemy().Count > 0)
+				if (planetHolder.GetOwnerSwitchesToEnemy().Count > 0)
 				{
 					endangeredPlanets.Add(planetHolder.GetPlanet());
 				}
@@ -795,7 +719,7 @@ namespace Bot
 			return GetFleetsShipNumCloserThan(fleetList, 0);
 		}
 
-		private static int GetFleetsShipNumWithCondition(Fleets fleetList, int treshold, int sign)
+		private static int GetFleetsShipNumWithCondition(IEnumerable<Fleet> fleetList, int treshold, int sign)
 		{
 			int num = 0;
 			foreach (Fleet fleet in fleetList)
@@ -872,7 +796,8 @@ namespace Bot
 		{
 			if (playerID == 0) return 0;
 			int production = 0;
-			foreach (Planet planet in planets)
+			Planets allPlanets = Planets();
+			foreach (Planet planet in allPlanets)
 			{
 				if (planet.Owner() == playerID) production += planet.GrowthRate();
 			}
@@ -996,18 +921,18 @@ namespace Bot
 		}
 
 		//# Returns a string representation of the entire game state.
-		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets, bool forLOG)
+		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets, bool forLog)
 		{
 			string message = "";
 			int n = 0;
 			foreach (Planet p in planets)
 			{
 				message += 
-					(forLOG ? "\"" : "") + 
+					(forLog ? "\"" : "") + 
 					SerializePlanet(p) + 
 					"#" + 
 					n++ + 
-					(forLOG ? "\\n\" +" : "") +
+					(forLog ? "\\n\" +" : "") +
 					"\n";
 			}
 			message += "\n";
@@ -1015,25 +940,25 @@ namespace Bot
 			foreach (Fleet f in fleets)
 			{
 				message +=
-					(forLOG ? "\"" : "") + 
+					(forLog ? "\"" : "") + 
 					SerializeFleet(f) +
-					(forLOG ? "\\n\" +" : "") +
+					(forLog ? "\\n\" +" : "") +
 					"\n";
 			}
 
 			message +=
 				//"\n" + 
-				(forLOG ? "\"" : "") +
+				(forLog ? "\"" : "") +
 				"go" +
-				(forLOG ? "\\n\"" : "")+
+				(forLog ? "\\n\"" : "")+
 				"\n";
 			message = message.Replace("\n\n", "\n");
 			return message;
 		}
 
-		public static string SerializeGameState(PlanetWars pw, bool forLOG)
+		public static string SerializeGameState(PlanetWars pw, bool forLog)
 		{
-			return SerializeGameState(pw.Planets(), pw.Fleets(), forLOG);
+			return SerializeGameState(pw.Planets(), pw.Fleets(), forLog);
 		}
 
 		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets)
@@ -1185,6 +1110,19 @@ namespace Bot
 				if (futurePlanet.Owner() < 2) continue;
 
 				int numShips = futurePlanet.NumShips();
+
+				/*int turnsCount = GetPlanetHolder(enemyPlanet.PlanetID()).TurnsCount;
+				for (int turn = sendTurn + 1; turn < turnsCount; turn++)
+				{
+					futurePlanet = PlanetFutureStatus(enemyPlanet, turn);
+					if (futurePlanet.Owner() < 2)
+					{
+						numShips = 0;
+						break;
+					}
+					if (futurePlanet.NumShips() < numShips) numShips = futurePlanet.NumShips();
+				}*/
+
 				enemyAid[planet.PlanetID(), numberOfTurns] += numShips;
 			}
 			return enemyAid[planet.PlanetID(), numberOfTurns];
@@ -1239,7 +1177,7 @@ namespace Bot
 
 		public Planets GetClosestPlanetsToTargetBySectors(Planet target, Planets planetList)
 		{
-			Planets closestPlanets = new Planets();
+			Planets closestPlanets = new Planets(Config.MaxPlanets);
 			if (planetList.Count == 0) return closestPlanets;
 
 			//Pair: Sector value, planetID
@@ -1280,17 +1218,17 @@ namespace Bot
 		public void AddTargetPlanet(Planet targetPlanet)
 		{
 			if (additionalTargetPlanets == null)
-				additionalTargetPlanets = new Planets();
+				additionalTargetPlanets = new Planets(Config.MaxPlanets);
 			if (targetPlanet != null) 
 				additionalTargetPlanets.Add(targetPlanet);
 		}
 
-		private Planets frontPlanets;
+		private Planets frontPlanets = null;
 		public Planets GetFrontPlanets()
 		{
 			if (frontPlanets == null)
 			{
-				frontPlanets = new Planets();
+				frontPlanets = new Planets(Config.MaxPlanets);
 
 				Planets targetPlanets = EnemyPlanets();
 				if (additionalTargetPlanets != null) targetPlanets.AddRange(additionalTargetPlanets);
@@ -1300,13 +1238,12 @@ namespace Bot
 				{
 					Planets closestPlanets = GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);
 
-					Comparer comparer = new Comparer(this);
-					comparer.TargetPlanet = targetPlanet;
+					Comparer comparer = new Comparer(this) {TargetPlanet = targetPlanet};
 					closestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 					for (int i = 0; i < closestPlanets.Count; i++)
 					{
-						if (frontPlanets.IndexOf(closestPlanets[i]) > 0) continue;
+						if (frontPlanets.IndexOf(closestPlanets[i]) != -1) continue;
 
 						bool isCloseEnough = true;
 						for (int j = 0; j < i; j++)

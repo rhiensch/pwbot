@@ -29,6 +29,7 @@ namespace Bot
 
 			//Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
 			//int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
+			PlanetHolder holder = Context.GetPlanetHolder(targetPlanet);
 
 			foreach (Planet myPlanet in myPlanets)
 			{
@@ -38,6 +39,7 @@ namespace Bot
 
 				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, targetDistance);
 				if (futurePlanet.Owner() != 2) continue;
+				if (holder.IsNeutralToEnemySwith(targetDistance)) continue;
 
 				//int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, targetDistance);
 				//targetDistance = Math.Max(targetDistance, farestFleet);
@@ -79,11 +81,15 @@ namespace Bot
 
 		public override List<MovesSet> RunAll()
 		{
-			Planets enemyPlanets = Context.EnemyPlanets();
+			Planets enemyPlanets = Context.Planets(); //Context.EnemyPlanets();
 
 			List<MovesSet> movesSet = new List<MovesSet>();
 			foreach (Planet planet in enemyPlanets)
 			{
+				PlanetHolder planetHolder = Context.GetPlanetHolder(planet);
+				if ((planet.Owner() != 2) && (planetHolder.GetOwnerSwitchesToEnemy().Count == 0)) continue;
+
+
 				Moves moves = Run(planet);
 				if (moves.Count > 0)
 				{

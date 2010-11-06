@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Planets = System.Collections.Generic.List<Bot.Planet>;
+﻿using Planets = System.Collections.Generic.List<Bot.Planet>;
 
 namespace Bot
 {
@@ -18,23 +15,28 @@ namespace Bot
 			int supplyPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(source);
 			//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
 
-			Planets nearPlanets = Context.MyPlanets();
+			Planets nearPlanets = Context.Planets();
 			if (nearPlanets.Count == 0) return null;
 
-			Comparer comparer = new Comparer(Context);
-			comparer.TargetPlanet = source;
+			Comparer comparer = new Comparer(Context) {TargetPlanet = source};
 			nearPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 			foreach (Planet nearPlanet in nearPlanets)
 			{
-				if (nearPlanet == source) continue;
+				if (nearPlanet.PlanetID() == source.PlanetID()) continue;
+				int distance = Context.Distance(nearPlanet, source);
+				Planet futurePlanet = Context.PlanetFutureStatus(nearPlanet, distance);
 
-				int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
-				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet);
-
-				if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
+				if (futurePlanet.Owner() == 1)
 				{
-					return nearPlanet;
+					int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
+					
+					//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet););
+
+					if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
+					{
+						return nearPlanet;
+					}
 				}
 			}
 			return null;
