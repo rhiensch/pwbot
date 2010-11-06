@@ -13,9 +13,11 @@ namespace Bot
 		{
 		}
 
+		private int loseTurn;
 		public override Moves Run(Planet planet)
 		{
 			Moves moves = new Moves();
+			loseTurn = 0;
 
 			//Planet planet = SelectPlanetForAdvise();
 			if (planet == null) return moves;
@@ -28,8 +30,7 @@ namespace Bot
 			{
 				Planets planetsCanHelp = Context.MyPlanetsWithinProximityToPlanet(planet, saveSteps[i].ToTurn);
 
-				Comparer comparer = new Comparer(Context);
-				comparer.TargetPlanet = planet;
+				Comparer comparer = new Comparer(Context) {TargetPlanet = planet};
 				planetsCanHelp.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 				int sendedShipsNum = 0;
@@ -48,6 +49,10 @@ namespace Bot
 					moves.Add(move);
 					sendedShipsNum += canSend;
 				}
+				if (sendedShipsNum < saveSteps[i].NumShips)
+				{
+					loseTurn = saveSteps[i].NumShips;
+				}
 			}
 
 			return moves;
@@ -64,7 +69,7 @@ namespace Bot
 				{
 					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
 					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-					double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
+					double score = 2 * planet.GrowthRate() * (loseTurn > 0 ? loseTurn :Config.ScoreTurns) - set.NumShipsByTurns;
 					set.Score = score;
 
 					movesSet.Add(set);

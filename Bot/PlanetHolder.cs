@@ -9,14 +9,14 @@ namespace Bot
 	{
 		private readonly Planet thisPlanet;
 		private readonly Fleets thisPlanetFleets;
-		private readonly int turnsCount;
+		public readonly int TurnsCount;
 
 		public PlanetHolder(Planet planet, Fleets fleetList)
 		{
 			thisPlanet = planet;
 			thisPlanetFleets = fleetList;
 
-			turnsCount = PlanetWars.GetFarestFleetDistance(thisPlanetFleets);
+			TurnsCount = PlanetWars.GetFarestFleetDistance(thisPlanetFleets);
 			ownerSwitches = new List<PlanetOwnerSwitch>();
 		}
 
@@ -34,6 +34,17 @@ namespace Bot
 				return ownerSwitches;
 			}
 		}
+
+		public bool IsNeutralToEnemySwith(int turn)
+		{
+			List<PlanetOwnerSwitch> switches = GetOwnerSwitchesFromNeutralToEnemy();
+			foreach (PlanetOwnerSwitch planetOwnerSwitch in switches)
+			{
+				if (planetOwnerSwitch.TurnsBefore == turn) return true;
+			}
+			return false;
+		}
+
 		public List<PlanetOwnerSwitch> GetOwnerSwitchesFromNeutralToEnemy()
 		{
 			return GetOwnerSwitchesToEnemy(0);
@@ -44,12 +55,25 @@ namespace Bot
 			return GetOwnerSwitchesToEnemy(1);
 		}
 
-		public List<PlanetOwnerSwitch> GetOwnerSwitchesToEnemy(int oldOwner)
+		private List<PlanetOwnerSwitch> GetOwnerSwitchesToEnemy(int oldOwner)
 		{
 			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();
 			foreach (PlanetOwnerSwitch planetOwnerSwitch in OwnerSwitches)
 			{
 				if (planetOwnerSwitch.OldOwner == oldOwner && planetOwnerSwitch.NewOwner > 1)
+				{
+					switches.Add(planetOwnerSwitch);
+				}
+			}
+			return switches;
+		}
+
+		public List<PlanetOwnerSwitch> GetOwnerSwitchesToEnemy()
+		{
+			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();
+			foreach (PlanetOwnerSwitch planetOwnerSwitch in OwnerSwitches)
+			{
+				if (planetOwnerSwitch.NewOwner > 1)
 				{
 					switches.Add(planetOwnerSwitch);
 				}
@@ -70,7 +94,7 @@ namespace Bot
 			FillFutureStatesIfNeeded();
 
 			int canSendTurns = GetFutureState(turns).NumShips();
-			for (int i = turns + 1; i < turnsCount; i++)
+			for (int i = turns + 1; i < TurnsCount; i++)
 			{
 				Planet futurePlanet = GetFutureState(i);
 				if (futurePlanet.Owner() != 1) return 0;
@@ -85,13 +109,13 @@ namespace Bot
 		public Planet GetFutureState(int numberOfTurns)
 		{
 			FillFutureStatesIfNeeded();
-			if (numberOfTurns > turnsCount)
+			if (numberOfTurns > TurnsCount)
 			{
-				Planet futureState = new Planet(futureStates[turnsCount]);
+				Planet futureState = new Planet(futureStates[TurnsCount]);
 				if (futureState.Owner() > 0)
 				{
 					futureState.NumShips(futureState.NumShips() +
-							futureState.GrowthRate() * (numberOfTurns - turnsCount));
+							futureState.GrowthRate() * (numberOfTurns - TurnsCount));
 				}
 				return futureState;
 			}
@@ -102,7 +126,7 @@ namespace Bot
 		{
 			if (futureStates == null)
 			{
-				futureStates = new Planets(turnsCount);
+				futureStates = new Planets(TurnsCount);
 				CalcFutureState();
 			}
 		}
@@ -119,7 +143,7 @@ namespace Bot
 
 			canSend = thisPlanet.NumShips();
 
-			for (int turn = 1; turn <= turnsCount; turn++)
+			for (int turn = 1; turn <= TurnsCount; turn++)
 			{
 				Planet planetInFuture = new Planet(futureStates[turn - 1]);
 				PlanetGrowth(planetInFuture);
