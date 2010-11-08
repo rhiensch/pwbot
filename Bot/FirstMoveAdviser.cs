@@ -99,17 +99,35 @@ namespace Bot
 					if ((i & (1 << j)) > 0)
 					{
 						Planet target = planets[j];
+
+						int distance = Context.Distance(myPlanet, target);
+						int needShips = target.NumShips() + 1;
+
+						if (Context.Distance(myPlanet, target) >= Context.Distance(enemyPlanet, target))
+							needShips += 1;
+
+						int returners = 0;
+						if (enemyDistance > distance * 2)
+						{
+							//HowMany ships can return to myPlanet before enemy
+							returners = (enemyDistance - distance*2)*myPlanet.GrowthRate();
+							ships += returners;
+						}
+
 						score += (Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID()))*
-								 target.GrowthRate() - 
-								 target.NumShips() + 1;
+								 target.GrowthRate() -
+								 needShips +
+								 returners;
+
+						ships -= needShips;
+						if (ships < 0) break;
 						moves.Add(
 							new Move(
 								myPlanet.PlanetID(),
 								target.PlanetID(),
-								target.NumShips() + 1)
+								needShips)
 							);
-						ships -= target.NumShips() + 1;
-						if (ships < 0) break;
+						
 					}
 				}
 				if (ships < 0) continue;
@@ -133,6 +151,7 @@ namespace Bot
 
 		private Planet myPlanet;
 		private Planet enemyPlanet;
+		private int enemyDistance;
 
 		public override List<MovesSet> RunAll()
 		{
@@ -140,6 +159,7 @@ namespace Bot
 
 			myPlanet = Context.MyPlanets()[0];
 			enemyPlanet = Context.EnemyPlanets()[0];
+			enemyDistance = Context.Distance(myPlanet, enemyPlanet);
 
 			//int canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
 			int canSend = myPlanet.NumShips();
@@ -159,7 +179,7 @@ namespace Bot
 			Planets planets = new Planets(Config.MaxPlanets);
 			foreach (Planet neutralPlanet in neutralPlanets)
 			{
-				if ((Context.Distance(myPlanet, neutralPlanet) <
+				if ((Context.Distance(myPlanet, neutralPlanet) <=
 					Context.Distance(enemyPlanet, neutralPlanet)) &&
 					neutralPlanet.GrowthRate() > 0)
 				{

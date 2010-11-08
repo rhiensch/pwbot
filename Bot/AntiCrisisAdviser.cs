@@ -66,8 +66,7 @@ namespace Bot
 
 			if (targetFuturePlanets.Count == 0) return movesSet;
 
-			Comparer comparer = new Comparer(Context);
-			comparer.TargetPlanet = myStrongestPlanet;
+			Comparer comparer = new Comparer(Context) {TargetPlanet = myStrongestPlanet};
 			targetFuturePlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 			Moves moves = new Moves(1);

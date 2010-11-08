@@ -75,7 +75,9 @@ namespace Bot
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
-				if (Context.MyProduction < Context.EnemyProduction)
+				if (Context.MyProduction < Context.EnemyProduction ||
+					((Context.MyProduction == Context.EnemyProduction) &&  
+					 (Context.MyTotalShipCount < Context.EnemyTotalShipCount)))
 				{
 					if (turn - lastMove[attackAdviser.GetAdviserName()] > Config.IdleTurns &&
 						turn - lastMove[invadeAdviser.GetAdviserName()] > Config.IdleTurns &&
