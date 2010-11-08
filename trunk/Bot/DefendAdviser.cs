@@ -45,6 +45,7 @@ namespace Bot
 					{
 						//delay move
 						move.TurnsBefore = saveSteps[i].ToTurn - distance;
+						//move = new Move(nearPlanet.PlanetID(), planet.PlanetID(), Context.CanSend(nearPlanet, move.TurnsBefore));
 					}
 					moves.Add(move);
 					sendedShipsNum += canSend;
@@ -65,15 +66,13 @@ namespace Bot
 			foreach (Planet planet in planetsForAdvise)
 			{
 				Moves moves = Run(planet);
-				if (moves.Count > 0)
-				{
-					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-					double score = 2 * planet.GrowthRate() * (loseTurn > 0 ? loseTurn :Config.ScoreTurns) - set.NumShipsByTurns;
-					set.Score = score;
+				if (moves.Count <= 0) continue;
+				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
+				//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
+				double score = 2 * planet.GrowthRate() * (loseTurn > 0 ? loseTurn :Config.ScoreTurns) - set.NumShipsByTurns;
+				set.Score = score;
 
-					movesSet.Add(set);
-				}
+				movesSet.Add(set);
 			}
 			return movesSet;
 		}

@@ -2,16 +2,12 @@
 {
 	public class Move
 	{
-		private int sourceID;
-		private int destinationID;
-		private int numShips;
-		public int SourceID { get { return sourceID; } private set { sourceID = value; } }
-		public int DestinationID { get { return destinationID; } private set { destinationID = value; } }
-		public int NumShips { get { return numShips; } private set { numShips = value; } }
+		public int SourceID { get; private set; }
+		public int DestinationID { get; private set; }
+		public int NumShips { get; private set; }
 
 		//Use this only for internal calculations
-		private int turnsBefore;
-		public int TurnsBefore { get { return turnsBefore; } set { turnsBefore = value; } }
+		public int TurnsBefore { get; set; }
 
 		public Move(int sourceID, int destID, int numShips)
 		{

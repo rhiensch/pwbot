@@ -1,4 +1,4 @@
-﻿#define  LOG
+﻿#undef  LOG
 
 using System;
 using System.Collections.Generic;
@@ -23,8 +23,7 @@ namespace Bot
 			Planets myPlanets = Context.MyPlanets();
 			if (myPlanets.Count == 0) return moves;
 
-			Comparer comparer = new Comparer(Context);
-			comparer.TargetPlanet = targetPlanet;
+			Comparer comparer = new Comparer(Context) {TargetPlanet = targetPlanet};
 			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 			//Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
@@ -91,15 +90,13 @@ namespace Bot
 
 
 				Moves moves = Run(planet);
-				if (moves.Count > 0)
-				{
-					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-					//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-					double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
-					set.Score = score;
+				if (moves.Count <= 0) continue;
+				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
+				//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
+				double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
+				set.Score = score;
 
-					movesSet.Add(set);
-				}
+				movesSet.Add(set);
 			}
 			return movesSet;
 		}

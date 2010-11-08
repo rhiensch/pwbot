@@ -69,8 +69,11 @@ namespace Bot
 			Comparer comparer = new Comparer(Context) {TargetPlanet = myStrongestPlanet};
 			targetFuturePlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			Moves moves = new Moves(1);
-			moves.Add(new Move(myStrongestPlanet, targetFuturePlanets[0], Math.Min(canSend, targetFuturePlanets[0].NumShips() + 1)));
+			Moves moves = new Moves(1)
+			              	{
+			              		new Move(myStrongestPlanet, targetFuturePlanets[0],
+			              		         Math.Min(canSend, targetFuturePlanets[0].NumShips() + 1))
+			              	};
 			movesSet.Add(new MovesSet(moves, 99999, GetAdviserName(), Context));
 
 			return movesSet;

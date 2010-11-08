@@ -47,8 +47,7 @@ namespace Bot
 				int send = Math.Min(canSend, needToSend);
 				needToSend -= send;
 
-				Move move = new Move(myPlanet, stealPlanet, send);
-				move.TurnsBefore = turn - distance;
+				Move move = new Move(myPlanet, stealPlanet, send) {TurnsBefore = turn - distance};
 				moves.Add(move);
 				
 
@@ -76,14 +75,12 @@ namespace Bot
 				if (planetHolder.GetOwnerSwitchesFromNeutralToEnemy().Count == 0) continue;
 
 				Moves moves = Run(planet);
-				if (moves.Count > 0)
-				{
-					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-					double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
-					set.Score = score;
+				if (moves.Count <= 0) continue;
+				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
+				double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
+				set.Score = score;
 
-					movesSet.Add(set);
-				}
+				movesSet.Add(set);
 			}
 			return movesSet;
 		}

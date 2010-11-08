@@ -1,5 +1,3 @@
-using System;
-
 namespace Bot
 {
 	public class Fleet

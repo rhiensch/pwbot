@@ -1,4 +1,4 @@
-﻿#define LOG
+﻿#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -27,23 +27,16 @@ namespace Bot
 			return sum;
 		}
 
-		private static int maxDistance;
-		public static int MaxDistance
-		{
-			get
-			{
-				return maxDistance;
-			}
-		}
+		public static int MaxDistance { get; private set; }
 
 		private static void CalcMaxDistance()
 		{
-			maxDistance = 0;
+			MaxDistance = 0;
 			for (int i = 0; i < planets.Count; i++)
 			{
 				for (int j = i + 1; j < planets.Count; j++)
 				{
-					if (Distance(i, j) > maxDistance) maxDistance = Distance(i, j);
+					if (Distance(i, j) > MaxDistance) MaxDistance = Distance(i, j);
 				}
 			}
 		}

@@ -10,12 +10,7 @@ namespace Bot
 			Context = context;
 		}
 
-		private PlanetWars context;
-		public PlanetWars Context
-		{
-			get { return context; }
-			set { context = value; }
-		}
+		public PlanetWars Context { get; set; }
 
 		public abstract Moves Run(Planet planet);
 		public abstract string GetAdviserName();
