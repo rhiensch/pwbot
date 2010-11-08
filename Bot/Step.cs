@@ -4,31 +4,16 @@
 	{
 		public Step(int fromTurn, int toTurn, int numShips)
 		{
-			this.fromTurn = fromTurn;
-			this.toTurn = toTurn;
-			this.numShips = numShips;
+			this.FromTurn = fromTurn;
+			this.ToTurn = toTurn;
+			this.NumShips = numShips;
 		}
 
-		private int fromTurn;
-		public int FromTurn
-		{
-			get { return fromTurn; }
-			set { fromTurn = value; }
-		}
+		public int FromTurn { get; set; }
 
-		private int toTurn;
-		public int ToTurn
-		{
-			get { return toTurn; }
-			set { toTurn = value; }
-		}
+		public int ToTurn { get; set; }
 
-		private int numShips;
-		public int NumShips
-		{
-			get { return numShips; }
-			set { numShips = value; }
-		}
+		public int NumShips { get; set; }
 
 		public override string ToString()
 		{

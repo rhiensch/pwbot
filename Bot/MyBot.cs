@@ -1,4 +1,4 @@
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -11,19 +11,9 @@ namespace Bot
 {
 	public class MyBot
 	{
-		private static bool doCheckTime;
-		public static bool DoCheckTime
-		{
-			get { return doCheckTime; }
-			set { doCheckTime = value; }
-		}
+		public static bool DoCheckTime { get; set; }
 
-		private PlanetWars context;
-		public PlanetWars Context
-		{
-			get { return context; }
-			private set { context = value; }
-		}
+		public PlanetWars Context { get; private set; }
 
 		private Dictionary<string, int> lastMove;
 
@@ -116,7 +106,7 @@ namespace Bot
 		}
 
 		private List<MovesSet> setList;
-		private void RunAdviser(BaseAdviser adviser)
+		private void RunAdviser(IAdviser adviser)
 		{
 			if (setList == null) setList = new List<MovesSet>();
 
@@ -139,17 +129,13 @@ namespace Bot
 					isPossible = Context.IsValid(move);
 					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
 					isPossible = isPossible && (move.NumShips <= canSend);
-					if (!isPossible)
-					{
-						break;
-					}
+					if (isPossible) continue;
+					break;
 				}
-				if (isPossible)
-				{
-					if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
-					else lastMove[movesSet.AdviserName] = turn;
-					Context.IssueOrder(movesSet);
-				}
+				if (!isPossible) continue;
+				if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
+				else lastMove[movesSet.AdviserName] = turn;
+				Context.IssueOrder(movesSet);
 			}
 			setList.Clear();
 		}
@@ -198,7 +184,6 @@ namespace Bot
 									Convert.ToString(pw.MyProduction) + "/" + Convert.ToString(pw.EnemyProduction) + " " +
 									")");
 #endif
-								if (turn == 5) Logger.Log(PlanetWars.SerializeGameState(pw.Planets(), new List<Fleet>()));
 								if (bot == null)
 									bot = new MyBot(pw);
 								else

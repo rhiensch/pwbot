@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace Bot
+﻿namespace Bot
 {
 	public static class Config
 	{
 		static Config()
 		{
-			doInvadeKoef = 1.2;
-			invadeSendMoreThanEnemyCanDefend = false;
+			DoInvadeKoef = 1.2;
+			InvadeSendMoreThanEnemyCanDefend = false;
 		}
 
 		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }
@@ -23,25 +21,9 @@ namespace Bot
 		public static int ScoreTurns { get { return 30; } }
 		public static int IdleTurns { get { return 15; } }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
-		private static double doInvadeKoef;
-		private static bool invadeSendMoreThanEnemyCanDefend;
 
-		public static double DoInvadeKoef
-		{
-			get { return doInvadeKoef; }
-			set { doInvadeKoef = value; }
-		}
+		public static double DoInvadeKoef { get; set; }
 
-		public static bool InvadeSendMoreThanEnemyCanDefend
-		{
-			get 
-			{
-				return invadeSendMoreThanEnemyCanDefend;
-			}
-			set 
-			{
-				invadeSendMoreThanEnemyCanDefend = value;
-			}
-		}
+		public static bool InvadeSendMoreThanEnemyCanDefend { get; set; }
 	}
 }

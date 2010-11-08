@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 
 namespace Bot
@@ -37,7 +38,7 @@ namespace Bot
 			AverageDistance = SumDistance / (double)moves.Count;
 		}
 
-		public MovesSet(Moves movesSet, double score, string adviserName, PlanetWars context)
+		public MovesSet(IEnumerable<Move> movesSet, double score, string adviserName, PlanetWars context)
 		{
 			this.context = context;
 			MaxDistance = Int32.MinValue;

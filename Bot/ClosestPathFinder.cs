@@ -27,16 +27,14 @@ namespace Bot
 				int distance = Context.Distance(nearPlanet, source);
 				Planet futurePlanet = Context.PlanetFutureStatus(nearPlanet, distance);
 
-				if (futurePlanet.Owner() == 1)
-				{
-					int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
+				if (futurePlanet.Owner() != 1) continue;
+				int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
 					
-					//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet););
+				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet););
 
-					if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
-					{
-						return nearPlanet;
-					}
+				if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
+				{
+					return nearPlanet;
 				}
 			}
 			return null;

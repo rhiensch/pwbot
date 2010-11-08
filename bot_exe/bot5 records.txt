@@ -1,0 +1,48 @@
+Bot: bot_exe\bot1.exe
+71 - lose
+    won  : 99/100
+    lost : 1/100
+Bot: bot_exe\bot2.exe
+    won  : 100/100
+    lost : 0/100
+Bot: bot_exe\bot3.exe
+24 - lose
+90 - lose
+98 - lose
+    won  : 97/100
+    lost : 3/100
+Bot: bot_exe\bot4.exe
+1 - lose
+3 - lose
+8 - lose
+10 - lose
+14 - draw
+16 - lose
+19 - lose
+20 - lose
+22 - draw
+25 - draw
+37 - lose
+41 - lose
+42 - lose
+45 - lose
+47 - lose
+49 - draw
+52 - lose
+60 - lose
+63 - lose
+64 - lose
+65 - draw
+69 - draw
+75 - lose
+87 - lose
+95 - lose
+    won  : 75/100
+    lost : 19/100
+Bot: "java -jar example_bots/RageBot.jar"
+23 - lose
+    won  : 99/100
+    lost : 1/100
+Bot: "java -jar example_bots/DualBot.jar"
+    won  : 100/100
+    lost : 0/100

@@ -1,4 +1,4 @@
-﻿#define LOG
+﻿#undef LOG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -27,8 +27,7 @@ namespace Bot
 			
 			if (nearestPlanets.Count > 1)
 			{
-				Comparer comparer = new Comparer(Context);
-				comparer.TargetPlanet = targetPlanet;
+				Comparer comparer = new Comparer(Context) {TargetPlanet = targetPlanet};
 				nearestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 			}
 
@@ -101,19 +100,17 @@ namespace Bot
 				if (planetHolder.OwnerSwitches.Count > 0) continue;
 
 				Moves moves = Run(planet);
-				if (moves.Count > 0)
-				{
-					MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
+				if (moves.Count <= 0) continue;
+				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
 
-					/*int enemyAid = Context.GetEnemyAid(planet, set.MaxDistance);
+				/*int enemyAid = Context.GetEnemyAid(planet, set.MaxDistance);
 					double risk = 2.0;
 					if (enemyAid != 0) risk = set.SummaryNumShips / (double)enemyAid;
 					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));*/
-					double score = planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns - planet.NumShips();
-					set.Score = score;
+				double score = planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns - planet.NumShips();
+				set.Score = score;
 
-					movesSet.Add(set);
-				}
+				movesSet.Add(set);
 			}
 			return movesSet;
 		}

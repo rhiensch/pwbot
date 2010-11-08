@@ -16,19 +16,9 @@ namespace Bot
 		 */
 
 		/* Resulting arrays with distances to nodes and how to get there */
-		private int[] dist;
-		public int[] Dist
-		{
-			get { return dist; }
-			private set { dist = value; }
-		}
+		public int[] Dist { get; private set; }
 
-		private int[] path;
-		public int[] Path
-		{
-			get { return path; }
-			private set { path = value; }
-		}
+		public int[] Path { get; private set; }
 
 		/* Holds queue for the nodes to be evaluated */
 		private readonly List<int> queue = new List<int>();
@@ -61,11 +51,9 @@ namespace Bot
 			/* Search through queue to find the next node having the smallest distance */
 			foreach (int j in queue)
 			{
-				if (Dist[j] <= min)
-				{
-					min = Dist[j];
-					vertex = j;
-				}
+				if (Dist[j] > min) continue;
+				min = Dist[j];
+				vertex = j;
 			}
 
 			queue.Remove(vertex);
@@ -100,15 +88,11 @@ namespace Bot
 					}
 
 					/* Check for an edge between u and v */
-					if (graph[u, v] > 0)
-					{
-						/* Edge exists, relax the edge */
-						if (Dist[v] > Dist[u] + graph[u, v])
-						{
-							Dist[v] = Dist[u] + graph[u, v];
-							Path[v] = u;
-						}
-					}
+					if (graph[u, v] <= 0) continue;
+					/* Edge exists, relax the edge */
+					if (Dist[v] <= Dist[u] + graph[u, v]) continue;
+					Dist[v] = Dist[u] + graph[u, v];
+					Path[v] = u;
 				}
 			}
 		}

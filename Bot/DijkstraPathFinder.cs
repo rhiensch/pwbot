@@ -29,12 +29,10 @@ namespace Bot
 				Planets closestPlanets = Context.GetClosestPlanetsToTargetBySectors(planet, myPlanets);
 				foreach (Planet closestPlanet in closestPlanets)
 				{
-					if (createGraph[planet.PlanetID(), closestPlanet.PlanetID()] == 0)
-					{
-						int distance = Context.Distance(planet, closestPlanet);
-						createGraph[planet.PlanetID(), closestPlanet.PlanetID()] = distance;
-						createGraph[closestPlanet.PlanetID(), planet.PlanetID()] = distance;
-					}
+					if (createGraph[planet.PlanetID(), closestPlanet.PlanetID()] != 0) continue;
+					int distance = Context.Distance(planet, closestPlanet);
+					createGraph[planet.PlanetID(), closestPlanet.PlanetID()] = distance;
+					createGraph[closestPlanet.PlanetID(), planet.PlanetID()] = distance;
 				}
 			}
 
@@ -56,12 +54,9 @@ namespace Bot
 			Planets frontPlanets = Context.GetFrontPlanets();
 			foreach (Planet frontPlanet in frontPlanets)
 			{
-				if (min > dijkstra.Dist[frontPlanet.PlanetID()] &&
-					dijkstra.Dist[frontPlanet.PlanetID()] > 0)
-				{
-					min = dijkstra.Dist[frontPlanet.PlanetID()];
-					minID = frontPlanet.PlanetID();
-				}
+				if (min <= dijkstra.Dist[frontPlanet.PlanetID()] || dijkstra.Dist[frontPlanet.PlanetID()] <= 0) continue;
+				min = dijkstra.Dist[frontPlanet.PlanetID()];
+				minID = frontPlanet.PlanetID();
 			}
 
 			if (minID == -1) return null;

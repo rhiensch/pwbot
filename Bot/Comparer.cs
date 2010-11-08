@@ -7,12 +7,7 @@ namespace Bot
 {
 	public class Comparer
 	{
-		private PlanetWars context;
-		public PlanetWars Context
-		{
-			get { return context; }
-			private set { context = value; }
-		}
+		public PlanetWars Context { get; private set; }
 
 		public Comparer(PlanetWars context)
 		{
@@ -49,17 +44,12 @@ namespace Bot
 			return result;
 		}
 
-		private Planet targetPlanet;
-		public Planet TargetPlanet
-		{
-			get { return targetPlanet; }
-			set { targetPlanet = value; }
-		}
+		public Planet TargetPlanet { get; set; }
 
 		public int CompareDistanceToTargetPlanetLT(Planet planet1, Planet planet2)
 		{
 			if (TargetPlanet == null) throw new ArgumentNullException("planet1", "Target planet is not defined!");
-			if (planet1.PlanetID() == planet2.PlanetID()) return planet1.PlanetID() - planet2.PlanetID(); ;
+			if (planet1.PlanetID() == planet2.PlanetID()) return planet1.PlanetID() - planet2.PlanetID();
 
 			int result = (Context.Distance(planet1, TargetPlanet) - Context.Distance(planet2, TargetPlanet));
 			if (result == 0) result = planet2.GrowthRate() - planet1.GrowthRate();

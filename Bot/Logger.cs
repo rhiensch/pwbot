@@ -1,4 +1,4 @@
-﻿#define LOG
+﻿#undef LOG
 
 #if LOG
 using System;

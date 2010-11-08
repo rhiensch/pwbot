@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
@@ -112,11 +111,9 @@ namespace Bot
 			if (numberOfTurns > TurnsCount)
 			{
 				Planet futureState = new Planet(futureStates[TurnsCount]);
-				if (futureState.Owner() > 0)
-				{
-					futureState.NumShips(futureState.NumShips() +
-							futureState.GrowthRate() * (numberOfTurns - TurnsCount));
-				}
+				if (futureState.Owner() <= 0) return futureState;
+				futureState.NumShips(futureState.NumShips() +
+				                     futureState.GrowthRate() * (numberOfTurns - TurnsCount));
 				return futureState;
 			}
 			return futureStates[numberOfTurns];
@@ -166,8 +163,8 @@ namespace Bot
 				futureStates.Add(planetInFuture);
 
 				if (planetInFuture.Owner() != 1) canSend = 0;
-				if (planetInFuture.NumShips() < canSend) canSend = planetInFuture.NumShips();
-				
+				if (planetInFuture.NumShips() >= canSend) continue;
+				canSend = planetInFuture.NumShips();
 			}
 		}
 

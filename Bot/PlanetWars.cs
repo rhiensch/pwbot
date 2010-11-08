@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -280,17 +280,7 @@ namespace Bot
 				}
 
 				int canSend = min - move.NumShips;
-				if (canSend < 0)
-				{
-#if LOG
-					Logger.Log("Inalid future move: " + move);
-#endif
-					GetPlanet(move.SourceID).RemoveShips(move.NumShips);
-				}
-				else
-				{
-					GetPlanet(move.SourceID).RemoveShips(canSend);
-				}
+				GetPlanet(move.SourceID).RemoveShips(canSend < 0 ? move.NumShips : canSend);
 			}
 			GetPlanetHolder(move.SourceID).ResetFutureStates();
 		}
@@ -376,14 +366,11 @@ namespace Bot
 						for (int index = 0; index < fleets.Count; index++)
 						{
 							Fleet fleet = fleets[index];
-							if (fleet.DestinationPlanet() == destination &&
-							    fleet.TurnsRemaining() == turnsRemaining &&
-								fleet.Owner() == owner)
-							{
-								fleet.AddShips(numShips);
-								found = true;
-								break;
-							}
+							if (fleet.DestinationPlanet() != destination || fleet.TurnsRemaining() != turnsRemaining ||
+							    fleet.Owner() != owner) continue;
+							fleet.AddShips(numShips);
+							found = true;
+							break;
 						}
 						if (!found)
 						{
@@ -1223,7 +1210,7 @@ namespace Bot
 				additionalTargetPlanets.Add(targetPlanet);
 		}
 
-		private Planets frontPlanets = null;
+		private Planets frontPlanets;
 		public Planets GetFrontPlanets()
 		{
 			if (frontPlanets == null)
