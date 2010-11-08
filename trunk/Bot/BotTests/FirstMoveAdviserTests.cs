@@ -105,6 +105,24 @@ namespace BotTests
 		}
 
 		[TestMethod]
+		public void TestReturners()
+		{
+			const string message =
+				"P 0 0 1 100 5#0\n" +
+				"P 9 0 2 100 5#1\n" +
+				"P 2 0 0 59 5#2\n" +
+				"go\n";
+
+			PlanetWars pw = new PlanetWars(message);
+			FirstMoveAdviser adviser = new FirstMoveAdviser(pw);
+			List<MovesSet> movesSet = adviser.RunAll();
+
+			Assert.AreEqual(1, movesSet.Count);
+			Assert.AreEqual(1, movesSet[0].GetMoves().Count);
+			Assert.AreEqual(60, movesSet[0].GetMoves()[0].NumShips);
+		}
+
+		[TestMethod]
 		public void Test2Pow()
 		{
 			for (int i = 0; i < 10; i++)
