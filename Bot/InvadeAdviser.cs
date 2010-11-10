@@ -1,4 +1,4 @@
-﻿#undef LOG
+﻿#define LOG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -33,7 +33,7 @@ namespace Bot
 
 			foreach (Planet nearestPlanet in nearestPlanets)
 			{
-				int canSend = Context.CanSend(nearestPlanet);
+				int canSend = Context.CanSendByPlanets(nearestPlanet, targetPlanet);
 				if (canSend == 0) continue;
 
 				int distance = Context.Distance(targetPlanet, nearestPlanet);
@@ -57,7 +57,7 @@ namespace Bot
 
 				foreach (Move eachMove in moves)
 				{
-					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID));
+					needToSend -= Context.CanSendByPlanets(Context.GetPlanet(eachMove.SourceID), Context.GetPlanet(eachMove.DestinationID));
 				}
 				/*
 				//delay closer moves

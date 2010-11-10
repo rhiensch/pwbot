@@ -1,4 +1,4 @@
-﻿#undef  LOG
+﻿#define  LOG
 
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace Bot
 			foreach (Planet myPlanet in myPlanets)
 			{
 				int targetDistance = Context.Distance(myPlanet, targetPlanet);
-				int myCanSend = Context.CanSend(myPlanet);
+				int myCanSend = Context.CanSendByPlanets(myPlanet, targetPlanet);
 				if (myCanSend == 0) continue;
 
 				Planet futurePlanet = Context.PlanetFutureStatus(targetPlanet, targetDistance);

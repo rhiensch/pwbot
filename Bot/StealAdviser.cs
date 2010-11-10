@@ -41,7 +41,7 @@ namespace Bot
 			foreach (Planet myPlanet in myPlanets)
 			{
 				int distance = Context.Distance(myPlanet, stealPlanet);
-				int canSend = Context.CanSend(myPlanet, turn - distance);
+				int canSend = Context.CanSendByPlanets(myPlanet, stealPlanet, turn - distance);
 				if (canSend == 0) continue;
 
 				int send = Math.Min(canSend, needToSend);
