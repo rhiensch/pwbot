@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef LOG
+#define LOG
 
 using System;
 using System.Collections.Generic;
@@ -907,6 +907,28 @@ namespace Bot
 			return GetPlanetHolder(planet).CanSend(turn);
 		}
 
+		public int CanSendSafe(Planet planet, int safeTurns)
+		{
+			int enemyCanSend = GetEnemyAid(planet, safeTurns);
+			int canSend = CanSend(planet);
+			return Math.Max(0, canSend - enemyCanSend);
+		}
+
+		public int CanSendByPlanets(Planet source, Planet dest)
+		{
+			return CanSendByPlanets(source, dest, 0);
+		}
+
+		public int CanSendByPlanets(Planet source, Planet dest, int turns)
+		{
+			if (dest.GrowthRate() > source.GrowthRate())
+			{
+				if (turns == 0) return CanSend(source);
+				return CanSend(source, turns);
+			}
+			return CanSendSafe(source, 0);
+		}
+
 		//# Returns a string representation of the entire game state.
 		public static string SerializeGameState(List<Planet> planets, List<Fleet> fleets, bool forLog)
 		{
@@ -1098,6 +1120,7 @@ namespace Bot
 
 				int numShips = futurePlanet.NumShips();
 
+				//enemyCanSend
 				/*int turnsCount = GetPlanetHolder(enemyPlanet.PlanetID()).TurnsCount;
 				for (int turn = sendTurn + 1; turn < turnsCount; turn++)
 				{

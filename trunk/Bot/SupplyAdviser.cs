@@ -22,14 +22,14 @@ namespace Bot
 			if (frontPlanets.Count == 0) return moves;
 			if (frontPlanets.IndexOf(supplyPlanet) != -1) return moves;
 
-			int canSend = Context.CanSend(supplyPlanet);
-			if (canSend == 0) return moves;
-
 			IPathFinder pathFinder = new ClosestPathFinder(Context);
 				//new DijkstraPathFinder(Context);
 			Planet dest = pathFinder.FindNextPlanetInPath(supplyPlanet);
 			if (dest != null)
 			{
+				int canSend = Context.CanSend(supplyPlanet);
+				if (canSend == 0) return moves;
+
 				Move move = new Move(supplyPlanet, dest, canSend);
 				moves.Add(move);
 			}

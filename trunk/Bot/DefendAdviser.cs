@@ -36,7 +36,7 @@ namespace Bot
 				int sendedShipsNum = 0;
 				foreach (Planet nearPlanet in planetsCanHelp)
 				{
-					int canSend = Math.Min(saveSteps[i].NumShips - sendedShipsNum, Context.CanSend(nearPlanet));
+					int canSend = Math.Min(saveSteps[i].NumShips - sendedShipsNum, Context.CanSendByPlanets(nearPlanet, planet));
 					if (canSend <= 0) continue;
 
 					int distance = Context.Distance(planet, nearPlanet);
