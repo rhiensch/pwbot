@@ -1,2 +1,19 @@
 [$.map(Visualizer.planets, function(x){return ['P',x.x,x.y,x.owner,x.numShips,x.growthRate].join(' ')}).join("\n"),$.map(Visualizer.moves[Math.floor(Visualizer.frame)].moving, function(x){return ['F',x.owner,x.numShips,Visualizer.planets.indexOf(x.source),Visualizer.planets.indexOf(x.destination),x.tripLength,x.tripLength-x.progress].join(' ')}).join("\n")
 ].join("\n")
+
+
+[15:34] <Error323_>  * The heuristic score is defined as follows:
+[15:34] <Error323_>  *         /                 f_e(p) + 1      \     /                 f_m(p) + 1      \
+[15:34] <Error323_>  * h(n) = |Sum_{p in P_w(n)} ---------- * g(p)| - |Sum_{p in P_l(n)} ---------- * g(p)|,
+[15:34] <Error323_>  *         \                 f_m(p) + 1      /     \                 f_e(p) + 1      /
+[15:34] <Error323_>  *
+[15:34] <Error323_>  * Where P_w(n) is the set of planets won at node n, P_l is the set of
+[15:34] <Error323_>  * planets lost at node n, f_m(p) are the amount of fleets on my side send
+[15:34] <Error323_>  * to this planet, f_e(p) are the amount of enemy fleets send to this
+[15:34] <Error323_>  * planet and g(p) is the planet's growth rate.
+
+[15:38] <Error323_> well the idea is this
+[15:39] <Error323_> if I win a planet by sending e.g. 1000 ships to it while the enemy just sends 1 ship its netto gain is (1 / 1000) * growth(p)
+[15:39] <Error323_> which isn't good
+[15:39] <Error323_> but if I send less ships then the enemy it score goes up
+[15:39] <Error323_> and vise versa for planets i've lost

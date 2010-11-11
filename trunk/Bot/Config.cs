@@ -5,6 +5,7 @@
 		static Config()
 		{
 			DoInvadeKoef = 1.2;
+			IdleTurns = 20;
 			InvadeSendMoreThanEnemyCanDefend = false;
 		}
 
@@ -19,7 +20,7 @@
 		public static int NumShipsKoef { get { return 60; } }
 		public static int ScoreKoef { get { return 1000; } }
 		public static int ScoreTurns { get { return 30; } }
-		public static int IdleTurns { get { return 15; } }
+		public static int IdleTurns { get; set; }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
 
 		public static double DoInvadeKoef { get; set; }

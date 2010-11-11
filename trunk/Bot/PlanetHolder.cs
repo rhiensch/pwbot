@@ -54,6 +54,19 @@ namespace Bot
 			return GetOwnerSwitchesToEnemy(1);
 		}
 
+		public List<PlanetOwnerSwitch> GetOwnerSwitchesFromEnemyToMy()
+		{
+			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();
+			foreach (PlanetOwnerSwitch planetOwnerSwitch in OwnerSwitches)
+			{
+				if (planetOwnerSwitch.OldOwner > 1)
+				{
+					switches.Add(planetOwnerSwitch);
+				}
+			}
+			return switches;
+		}
+
 		private List<PlanetOwnerSwitch> GetOwnerSwitchesToEnemy(int oldOwner)
 		{
 			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();

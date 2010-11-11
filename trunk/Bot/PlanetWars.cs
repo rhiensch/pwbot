@@ -162,6 +162,17 @@ namespace Bot
 			return enemyPlanets;
 		}
 
+		public Planets EnemyPlanets(int turn)
+		{
+			Planets enemyPlanets = new Planets(Config.MaxPlanets);
+			foreach (Planet p in planets)
+			{
+				Planet futurePlanet = PlanetFutureStatus(p, turn);
+				if (futurePlanet.Owner() >= 2) enemyPlanets.Add(p);
+			}
+			return enemyPlanets;
+		}
+
 		// Return a list of all the fleets.
 		public Fleets Fleets()
 		{
@@ -754,15 +765,14 @@ namespace Bot
 
 		private int myProduction = -1;
 		private int enemyProduction = -1;
+		private int myFutureProduction = -1;
+		private int enemyFutureProduction = -1;
 
 		public int MyProduction
 		{
 			get
 			{
-				if (myProduction == -1)
-				{
-					myProduction = CalcProduction(1);
-				}
+				if (myProduction == -1) CalcProduction();
 				return myProduction;
 			}
 		}
@@ -771,24 +781,52 @@ namespace Bot
 		{
 			get
 			{
-				if (enemyProduction == -1)
-				{
-					enemyProduction = CalcProduction(2);
-				}
+				if (enemyProduction == -1) CalcProduction();
 				return enemyProduction;
 			}
 		}
 
-		private int CalcProduction(int playerID)
+		public int MyFutureProduction
 		{
-			if (playerID == 0) return 0;
-			int production = 0;
+			get
+			{
+				if (myFutureProduction == -1) CalcFutureProduction();
+				return myFutureProduction;
+			}
+		}
+
+		public int EnemyFutureProduction
+		{
+			get
+			{
+				if (enemyFutureProduction == -1) CalcFutureProduction();
+				return enemyFutureProduction;
+			}
+		}
+
+		private void CalcProduction()
+		{
+			myProduction = 0;
+			enemyProduction = 0;
 			Planets allPlanets = Planets();
 			foreach (Planet planet in allPlanets)
 			{
-				if (planet.Owner() == playerID) production += planet.GrowthRate();
+				if (planet.Owner() == 1) myProduction += planet.GrowthRate();
+				if (planet.Owner() == 2) enemyProduction += planet.GrowthRate();
 			}
-			return production;
+		}
+
+		private void CalcFutureProduction()
+		{
+			myFutureProduction = 0;
+			enemyFutureProduction = 0;
+			PlanetHolders allPlanetHolders = PlanetHolders();
+			foreach (PlanetHolder planetHolder in allPlanetHolders)
+			{
+				int lastOwner = GetLastOwner(planetHolder);
+				if (lastOwner == 1) myFutureProduction += planetHolder.GetPlanet().GrowthRate();
+				if (lastOwner == 2) enemyFutureProduction += planetHolder.GetPlanet().GrowthRate();
+			}
 		}
 
 		public int Production(int playerID)
@@ -804,6 +842,19 @@ namespace Bot
 			}
 		}
 
+		public int FutureProduction(int playerID)
+		{
+			switch (playerID)
+			{
+				case 1:
+					return MyFutureProduction;
+				case 2:
+					return EnemyFutureProduction;
+				default:
+					return 0;
+			}
+		}
+
 		private int myTotalShipCount = -1;
 		private int enemyTotalShipCount = -1;
 
@@ -811,10 +862,7 @@ namespace Bot
 		{
 			get
 			{
-				if (myTotalShipCount == -1)
-				{
-					myTotalShipCount = CalcTotalShipCount(1);
-				}
+				if (myTotalShipCount == -1) CalcTotalShipCount();
 				return myTotalShipCount;
 			}
 		}
@@ -823,30 +871,42 @@ namespace Bot
 		{
 			get
 			{
-				if (enemyTotalShipCount == -1)
-				{
-					enemyTotalShipCount = CalcTotalShipCount(2);
-				}
+				if (enemyTotalShipCount == -1) CalcTotalShipCount();
 				return enemyTotalShipCount;
 			}
 		}
 
-		private int CalcTotalShipCount(int playerID)
+		private void CalcTotalShipCount()
 		{
-			int shipCount = 0;
+			myTotalShipCount = 0;
+			enemyTotalShipCount = 0;
 			foreach (Planet planet in planets)
 			{
-				if (planet.Owner() == playerID) shipCount += planet.NumShips();
+				if (planet.Owner() == 1) myTotalShipCount += planet.NumShips();
+				if (planet.Owner() == 2) enemyTotalShipCount += planet.NumShips();
 			}
-			if (playerID > 0)
+			foreach (Fleet fleet in fleets)
 			{
-				foreach (Fleet fleet in fleets)
-				{
-					if (fleet.Owner() == playerID) shipCount += fleet.NumShips();
-				}
+				if (fleet.Owner() == 1) myTotalShipCount += fleet.NumShips();
+				if (fleet.Owner() == 2) enemyTotalShipCount += fleet.NumShips();
 			}
-			return shipCount;
 		}
+
+		/*private void CalcFutureTotalShipCount()
+		{
+			myTotalShipCount = 0;
+			enemyTotalShipCount = 0;
+			foreach (Planet planet in planets)
+			{
+				if (planet.Owner() == 1) myTotalShipCount += planet.NumShips();
+				if (planet.Owner() == 2) enemyTotalShipCount += planet.NumShips();
+			}
+			foreach (Fleet fleet in fleets)
+			{
+				if (fleet.Owner() == 1) myTotalShipCount += fleet.NumShips();
+				if (fleet.Owner() == 2) enemyTotalShipCount += fleet.NumShips();
+			}
+		}*/
 
 		public int TotalShipCount(int playerID)
 		{
@@ -856,8 +916,8 @@ namespace Bot
 					return MyTotalShipCount;
 				case 2:
 					return EnemyTotalShipCount;
-				default:
-					return CalcTotalShipCount(0);
+				default :
+					return 0;
 			}
 		}
 
@@ -1015,16 +1075,6 @@ namespace Bot
 			return message.Replace(".0 ", " ");
 		}
 
-		public int GetClosestEnemyPlanetDistance(Planet planet)
-		{
-			return GetClosestPlanetDistance(planet, EnemyPlanets());
-		}
-
-		public int GetClosestMyPlanetDistance(Planet planet)
-		{
-			return GetClosestPlanetDistance(planet, MyPlanets());
-		}
-
 		public int GetClosestPlanetDistance(Planet planet, Planets planetList)
 		{
 			int distance = int.MaxValue;
@@ -1121,7 +1171,7 @@ namespace Bot
 				int numShips = futurePlanet.NumShips();
 
 				//enemyCanSend
-				/*int turnsCount = GetPlanetHolder(enemyPlanet.PlanetID()).TurnsCount;
+				int turnsCount = GetPlanetHolder(enemyPlanet.PlanetID()).TurnsCount;
 				for (int turn = sendTurn + 1; turn < turnsCount; turn++)
 				{
 					futurePlanet = PlanetFutureStatus(enemyPlanet, turn);
@@ -1131,7 +1181,7 @@ namespace Bot
 						break;
 					}
 					if (futurePlanet.NumShips() < numShips) numShips = futurePlanet.NumShips();
-				}*/
+				}
 
 				enemyAid[planet.PlanetID(), numberOfTurns] += numShips;
 			}
@@ -1233,6 +1283,27 @@ namespace Bot
 				additionalTargetPlanets.Add(targetPlanet);
 		}
 
+		public int GetLastOwner(PlanetHolder planetHolder)
+		{
+			int lastOwner = planetHolder.GetPlanet().Owner();
+			if (planetHolder.OwnerSwitches.Count > 0)
+			{
+				lastOwner = planetHolder.OwnerSwitches[planetHolder.OwnerSwitches.Count - 1].NewOwner;
+			}
+			return lastOwner;
+		}
+
+		public Planets GetPlanetsByLastOwner(IEnumerable<PlanetHolder> planetHoldersList, int owner)
+		{
+			Planets targetPlanets = new Planets();
+			foreach (PlanetHolder planetHolder in planetHoldersList)
+			{
+				int lastOwner = GetLastOwner(planetHolder);
+				if (lastOwner == owner) targetPlanets.Add(planetHolder.GetPlanet());
+			}
+			return targetPlanets;
+		}
+
 		private Planets frontPlanets;
 		public Planets GetFrontPlanets()
 		{
@@ -1240,10 +1311,10 @@ namespace Bot
 			{
 				frontPlanets = new Planets(Config.MaxPlanets);
 
-				Planets targetPlanets = EnemyPlanets();
+				Planets targetPlanets = GetPlanetsByLastOwner(PlanetHolders(), 2);
 				if (additionalTargetPlanets != null) targetPlanets.AddRange(additionalTargetPlanets);
 
-				Planets myPlanets = MyPlanets();
+				Planets myPlanets = GetPlanetsByLastOwner(PlanetHolders(), 1);
 				foreach (Planet targetPlanet in targetPlanets)
 				{
 					Planets closestPlanets = GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);

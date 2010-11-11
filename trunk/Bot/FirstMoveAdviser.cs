@@ -15,6 +15,10 @@ namespace Bot
 		{
 		}
 
+		public delegate bool CheckTime();
+
+		public CheckTime checkTime;
+
 		public Planets Knapsack01(List<Planet> planets, int maxWeight)
 		{
 			List<int> weights = new List<int>();
@@ -80,12 +84,18 @@ namespace Bot
 			int size = (1 << n);
 			for (int i = 0; i < size; i++)
 			{
+				if (checkTime != null)
+					if (!checkTime()) break;
+
 				int ships = 0;
 				int score = 0;
 				int returners = 0;
 				Moves moves = new Moves();
 				for (int j = 0; j < n; j++)
 				{
+					if (checkTime != null)
+						if (!checkTime()) break;
+
 					if ((i & (1 << j)) <= 0) continue;
 					Planet target = planets[j];
 
