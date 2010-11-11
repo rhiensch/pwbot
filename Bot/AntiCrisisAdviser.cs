@@ -12,6 +12,8 @@ namespace Bot
 		{
 		}
 
+		public bool Attack { get; set; }
+		
 		public override Moves Run(Planet supplyPlanet)
 		{
 			Moves moves = new Moves();
@@ -53,12 +55,12 @@ namespace Bot
 			int canSend = Context.CanSend(myStrongestPlanet);
 
 			Planets targetFuturePlanets = new Planets(Config.MaxPlanets);
-			foreach (Planet neutralPlanet in Context.NeutralPlanets())
+			foreach (Planet eachPlanet in Context.Planets())
 			{
-				int distance = Context.Distance(myStrongestPlanet, neutralPlanet);
-				Planet futurePlanet = Context.PlanetFutureStatus(neutralPlanet, distance);
+				int distance = Context.Distance(myStrongestPlanet, eachPlanet);
+				Planet futurePlanet = Context.PlanetFutureStatus(eachPlanet, distance);
 
-				if (futurePlanet.Owner() == 0 && canSend > futurePlanet.NumShips() + 1)
+				if (futurePlanet.Owner() == (Attack ? 2 : 0) && canSend > futurePlanet.NumShips() + 1)
 				{
 					targetFuturePlanets.Add(futurePlanet);
 				}

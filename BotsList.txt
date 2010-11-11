@@ -1,0 +1,3 @@
+bot_exe\bot4 | .exe
+bot_exe\bot3 | .exe
+java -jar | .jar

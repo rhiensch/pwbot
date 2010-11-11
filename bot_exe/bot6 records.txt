@@ -1,0 +1,12 @@
+Bot: bot_exe\bot3.exe
+    won  : 95/100
+    lost : 3/100
+Bot: bot_exe\bot4.exe
+    won  : 95/100
+    lost : 4/100
+Bot: bot_exe\bot5.exe
+    won  : 37/100
+    lost : 23/100
+Bot: "Hazard 12"
+    won  : 42/100
+    lost : 53/100
