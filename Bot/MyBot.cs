@@ -51,29 +51,33 @@ namespace Bot
 			{
 				if (turn == 1)
 				{
-					RunAdviser(new FirstMoveAdviser(Context));
+					FirstMoveAdviser firstMoveAdviser = new FirstMoveAdviser(Context);
+					FirstMoveAdviser.CheckTime checkTime = CheckTime;
+					firstMoveAdviser.checkTime = checkTime;
+					RunAdviser(firstMoveAdviser);
 					return;
 				}
+
+				if (Context.MyPlanets().Count == 0) return;
 
 				DefendAdviser defendAdviser = new DefendAdviser(Context);
 				InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
 				AttackAdviser attackAdviser = new AttackAdviser(Context);
-				SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
 				StealAdviser stealAdviser = new StealAdviser(Context);
-				AntiCrisisAdviser antiCrisiAdviser = new AntiCrisisAdviser(Context);
+				AntiCrisisAdviser antiCrisisAdviser = new AntiCrisisAdviser(Context);
 
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
-				if (Context.MyProduction < Context.EnemyProduction ||
-					((Context.MyProduction == Context.EnemyProduction) &&  
+				if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
+					((Context.MyFutureProduction == Context.EnemyFutureProduction) &&  
 					 (Context.MyTotalShipCount < Context.EnemyTotalShipCount)))
 				{
 					if (turn - lastMove[attackAdviser.GetAdviserName()] > Config.IdleTurns &&
 						turn - lastMove[invadeAdviser.GetAdviserName()] > Config.IdleTurns &&
 						turn - lastMove[stealAdviser.GetAdviserName()] > Config.IdleTurns)
 					{
-						RunAdviser(antiCrisiAdviser);
+						RunAdviser(antiCrisisAdviser);
 						if (!CheckTime()) return;
 						//Console.WriteLine("stop!");
 					}
@@ -88,15 +92,23 @@ namespace Bot
 
 				RunAdviser(attackAdviser);
 				if (!CheckTime()) return;
-
-				RunAdviser(supplyAdviser);
-				if (!CheckTime()) return;
 			}
 			finally
 			{
 				try
 				{
 					SelectAndMakeMoves();
+					if (CheckTime())
+					{
+						SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
+						RunAdviser(supplyAdviser);
+
+						if (CheckTime())
+						{
+							SelectAndMakeMoves();
+						}
+					}
+
 				}
 				finally
 				{
@@ -116,10 +128,67 @@ namespace Bot
 
 		private void SelectAndMakeMoves()
 		{
-			if (setList.Count == 0) return;
+			int n = setList.Count;
+
+			if (n == 0) return;
+			Logger.Log("sets num:" + n);
+
+			/*int size = (1 << n);
+			for (int i = 0; i < size; i++)
+			{
+				if (!CheckTime()) break;
+
+				int ships = 0;
+				int score = 0;
+				int returners = 0;
+				Moves moves = new Moves();
+				for (int j = 0; j < n; j++)
+				{
+					if (checkTime != null)
+						if (!checkTime()) break;
+
+					if ((i & (1 << j)) <= 0) continue;
+					Planet target = planets[j];
+
+					int distance = Context.Distance(myPlanet, target);
+					int needShips = target.NumShips() + 1;
+
+					if (Context.Distance(myPlanet, target) >= Context.Distance(enemyPlanet, target))
+						needShips += 1;
+
+					if (myPlanet.NumShips() > canSend && enemyDistance > distance * 2)
+					{
+						//HowMany ships can return to myPlanet before enemy
+						returners += (enemyDistance - distance * 2) * myPlanet.GrowthRate();
+						if (returners > myPlanet.NumShips() - canSend) returners = myPlanet.NumShips() - canSend;
+					}
+
+					score += (Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID())) *
+							 target.GrowthRate() -
+							 needShips;
+
+					ships += needShips;
+					if (ships > canSend + returners) break;
+					moves.Add(
+						new Move(
+							myPlanet.PlanetID(),
+							target.PlanetID(),
+							needShips)
+						);
+				}
+				if (ships < 0) continue;
+
+				score += Config.ScoreTurns * myPlanet.GrowthRate();
+				sets.Add(new MovesSet(moves, score, GetAdviserName(), Context));
+			}
+			if (sets.Count == 0) return null;
+			if (sets.Count > 1)
+			{
+				sets.Sort(new Comparer(null).CompareSetScoreGT);
+			}
+			return sets[0];*/
 
 			if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
-
 			foreach (MovesSet movesSet in setList)
 			{
 				bool isPossible = false;

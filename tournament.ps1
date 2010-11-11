@@ -19,9 +19,9 @@ $bots = @()
 #$bots += '"java -jar example_bots/BullyBot.jar"'
 #$bots += '"java -jar example_bots/ProspectorBot.jar"'
 #$bots += '"java -jar example_bots/RandomBot.jar"'
-#$bots += "bot_exe\HazardBot_12.exe"
+$bots += "bot_exe\HazardBot_12.exe"
 #$bots += "bot_exe\mubot.exe"
-$bots += "bot_exe\BlueSky9.exe"
+#$bots += "bot_exe\BlueSky9.exe"
 
 foreach($bot in $bots) {
     $botname = $bot        #.name 

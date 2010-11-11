@@ -12,7 +12,9 @@ namespace Bot
 
 		public Planet FindNextPlanetInPath(Planet source)
 		{
-			int supplyPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(source);
+			Planets enemyPlanets = Context.GetPlanetsByLastOwner(Context.PlanetHolders(), 2);
+
+			int supplyPlanetFrontLevel = Context.GetClosestPlanetDistance(source, enemyPlanets);
 			//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), supplyPlanet);
 
 			Planets nearPlanets = Context.Planets();
@@ -28,7 +30,7 @@ namespace Bot
 				Planet futurePlanet = Context.PlanetFutureStatus(nearPlanet, distance);
 
 				if (futurePlanet.Owner() != 1) continue;
-				int nearPlanetFrontLevel = Context.GetClosestEnemyPlanetDistance(nearPlanet);
+				int nearPlanetFrontLevel = Context.GetClosestPlanetDistance(nearPlanet, enemyPlanets);
 					
 				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet););
 
