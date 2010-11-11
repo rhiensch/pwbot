@@ -1,4 +1,4 @@
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -77,9 +77,9 @@ namespace Bot
 						turn - lastMove[invadeAdviser.GetAdviserName()] > Config.IdleTurns &&
 						turn - lastMove[stealAdviser.GetAdviserName()] > Config.IdleTurns)
 					{
+						antiCrisisAdviser.Attack = Context.MyTotalShipCount < Context.EnemyTotalShipCount;
 						RunAdviser(antiCrisisAdviser);
 						if (!CheckTime()) return;
-						//Console.WriteLine("stop!");
 					}
 				}
 
@@ -131,7 +131,6 @@ namespace Bot
 			int n = setList.Count;
 
 			if (n == 0) return;
-			Logger.Log("sets num:" + n);
 
 			/*int size = (1 << n);
 			for (int i = 0; i < size; i++)

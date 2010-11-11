@@ -1,6 +1,9 @@
 #CSharpEngine.exe "maps/map41.txt" 2000 100 "log.txt" "Bot.exe" "java -jar example_bots/DualBot.jar" | java -jar tools/ShowGame.jar
 
-$root_dir = "C:\Projects\pw\"
+#$root_dir = "C:\Projects\pw\"
+#$root_dir = "C:\war\"
+
+
 $my_bot = "bot.exe"
 #$enemy_bot = "bot_exe\bot3.exe"
 
@@ -11,8 +14,8 @@ $my_bot = "bot.exe"
 $bots = @()
 #$bots += "bot_exe\bot1.exe"
 #$bots += "bot_exe\bot2.exe"
-#$bots += "bot_exe\bot3.exe"
-#$bots += "bot_exe\bot4.exe"
+$bots += "bot_exe\bot3.exe"
+$bots += "bot_exe\bot4.exe"
 #$bots += "bot_exe\bot5.exe"
 #$bots += '"java -jar example_bots/RageBot.jar"'
 #$bots += '"java -jar example_bots/DualBot.jar"'
