@@ -105,7 +105,7 @@ namespace Bot
 
 						if (CheckTime())
 						{
-							SelectAndMakeMoves();
+							MakeMoves(setList);
 						}
 					}
 
@@ -126,67 +126,8 @@ namespace Bot
 			setList.AddRange(moves);
 		}
 
-		private void SelectAndMakeMoves()
+		private void MakeMoves(List<MovesSet> set)
 		{
-			int n = setList.Count;
-
-			if (n == 0) return;
-
-			/*int size = (1 << n);
-			for (int i = 0; i < size; i++)
-			{
-				if (!CheckTime()) break;
-
-				int ships = 0;
-				int score = 0;
-				int returners = 0;
-				Moves moves = new Moves();
-				for (int j = 0; j < n; j++)
-				{
-					if (checkTime != null)
-						if (!checkTime()) break;
-
-					if ((i & (1 << j)) <= 0) continue;
-					Planet target = planets[j];
-
-					int distance = Context.Distance(myPlanet, target);
-					int needShips = target.NumShips() + 1;
-
-					if (Context.Distance(myPlanet, target) >= Context.Distance(enemyPlanet, target))
-						needShips += 1;
-
-					if (myPlanet.NumShips() > canSend && enemyDistance > distance * 2)
-					{
-						//HowMany ships can return to myPlanet before enemy
-						returners += (enemyDistance - distance * 2) * myPlanet.GrowthRate();
-						if (returners > myPlanet.NumShips() - canSend) returners = myPlanet.NumShips() - canSend;
-					}
-
-					score += (Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID())) *
-							 target.GrowthRate() -
-							 needShips;
-
-					ships += needShips;
-					if (ships > canSend + returners) break;
-					moves.Add(
-						new Move(
-							myPlanet.PlanetID(),
-							target.PlanetID(),
-							needShips)
-						);
-				}
-				if (ships < 0) continue;
-
-				score += Config.ScoreTurns * myPlanet.GrowthRate();
-				sets.Add(new MovesSet(moves, score, GetAdviserName(), Context));
-			}
-			if (sets.Count == 0) return null;
-			if (sets.Count > 1)
-			{
-				sets.Sort(new Comparer(null).CompareSetScoreGT);
-			}
-			return sets[0];*/
-
 			if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
 			foreach (MovesSet movesSet in setList)
 			{
@@ -205,7 +146,96 @@ namespace Bot
 				else lastMove[movesSet.AdviserName] = turn;
 				Context.IssueOrder(movesSet);
 			}
+		}
+
+		private void SelectAndMakeMoves()
+		{
+			int n = setList.Count;
+
+			if (n == 0) return;
+
+			List<List<MovesSet>> sets = new List<List<MovesSet>>();
+
+			int size = (1 << n);
+			for (int i = 0; i < size; i++)
+			{
+				if (!CheckTime()) break;
+
+				List<MovesSet> currentSetList = new List<MovesSet>();
+				Moves totalMoves = new Moves();
+
+				double score = 0.0;
+				for (int j = 0; j < n; j++)
+				{
+					if (!CheckTime()) break;
+
+					if ((i & (1 << j)) <= 0) continue;
+
+					MovesSet set = setList[j];
+
+					currentSetList.Add(set);
+
+					Moves moves = set.GetMoves();
+					foreach (Move move in moves)
+					{
+						bool found = false;
+						for (int k = 0; k < totalMoves.Count; k++)
+						{
+							if (totalMoves[k].SourceID == move.SourceID)
+							{
+								found = true;
+								totalMoves[k].AddShips(move.NumShips);
+								break;
+							}
+						}
+						if (!found)
+						{
+							totalMoves.Add(move);
+							
+						}
+					}
+					score += set.Score;
+				}
+				bool isValid = true;
+				foreach (Move totalMove in totalMoves)
+				{
+					if (!Context.IsValid(totalMove))
+					{
+						isValid = false;
+						break;
+					}
+				}
+
+				if (!isValid) continue;
+				sets.Add(currentSetList);
+			}
+
 			setList.Clear();
+			if (sets.Count > 1)
+			{
+				sets.Sort(new Comparer(null).CompareSetListScoreGT);
+			}
+			if (sets.Count > 0) MakeMoves(sets[0]);
+
+			/*if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
+			foreach (MovesSet movesSet in setList)
+			{
+				bool isPossible = false;
+				Moves moves = movesSet.GetMoves();
+				foreach (Move move in moves)
+				{
+					isPossible = Context.IsValid(move);
+					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
+					isPossible = isPossible && (move.NumShips <= canSend);
+					if (isPossible) continue;
+					break;
+				}
+				if (!isPossible) continue;
+				if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
+				else lastMove[movesSet.AdviserName] = turn;
+				Context.IssueOrder(movesSet);
+			}
+			setList.Clear();*/
 		}
 
 		private static int turn;

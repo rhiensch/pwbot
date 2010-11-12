@@ -43,7 +43,38 @@ namespace Bot
 			return "AntiCrisis";
 		}
 
-		public override List<MovesSet> RunAll()
+		//from my smallest to closest enemy
+		public List<MovesSet> AttackAction()
+		{
+			List<MovesSet> movesSet = new List<MovesSet>();
+
+			Planets enemyPlanets = Context.EnemyPlanets();
+			if (enemyPlanets.Count == 0) return movesSet;
+			enemyPlanets.Sort(new Comparer(Context).CompareGrowsRateGT);
+			Planet targetPlanet = enemyPlanets[0];
+
+			Planets myPlanets = Context.MyPlanets();
+			Comparer comparer = new Comparer(Context) {TargetPlanet = targetPlanet};
+			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
+			foreach (Planet myPlanet in myPlanets)
+			{
+				if (myPlanet.GrowthRate() < targetPlanet.GrowthRate())
+				{
+					Moves moves = new Moves(1)
+					              	{
+					              		new Move(myPlanet, targetPlanet, Context.CanSend(myPlanet))
+					              	};
+					movesSet.Add(new MovesSet(moves, 99999, GetAdviserName(), Context));
+					break;
+				}
+			}
+
+			return movesSet;
+		}
+
+		//From my strongest to closest suitable enemy
+		public List<MovesSet> InvadeAction()
 		{
 			List<MovesSet> movesSet = new List<MovesSet>();
 
@@ -57,10 +88,12 @@ namespace Bot
 			Planets targetFuturePlanets = new Planets(Config.MaxPlanets);
 			foreach (Planet eachPlanet in Context.Planets())
 			{
+				if (eachPlanet.GrowthRate() == 0) continue;
+
 				int distance = Context.Distance(myStrongestPlanet, eachPlanet);
 				Planet futurePlanet = Context.PlanetFutureStatus(eachPlanet, distance);
 
-				if (futurePlanet.Owner() == (Attack ? 2 : 0) && canSend > futurePlanet.NumShips() + 1)
+				if (futurePlanet.Owner() == 0 && canSend > futurePlanet.NumShips() + 1)
 				{
 					targetFuturePlanets.Add(futurePlanet);
 				}
@@ -68,7 +101,7 @@ namespace Bot
 
 			if (targetFuturePlanets.Count == 0) return movesSet;
 
-			Comparer comparer = new Comparer(Context) {TargetPlanet = myStrongestPlanet};
+			Comparer comparer = new Comparer(Context) { TargetPlanet = myStrongestPlanet };
 			targetFuturePlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 			Moves moves = new Moves(1)
@@ -79,6 +112,12 @@ namespace Bot
 			movesSet.Add(new MovesSet(moves, 99999, GetAdviserName(), Context));
 
 			return movesSet;
+		}
+
+		public override List<MovesSet> RunAll()
+		{
+			if (Attack) return AttackAction();
+			return InvadeAction();
 		}
 	}
 }

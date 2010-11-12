@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -35,6 +36,11 @@ namespace Bot
 			return result;
 		}
 
+		public int CompareGrowsRateLT(Planet planet1, Planet planet2)
+		{
+			return -CompareGrowsRateGT(planet1, planet2);
+		}
+
 		public int CompareTurnsRemainingLT(Fleet fleet1, Fleet fleet2)
 		{
 			int result = (fleet1.TurnsRemaining() - fleet2.TurnsRemaining());
@@ -63,6 +69,22 @@ namespace Bot
 			int result = Math.Sign(set2.Score - set1.Score);
 			if (result == 0) result = Math.Sign(set1.AverageDistance - set2.AverageDistance);
 			if (result == 0) result = set1.MinDistance - set2.MinDistance;
+			return result;
+		}
+
+		public int CompareSetListScoreGT(List<MovesSet> setList1, List<MovesSet> setList2)
+		{
+			double score1 = 0.0;
+			double score2 = 0.0;
+			foreach (MovesSet movesSet in setList1)
+			{
+				score1 += movesSet.Score;
+			}
+			foreach (MovesSet movesSet in setList2)
+			{
+				score2 += movesSet.Score;
+			}
+			int result = Math.Sign(score2 - score1);
 			return result;
 		}
 	}

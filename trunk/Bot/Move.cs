@@ -22,6 +22,11 @@
 		{
 		}
 
+		public void AddShips(int addShips)
+		{
+			NumShips += addShips;
+		}
+
 		public override string ToString()
 		{
 			return
