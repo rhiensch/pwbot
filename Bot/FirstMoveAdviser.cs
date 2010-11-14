@@ -112,12 +112,16 @@ namespace Bot
 						if (returners > myPlanet.NumShips() - canSend) returners = myPlanet.NumShips() - canSend;
 					}
 
-					score += (Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID()))*
-					         target.GrowthRate() -
-					         needShips;
+					int growTurns = Math.Max(0, Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID()));
+
+					score += growTurns * target.GrowthRate() - needShips;
 
 					ships += needShips;
-					if (ships > canSend + returners) break;
+					if (ships > canSend + returners)
+					{
+						ships = -1;
+						break;
+					}
 					moves.Add(
 						new Move(
 							myPlanet.PlanetID(),
@@ -127,7 +131,7 @@ namespace Bot
 				}
 				if (ships < 0) continue;
 
-				score += Config.ScoreTurns * myPlanet.GrowthRate();
+				//score += Config.ScoreTurns * myPlanet.GrowthRate();
 				sets.Add(new MovesSet(moves, score, GetAdviserName(), Context));
 			}
 			if (sets.Count == 0) return null;
@@ -135,6 +139,10 @@ namespace Bot
 			{
 				sets.Sort(new Comparer(null).CompareSetScoreGT);
 			}
+			/*foreach (MovesSet movesSet in sets)
+			{
+				Logger.Log("score: " + movesSet.Score + "  " + movesSet);
+			}*/
 			return sets[0];
 		}
 

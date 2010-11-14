@@ -1143,8 +1143,10 @@ namespace Bot
 				}
 			}
 
-			if (numberOfTurns > Router.MaxDistance) return GetEnemyAid(planet, Router.MaxDistance);
-			if (enemyAid[planet.PlanetID(), numberOfTurns] != -1) return enemyAid[planet.PlanetID(), numberOfTurns];
+			if (numberOfTurns > Router.MaxDistance) 
+				return GetEnemyAid(planet, Router.MaxDistance);
+			if (enemyAid[planet.PlanetID(), numberOfTurns] != -1) 
+				return enemyAid[planet.PlanetID(), numberOfTurns];
 
 			enemyAid[planet.PlanetID(), numberOfTurns] = 0;
 
@@ -1274,6 +1276,22 @@ namespace Bot
 			return closestPlanets;
 		}
 
+		public Planets GetSectorPlanetsFromTarget(Planet target, Sectors sector, Planets planetList)
+		{
+			Planets sectorPlanets = new Planets(Config.MaxPlanets);
+			if (planetList.Count == 0) return sectorPlanets;
+
+			foreach (Planet planet in planetList)
+			{
+				if (planet == target) continue;
+				if (sector == GetSector(target, planet))
+				{
+					sectorPlanets.Add(planet);
+				}
+			}
+			return sectorPlanets;
+		}
+
 		private Planets additionalTargetPlanets;
 		public void AddTargetPlanet(Planet targetPlanet)
 		{
@@ -1317,9 +1335,23 @@ namespace Bot
 				Planets myPlanets = GetPlanetsByLastOwner(PlanetHolders(), 1);
 				foreach (Planet targetPlanet in targetPlanets)
 				{
-					Planets closestPlanets = GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);
+					Planets closestPlanets = //new Planets(Config.MaxPlanets);
+						GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);
 
 					Comparer comparer = new Comparer(this) {TargetPlanet = targetPlanet};
+
+					/*foreach (Sectors value in Enum.GetValues(typeof(Sectors)))
+					{
+						if (value == Sectors.None) continue;
+
+						Planets sectorPlanets = GetSectorPlanetsFromTarget(targetPlanet, value, myPlanets);
+						if (sectorPlanets.Count <= 1) continue;
+						
+						sectorPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
+						closestPlanets.Add(sectorPlanets[0]);
+					}*/
+					
 					closestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 					for (int i = 0; i < closestPlanets.Count; i++)

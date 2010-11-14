@@ -72,7 +72,8 @@ namespace Bot
 				double score = 2 * planet.GrowthRate() * (loseTurn > 0 ? loseTurn :Config.ScoreTurns) - set.NumShipsByTurns;
 				set.Score = score;
 
-				movesSet.Add(set);
+				if (loseTurn == 0) 
+					movesSet.Add(set);
 			}
 			return movesSet;
 		}

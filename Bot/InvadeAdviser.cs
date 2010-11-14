@@ -97,6 +97,7 @@ namespace Bot
 				if (planet.GrowthRate() == 0) continue;
 
 				PlanetHolder planetHolder = Context.GetPlanetHolder(planet);
+				//if (planetHolder.GetOwnerSwitchesToEnemy().Count > 0) continue;
 				if (planetHolder.OwnerSwitches.Count > 0) continue;
 
 				Moves moves = Run(planet);
