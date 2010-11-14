@@ -76,15 +76,36 @@ namespace Bot
 		{
 			double score1 = 0.0;
 			double score2 = 0.0;
+			double averageDistance1 = 0.0;
+			double averageDistance2 = 0.0;
+			int minDistance1 = int.MaxValue;
+			int minDistance2 = int.MaxValue;
 			foreach (MovesSet movesSet in setList1)
 			{
 				score1 += movesSet.Score;
+				averageDistance1 += movesSet.AverageDistance;
+				if (minDistance1 > movesSet.MinDistance) minDistance1 = movesSet.MinDistance;
 			}
+			
 			foreach (MovesSet movesSet in setList2)
 			{
 				score2 += movesSet.Score;
+				averageDistance2 += movesSet.AverageDistance;
+				if (minDistance2 > movesSet.MinDistance) minDistance2 = movesSet.MinDistance;
 			}
+			
+
 			int result = Math.Sign(score2 - score1);
+			if (result == 0)
+			{
+				if (setList1.Count != 0 && setList2.Count != 0)
+				{
+					averageDistance1 = Math.Round(averageDistance1 / setList1.Count);
+					averageDistance2 = Math.Round(averageDistance1 / setList2.Count);
+				}
+				result = Math.Sign(averageDistance1 - averageDistance2);
+			}
+			if (result == 0) result = minDistance2 - minDistance1;
 			return result;
 		}
 	}

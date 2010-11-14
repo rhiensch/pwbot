@@ -1,4 +1,6 @@
-﻿namespace Bot
+﻿using System;
+
+namespace Bot
 {
 	public class Move
 	{
@@ -19,6 +21,11 @@
 
 		public Move(Planet source, Planet dest, int numShips)
 			: this(source.PlanetID(), dest.PlanetID(), numShips)
+		{
+		}
+
+		public Move(Move move)
+			: this(move.SourceID, move.DestinationID, move.NumShips)
 		{
 		}
 

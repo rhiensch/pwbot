@@ -69,7 +69,7 @@ namespace Bot
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
-				if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
+				/*if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
 					((Context.MyFutureProduction == Context.EnemyFutureProduction) &&  
 					 (Context.MyTotalShipCount < Context.EnemyTotalShipCount)))
 				{
@@ -81,7 +81,7 @@ namespace Bot
 						RunAdviser(antiCrisisAdviser);
 						if (!CheckTime()) return;
 					}
-				}
+				}*/
 
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
@@ -106,6 +106,7 @@ namespace Bot
 						if (CheckTime())
 						{
 							MakeMoves(setList);
+							setList.Clear();
 						}
 					}
 
@@ -128,8 +129,8 @@ namespace Bot
 
 		private void MakeMoves(List<MovesSet> set)
 		{
-			if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
-			foreach (MovesSet movesSet in setList)
+			if (set.Count > 1) set.Sort(new Comparer(null).CompareSetScoreGT);
+			foreach (MovesSet movesSet in set)
 			{
 				bool isPossible = false;
 				Moves moves = movesSet.GetMoves();
@@ -164,7 +165,6 @@ namespace Bot
 				List<MovesSet> currentSetList = new List<MovesSet>();
 				Moves totalMoves = new Moves();
 
-				double score = 0.0;
 				for (int j = 0; j < n; j++)
 				{
 					if (!CheckTime()) break;
@@ -190,11 +190,10 @@ namespace Bot
 						}
 						if (!found)
 						{
-							totalMoves.Add(move);
+							totalMoves.Add(new Move(move));
 							
 						}
 					}
-					score += set.Score;
 				}
 				bool isValid = true;
 				foreach (Move totalMove in totalMoves)
@@ -211,11 +210,34 @@ namespace Bot
 			}
 
 			setList.Clear();
+
+
 			if (sets.Count > 1)
 			{
 				sets.Sort(new Comparer(null).CompareSetListScoreGT);
 			}
-			if (sets.Count > 0) MakeMoves(sets[0]);
+
+			int nnn = 0;
+			foreach (List<MovesSet> movesSets in sets)
+			{
+				nnn++;
+				double score = 0;
+				foreach (MovesSet movesSet in movesSets)
+				{
+					score += movesSet.Score;
+				}
+			}
+
+			if (sets.Count > 0)
+			{
+				/*string s = "";
+				foreach (MovesSet movesSet in sets[0])
+				{
+					s += movesSet.ToString() +"\n\r";
+				}
+				Logger.Log("Best: " + s);*/
+				MakeMoves(sets[0]);
+			}
 
 			/*if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
 			foreach (MovesSet movesSet in setList)

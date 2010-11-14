@@ -10,3 +10,6 @@ Bot: bot_exe\bot5.exe
 Bot: "Hazard 12"
     won  : 42/100
     lost : 53/100
+Bot: musman.exe
+    won  : 66/100
+    lost : 34/100
