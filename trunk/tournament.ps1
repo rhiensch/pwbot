@@ -15,6 +15,7 @@ $bots = @()
 #$bots += "bot_exe\bot4.exe"
 #$bots += "bot_exe\bot5.exe"
 #$bots += "bot_exe\bot6.exe"
+$bots += "bot_exe\bot7.exe"
 #$bots += '"java -jar example_bots/RageBot.jar"'
 #$bots += '"java -jar example_bots/DualBot.jar"'
 #$bots += '"java -jar example_bots/BullyBot.jar"'

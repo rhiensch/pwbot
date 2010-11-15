@@ -17,7 +17,7 @@ namespace Bot
 
 		public delegate bool CheckTime();
 
-		public CheckTime checkTime;
+		public CheckTime CheckTimeFunc;
 
 		public Planets Knapsack01(List<Planet> planets, int maxWeight)
 		{
@@ -73,76 +73,95 @@ namespace Bot
 		{
 			int n = planets.Count;
 
-			/*Planets targetPlanets = new Planets(planets.Count);
-			foreach (Planet planet in planets)
-			{
-				Planet newPlanet = new Planet(planet);
-				newPlanet.NumShips(newPlanet.NumShips() + )
-			}*/
+			int secondMoveCanSend = myPlanet.NumShips() - canSend + myPlanet.GrowthRate();//20
+
 			List<MovesSet> sets = new List<MovesSet>();
 
 			int size = (1 << n);
 			for (int i = 0; i < size; i++)
 			{
-				if (checkTime != null)
-					if (!checkTime()) break;
+				if (CheckTimeFunc != null)
+					if (!CheckTimeFunc()) break;
 
-				int ships = 0;
-				int score = 0;
-				int returners = 0;
+				int[] planetsIDs = new int[n];
+				int index = 0;
+
 				Moves moves = new Moves();
 				for (int j = 0; j < n; j++)
 				{
-					if (checkTime != null)
-						if (!checkTime()) break;
-
 					if ((i & (1 << j)) <= 0) continue;
-					Planet target = planets[j];
+					planetsIDs[index] = j;
+					index++;
+				}
 
-					int distance = Context.Distance(myPlanet, target);
-					int needShips = target.NumShips() + 1;
+				AllPermutationsEnumerable<int> p = new AllPermutationsEnumerable<int>(planetsIDs);
+				foreach (IEnumerable<int> enumerable in p)
+				{
+					int ships = 0;
+					int score = 0;
+					int returners = 0;
 
-					if (Context.Distance(myPlanet, target) >= Context.Distance(enemyPlanet, target))
-						needShips += 1;
-
-					if (myPlanet.NumShips() > canSend && enemyDistance > distance * 2)
+					foreach (int id in enumerable)
 					{
-						//HowMany ships can return to myPlanet before enemy
-						returners += (enemyDistance - distance*2)*myPlanet.GrowthRate();
-						if (returners > myPlanet.NumShips() - canSend) returners = myPlanet.NumShips() - canSend;
-					}
+						if (CheckTimeFunc != null)
+							if (!CheckTimeFunc()) break;
 
-					int growTurns = Math.Max(0, Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID()));
+						Planet target = planets[id];
 
-					score += growTurns * target.GrowthRate() - needShips;
+						int distance = Context.Distance(myPlanet, target);
+						int needShips = target.NumShips() + 1;
 
-					ships += needShips;
-					if (ships > canSend + returners)
-					{
-						ships = -1;
-						break;
-					}
-					moves.Add(
-						new Move(
+						if (Context.Distance(myPlanet, target) >= Context.Distance(enemyPlanet, target))
+							needShips += 1;
+
+						if (myPlanet.NumShips() > canSend && enemyDistance > distance * 2)
+						{
+							//HowMany ships can return to myPlanet before enemy
+							returners += (enemyDistance - distance * 2) * myPlanet.GrowthRate();
+							if (returners > myPlanet.NumShips() - canSend) returners = myPlanet.NumShips() - canSend;
+						}
+
+						int growTurns = Math.Max(0, Config.ScoreTurns - Context.Distance(myPlanet.PlanetID(), target.PlanetID()));
+
+						score += growTurns * target.GrowthRate() - needShips;
+
+						ships += needShips;
+						if (ships > canSend + returners + secondMoveCanSend)
+						{
+							ships = -1;
+							break;
+						}
+
+						Move move = new Move(
 							myPlanet.PlanetID(),
 							target.PlanetID(),
-							needShips)
-						);
-				}
-				if (ships < 0) continue;
+							needShips);
+						moves.Add(move);
 
-				//score += Config.ScoreTurns * myPlanet.GrowthRate();
-				sets.Add(new MovesSet(moves, score, GetAdviserName(), Context));
+						if (ships > canSend + returners)
+						{
+							move.TurnsBefore = 1;
+							move.AddShips(-1 * (ships - (canSend + returners)));
+							score -= target.GrowthRate();
+						}
+					}
+					if (ships < 0) continue;
+
+					MovesSet set = new MovesSet(moves, score, GetAdviserName(), Context);
+					if (set.SummaryNumShips > canSend)
+
+					sets.Add(new MovesSet(moves, score, GetAdviserName(), Context));
+				}
 			}
 			if (sets.Count == 0) return null;
 			if (sets.Count > 1)
 			{
 				sets.Sort(new Comparer(null).CompareSetScoreGT);
 			}
-			/*foreach (MovesSet movesSet in sets)
+			foreach (MovesSet movesSet in sets)
 			{
 				Logger.Log("score: " + movesSet.Score + "  " + movesSet);
-			}*/
+			}
 			return sets[0];
 		}
 
@@ -163,19 +182,7 @@ namespace Bot
 			enemyPlanet = Context.EnemyPlanets()[0];
 			enemyDistance = Context.Distance(myPlanet, enemyPlanet);
 
-			//int canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
 			int canSend = Math.Min(myPlanet.NumShips(), myPlanet.GrowthRate() * Context.Distance(myPlanet, enemyPlanet));
-			/*int distance = Context.Distance(myPlanet, enemyPlanet);
-			if (distance <= 5)
-			{
-				//kamikadze attack
-				//return KamikadzeAttack();
-			}}
-
-			if (distance <= 12)
-			{
-				canSend = myPlanet.NumShips();
-			}*/
 
 			Planets neutralPlanets = Context.NeutralPlanets();
 			Planets planets = new Planets(Config.MaxPlanets);
@@ -183,7 +190,8 @@ namespace Bot
 			{
 				if ((Context.Distance(myPlanet, neutralPlanet) <
 					Context.Distance(enemyPlanet, neutralPlanet)) &&
-					neutralPlanet.GrowthRate() > 0)
+					neutralPlanet.GrowthRate() > 0 /*&&
+					neutralPlanet.NumShips() <= canSend*/)
 				{
 					planets.Add(neutralPlanet);
 				}
