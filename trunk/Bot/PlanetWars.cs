@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef LOG
+#define LOG
 
 using System;
 using System.Collections.Generic;

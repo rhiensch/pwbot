@@ -1,4 +1,4 @@
-#undef LOG
+#define LOG
 
 using System;
 using System.Collections.Generic;
@@ -69,7 +69,8 @@ namespace Bot
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
 
-				/*if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
+				Config.AttackSendMoreThanEnemyCanDefend = true;
+				if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
 					((Context.MyFutureProduction == Context.EnemyFutureProduction) &&  
 					 (Context.MyTotalShipCount < Context.EnemyTotalShipCount)))
 				{
@@ -77,11 +78,15 @@ namespace Bot
 						turn - lastMove[invadeAdviser.GetAdviserName()] > Config.IdleTurns &&
 						turn - lastMove[stealAdviser.GetAdviserName()] > Config.IdleTurns)
 					{
-						antiCrisisAdviser.Attack = Context.MyTotalShipCount < Context.EnemyTotalShipCount;
-						RunAdviser(antiCrisisAdviser);
-						if (!CheckTime()) return;
+						//Config.AttackSendMoreThanEnemyCanDefend = false;
+#if LOG
+					Logger.Log("AttackSendMoreThanEnemyCanDefend = false");
+#endif
+						//antiCrisisAdviser.Attack = Context.MyTotalShipCount < Context.EnemyTotalShipCount;
+						//RunAdviser(antiCrisisAdviser);
+						//if (!CheckTime()) return;
 					}
-				}*/
+				}
 
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
@@ -211,21 +216,9 @@ namespace Bot
 
 			setList.Clear();
 
-
 			if (sets.Count > 1)
 			{
 				sets.Sort(new Comparer(null).CompareSetListScoreGT);
-			}
-
-			int nnn = 0;
-			foreach (List<MovesSet> movesSets in sets)
-			{
-				nnn++;
-				double score = 0;
-				foreach (MovesSet movesSet in movesSets)
-				{
-					score += movesSet.Score;
-				}
 			}
 
 			if (sets.Count > 0)

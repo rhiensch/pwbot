@@ -1,4 +1,6 @@
-﻿namespace Bot
+﻿using System;
+
+namespace Bot
 {
 	public static class Config
 	{
@@ -7,6 +9,7 @@
 			DoInvadeKoef = 1.2;
 			IdleTurns = 20;
 			InvadeSendMoreThanEnemyCanDefend = false;
+			AttackSendMoreThanEnemyCanDefend = true;
 		}
 
 		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }
@@ -26,5 +29,6 @@
 		public static double DoInvadeKoef { get; set; }
 
 		public static bool InvadeSendMoreThanEnemyCanDefend { get; set; }
+		public static bool AttackSendMoreThanEnemyCanDefend { get; set; }
 	}
 }
