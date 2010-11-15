@@ -1,4 +1,4 @@
-﻿#undef  LOG
+﻿#define  LOG
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +45,8 @@ namespace Bot
 
 				int needToSend = 1 + futurePlanet.NumShips();
 				//needToSend -= myFleetsShipNum;
-				needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
+				if (Config.AttackSendMoreThanEnemyCanDefend)
+					needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
 
 				foreach (Move eachMove in moves)
 				{
