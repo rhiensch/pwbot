@@ -53,7 +53,7 @@ namespace Bot
 				{
 					FirstMoveAdviser firstMoveAdviser = new FirstMoveAdviser(Context);
 					FirstMoveAdviser.CheckTime checkTime = CheckTime;
-					firstMoveAdviser.checkTime = checkTime;
+					firstMoveAdviser.CheckTimeFunc = checkTime;
 					RunAdviser(firstMoveAdviser);
 					return;
 				}
