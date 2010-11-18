@@ -38,6 +38,11 @@ namespace Bot
 			AverageDistance = SumDistance / (double)moves.Count;
 		}
 
+		public MovesSet(MovesSet set, PlanetWars context)
+			: this(set.GetMoves(), set.Score, set.AdviserName, context)
+		{
+		}
+
 		public MovesSet(IEnumerable<Move> movesSet, double score, string adviserName, PlanetWars context)
 		{
 			this.context = context;

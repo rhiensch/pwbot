@@ -1,4 +1,4 @@
-﻿#define LOG
+﻿#undef LOG
 using System;
 using System.Collections.Generic;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -52,6 +52,9 @@ namespace Bot
 				if (Config.InvadeSendMoreThanEnemyCanDefend)
 				{
 					int extraTurns = (int)Math.Ceiling(targetPlanet.NumShips() / (double)targetPlanet.GrowthRate());
+					if (Context.MyFutureProduction < Context.EnemyFutureProduction) extraTurns = 0;
+					if ((Context.MyFutureProduction == Context.EnemyFutureProduction) &&
+						(Context.MyTotalShipCount <= Context.EnemyTotalShipCount)) extraTurns = 0;
 					needToSend += Context.GetEnemyAid(targetPlanet, distance + extraTurns);
 				}
 

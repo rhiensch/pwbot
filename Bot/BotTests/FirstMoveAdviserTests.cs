@@ -184,7 +184,7 @@ namespace BotTests
 
 			Assert.IsTrue(movesSet.Count == 1);
 			//go to 27 planet with 20 ships, to protect from RageBot and take bigger planet than 15
-			Assert.AreEqual(20, movesSet[0].SummaryNumShips);
+			Assert.AreEqual(20 + 8, movesSet[0].SummaryNumShips);
 		}
 	}
 }

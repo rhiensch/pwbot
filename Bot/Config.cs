@@ -7,7 +7,8 @@ namespace Bot
 		static Config()
 		{
 			DoInvadeKoef = 1.2;
-			IdleTurns = 20;
+			IdleTurns = 15;
+			ScoreTurns = 30;
 			InvadeSendMoreThanEnemyCanDefend = false;
 			AttackSendMoreThanEnemyCanDefend = true;
 		}
@@ -22,7 +23,7 @@ namespace Bot
 		public static int DistanceKoef { get { return 1200; } }
 		public static int NumShipsKoef { get { return 60; } }
 		public static int ScoreKoef { get { return 1000; } }
-		public static int ScoreTurns { get { return 30; } }
+		public static int ScoreTurns { get; set; }
 		public static int IdleTurns { get; set; }
 		public static int CriticalTimeInMilliseconds { get { return 500; } }
 

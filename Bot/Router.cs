@@ -1,4 +1,4 @@
-﻿#define LOG
+﻿#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -39,6 +39,8 @@ namespace Bot
 					if (Distance(i, j) > MaxDistance) MaxDistance = Distance(i, j);
 				}
 			}
+			//Logger.Log("maxdistance: " + MaxDistance);
+			Config.ScoreTurns = MaxDistance;
 		}
 
 		public static void Init(Planets planetList)

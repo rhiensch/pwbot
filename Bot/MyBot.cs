@@ -1,4 +1,4 @@
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -70,7 +70,7 @@ namespace Bot
 				if (!CheckTime()) return;
 
 				Config.AttackSendMoreThanEnemyCanDefend = true;
-				if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
+				/*if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
 					((Context.MyFutureProduction == Context.EnemyFutureProduction) &&  
 					 (Context.MyTotalShipCount < Context.EnemyTotalShipCount)))
 				{
@@ -80,13 +80,13 @@ namespace Bot
 					{
 						//Config.AttackSendMoreThanEnemyCanDefend = false;
 #if LOG
-					Logger.Log("AttackSendMoreThanEnemyCanDefend = false");
+					//Logger.Log("AttackSendMoreThanEnemyCanDefend = false");
 #endif
 						//antiCrisisAdviser.Attack = Context.MyTotalShipCount < Context.EnemyTotalShipCount;
 						//RunAdviser(antiCrisisAdviser);
 						//if (!CheckTime()) return;
 					}
-				}
+				}*/
 
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
@@ -103,15 +103,22 @@ namespace Bot
 				try
 				{
 					SelectAndMakeMoves();
-					if (CheckTime())
+					if (CheckTime() && (turn > 1))
 					{
-						SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
-						RunAdviser(supplyAdviser);
-
-						if (CheckTime())
+						try
 						{
-							MakeMoves(setList);
-							setList.Clear();
+							SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
+							RunAdviser(supplyAdviser);
+
+							if (CheckTime())
+							{
+								MakeMoves(setList);
+								setList.Clear();
+							}
+						}
+						catch(Exception e)
+						{
+							//Logger.Log("exception: " + e.Message);
 						}
 					}
 
@@ -129,6 +136,7 @@ namespace Bot
 			if (setList == null) setList = new List<MovesSet>();
 
 			List<MovesSet> moves = adviser.RunAll();
+
 			setList.AddRange(moves);
 		}
 
@@ -136,6 +144,98 @@ namespace Bot
 		{
 			if (set.Count > 1) set.Sort(new Comparer(null).CompareSetScoreGT);
 			foreach (MovesSet movesSet in set)
+			{
+				bool isPossible = true;
+				Moves moves = movesSet.GetMoves();
+				foreach (Move move in moves)
+				{
+					isPossible = Context.IsValid(move);
+					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
+					isPossible = isPossible && (move.NumShips <= canSend);
+					if (isPossible) continue;
+					break;
+				}
+				if (!isPossible) continue;
+				if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
+				else lastMove[movesSet.AdviserName] = turn;
+				Context.IssueOrder(movesSet);
+			}
+		}
+
+		/*private void SelectAndMakeMoves()
+		{
+			/*int n = setList.Count;
+
+			if (n == 0) return;
+
+			List<List<MovesSet>> sets = new List<List<MovesSet>>();
+
+			int size = (1 << n);
+			for (int i = 0; i < size; i++)
+			{
+				if (!CheckTime()) break;
+
+				List<MovesSet> currentSetList = new List<MovesSet>();
+				Moves totalMoves = new Moves();
+
+				for (int j = 0; j < n; j++)
+				{
+					if (!CheckTime()) break;
+
+					if ((i & (1 << j)) <= 0) continue;
+
+					MovesSet set = new MovesSet(setList[j], Context);
+
+					currentSetList.Add(set);
+
+					Moves moves = set.GetMoves();
+					foreach (Move move in moves)
+					{
+						if (move.TurnsBefore > 0) continue;
+
+						bool found = false;
+						for (int k = 0; k < totalMoves.Count; k++)
+						{
+							if (totalMoves[k].SourceID == move.SourceID)
+							{
+								found = true;
+								totalMoves[k].AddShips(move.NumShips);
+								break;
+							}
+						}
+						if (!found)
+						{
+							totalMoves.Add(new Move(move));
+						}
+					}
+				}
+				bool isValid = true;
+				foreach (Move totalMove in totalMoves)
+				{
+					if (!Context.IsValid(totalMove))
+					{
+						isValid = false;
+						break;
+					}
+				}
+
+				if (!isValid) continue;
+				sets.Add(currentSetList);
+			}
+
+			if (sets.Count > 1)
+			{
+				sets.Sort(new Comparer(null).CompareSetListScoreGT);
+			}
+			if (sets.Count > 0)
+			{
+				MakeMoves(sets[0]);
+			}
+
+			setList.Clear();*/
+
+			/*if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
+			foreach (MovesSet movesSet in setList)
 			{
 				bool isPossible = false;
 				Moves moves = movesSet.GetMoves();
@@ -152,7 +252,8 @@ namespace Bot
 				else lastMove[movesSet.AdviserName] = turn;
 				Context.IssueOrder(movesSet);
 			}
-		}
+			setList.Clear();
+		}*/
 
 		private void SelectAndMakeMoves()
 		{
@@ -183,6 +284,8 @@ namespace Bot
 					Moves moves = set.GetMoves();
 					foreach (Move move in moves)
 					{
+						if (move.TurnsBefore > 0) continue;
+
 						bool found = false;
 						for (int k = 0; k < totalMoves.Count; k++)
 						{
@@ -196,7 +299,7 @@ namespace Bot
 						if (!found)
 						{
 							totalMoves.Add(new Move(move));
-							
+
 						}
 					}
 				}
@@ -216,6 +319,7 @@ namespace Bot
 
 			setList.Clear();
 
+
 			if (sets.Count > 1)
 			{
 				sets.Sort(new Comparer(null).CompareSetListScoreGT);
@@ -223,34 +327,8 @@ namespace Bot
 
 			if (sets.Count > 0)
 			{
-				/*string s = "";
-				foreach (MovesSet movesSet in sets[0])
-				{
-					s += movesSet.ToString() +"\n\r";
-				}
-				Logger.Log("Best: " + s);*/
 				MakeMoves(sets[0]);
 			}
-
-			/*if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
-			foreach (MovesSet movesSet in setList)
-			{
-				bool isPossible = false;
-				Moves moves = movesSet.GetMoves();
-				foreach (Move move in moves)
-				{
-					isPossible = Context.IsValid(move);
-					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
-					isPossible = isPossible && (move.NumShips <= canSend);
-					if (isPossible) continue;
-					break;
-				}
-				if (!isPossible) continue;
-				if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
-				else lastMove[movesSet.AdviserName] = turn;
-				Context.IssueOrder(movesSet);
-			}
-			setList.Clear();*/
 		}
 
 		private static int turn;
@@ -260,7 +338,11 @@ namespace Bot
 		private static bool CheckTime()
 		{
 			if (!DoCheckTime) return true;
-			return (DateTime.Now - startTime).TotalMilliseconds < Config.CriticalTimeInMilliseconds;
+			bool res = (DateTime.Now - startTime).TotalMilliseconds < Config.CriticalTimeInMilliseconds;
+#if LOG
+			if (!res) Logger.Log("Timeout!!!");
+#endif
+			return res;
 		}
 
 		public static void Main()
