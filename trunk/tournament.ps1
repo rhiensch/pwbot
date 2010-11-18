@@ -9,26 +9,17 @@ $my_bot = "bot.exe"
 
 #$bots = Get-ChildItem ("bot_exe") | where {$_.extension -eq ".exe"}
 $bots = @()
-#$bots += "bot_exe\bot1.exe"
-#$bots += "bot_exe\bot2.exe"
 #$bots += "bot_exe\bot3.exe"
 #$bots += "bot_exe\bot4.exe"
 #$bots += "bot_exe\bot5.exe"
 #$bots += "bot_exe\bot6.exe"
 $bots += "bot_exe\bot7.exe"
+#$bots += "bot_exe\untitled.exe"
 #$bots += '"java -jar example_bots/RageBot.jar"'
-#$bots += '"java -jar example_bots/DualBot.jar"'
-#$bots += '"java -jar example_bots/BullyBot.jar"'
-#$bots += '"java -jar example_bots/ProspectorBot.jar"'
-#$bots += '"java -jar example_bots/RandomBot.jar"'
-$bots += "bot_exe\HazardBot_12.exe"
+#$bots += "bot_exe\HazardBot_12.exe"
 $bots += "bot_exe\HazardBot_18.exe"
-#$bots += "bot_exe\HazardBot_9.exe"
-#$bots += "bot_exe\HazardBot_10.exe"
-#$bots += "bot_exe\HazardBot_11.exe"
-#$bots += "bot_exe\Torquemada 3.exe"
 #$bots += "bot_exe\mubot.exe"
-#$bots += "bot_exe\BlueSky9.exe"
+#$bots += "bot_exe\Torquemada 4.exe"
 
 foreach($bot in $bots) {
     $botname = $bot        #.name 
@@ -39,12 +30,12 @@ foreach($bot in $bots) {
     $draw_counter=0
     $maps_played=0
     
-    foreach($i in (1..30)) {   
+    foreach($i in (1..50)) {   
 	if ($botname -match "java") {
-		$output = java.exe -jar tools\PlayGame.jar maps\map_r528_$i.txt 3000 200 log.txt $my_bot "$botname" 2>&1
+		$output = java.exe -jar tools\PlayGame.jar maps\map_r538_$i.txt 3000 200 log.txt $my_bot "$botname" 2>&1
 	}
 	else {
-        	$output = .\CSharpEngine.exe "maps\map_r528_$i.txt" 3000 200 "log.txt" $my_bot $botname 2>&1
+        	$output = .\CSharpEngine.exe "maps\map_r538_$i.txt" 3000 200 "log.txt" $my_bot $botname 2>&1
 	}
         
         if($output -match "Player 1 Wins!") {
