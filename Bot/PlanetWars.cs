@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 using Moves = System.Collections.Generic.List<Bot.Move>;
@@ -890,23 +891,19 @@ namespace Bot
 				if (fleet.Owner() == 1) myTotalShipCount += fleet.NumShips();
 				if (fleet.Owner() == 2) enemyTotalShipCount += fleet.NumShips();
 			}
-		}
 
-		/*private void CalcFutureTotalShipCount()
-		{
-			myTotalShipCount = 0;
-			enemyTotalShipCount = 0;
-			foreach (Planet planet in planets)
+			/*foreach (Planet planet in planets)
 			{
-				if (planet.Owner() == 1) myTotalShipCount += planet.NumShips();
-				if (planet.Owner() == 2) enemyTotalShipCount += planet.NumShips();
+				Planet futurePlanet = PlanetFutureStatus(planet, Config.MaxTurns - Config.CurrentTurn);
+				if (futurePlanet.Owner() == 1) myTotalShipCount += futurePlanet.NumShips();
+				if (futurePlanet.Owner() == 2) enemyTotalShipCount += futurePlanet.NumShips();
 			}
-			foreach (Fleet fleet in fleets)
+			foreach (Fleet fleet in fleets.Where(fleet => fleet.TurnsRemaining() + Config.CurrentTurn > Config.MaxTurns))
 			{
 				if (fleet.Owner() == 1) myTotalShipCount += fleet.NumShips();
 				if (fleet.Owner() == 2) enemyTotalShipCount += fleet.NumShips();
-			}
-		}*/
+			}*/
+		}
 
 		public int TotalShipCount(int playerID)
 		{
@@ -967,16 +964,22 @@ namespace Bot
 			return GetPlanetHolder(planet).CanSend(turn);
 		}
 
-		public int CanSendSafe(Planet planet, int safeTurns)
+		public int CanSendSafe(Planet planet)
 		{
-			int enemyCanSend = GetEnemyAid(planet, safeTurns);
-			int canSend = CanSend(planet);
-			return Math.Max(0, canSend - enemyCanSend);
+			Planet closestEnemyPlanet = GetClosestPlanet(planet, EnemyPlanets());
+			int distance = Distance(planet, closestEnemyPlanet);
+			int safeCanSend = Math.Max(0, (planet.NumShips() - (closestEnemyPlanet.NumShips() - planet.GrowthRate() * distance)) / 2);
+			if (MyPlanets().Count == 1) return safeCanSend;
+			if (distance > 6) return CanSend(planet);
+				//GetEnemyAid(planet, safeTurns);)
+			return Math.Min(safeCanSend, CanSend(planet));
 		}
 
 		public int CanSendByPlanets(Planet source, Planet dest)
 		{
-			return CanSendByPlanets(source, dest, 0);
+			if (dest.GrowthRate() + 1 < source.GrowthRate()) return CanSendSafe(source);
+			return CanSend(source);
+			
 		}
 
 		public int CanSendByPlanets(Planet source, Planet dest, int turns)
@@ -986,7 +989,7 @@ namespace Bot
 				if (turns == 0) return CanSend(source);
 				return CanSend(source, turns);
 			}
-			return CanSendSafe(source, 0);
+			return CanSendSafe(source);
 		}
 
 		//# Returns a string representation of the entire game state.
@@ -1006,14 +1009,7 @@ namespace Bot
 			}
 			message += "\n";
 
-			foreach (Fleet f in fleets)
-			{
-				message +=
-					(forLog ? "\"" : "") + 
-					SerializeFleet(f) +
-					(forLog ? "\\n\" +" : "") +
-					"\n";
-			}
+			message = fleets.Aggregate(message, (current, f) => current + ((forLog ? "\"" : "") + SerializeFleet(f) + (forLog ? "\\n\" +" : "") + "\n"));
 
 			message +=
 				//"\n" + 
