@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
@@ -162,99 +163,6 @@ namespace Bot
 			}
 		}
 
-		/*private void SelectAndMakeMoves()
-		{
-			/*int n = setList.Count;
-
-			if (n == 0) return;
-
-			List<List<MovesSet>> sets = new List<List<MovesSet>>();
-
-			int size = (1 << n);
-			for (int i = 0; i < size; i++)
-			{
-				if (!CheckTime()) break;
-
-				List<MovesSet> currentSetList = new List<MovesSet>();
-				Moves totalMoves = new Moves();
-
-				for (int j = 0; j < n; j++)
-				{
-					if (!CheckTime()) break;
-
-					if ((i & (1 << j)) <= 0) continue;
-
-					MovesSet set = new MovesSet(setList[j], Context);
-
-					currentSetList.Add(set);
-
-					Moves moves = set.GetMoves();
-					foreach (Move move in moves)
-					{
-						if (move.TurnsBefore > 0) continue;
-
-						bool found = false;
-						for (int k = 0; k < totalMoves.Count; k++)
-						{
-							if (totalMoves[k].SourceID == move.SourceID)
-							{
-								found = true;
-								totalMoves[k].AddShips(move.NumShips);
-								break;
-							}
-						}
-						if (!found)
-						{
-							totalMoves.Add(new Move(move));
-						}
-					}
-				}
-				bool isValid = true;
-				foreach (Move totalMove in totalMoves)
-				{
-					if (!Context.IsValid(totalMove))
-					{
-						isValid = false;
-						break;
-					}
-				}
-
-				if (!isValid) continue;
-				sets.Add(currentSetList);
-			}
-
-			if (sets.Count > 1)
-			{
-				sets.Sort(new Comparer(null).CompareSetListScoreGT);
-			}
-			if (sets.Count > 0)
-			{
-				MakeMoves(sets[0]);
-			}
-
-			setList.Clear();*/
-
-			/*if (setList.Count > 1) setList.Sort(new Comparer(null).CompareSetScoreGT);
-			foreach (MovesSet movesSet in setList)
-			{
-				bool isPossible = false;
-				Moves moves = movesSet.GetMoves();
-				foreach (Move move in moves)
-				{
-					isPossible = Context.IsValid(move);
-					int canSend = Context.CanSend(Context.GetPlanet(move.SourceID), move.TurnsBefore);
-					isPossible = isPossible && (move.NumShips <= canSend);
-					if (isPossible) continue;
-					break;
-				}
-				if (!isPossible) continue;
-				if (!lastMove.ContainsKey(movesSet.AdviserName)) lastMove.Add(movesSet.AdviserName, turn);
-				else lastMove[movesSet.AdviserName] = turn;
-				Context.IssueOrder(movesSet);
-			}
-			setList.Clear();
-		}*/
-
 		private void SelectAndMakeMoves()
 		{
 			int n = setList.Count;
@@ -270,6 +178,7 @@ namespace Bot
 
 				List<MovesSet> currentSetList = new List<MovesSet>();
 				Moves totalMoves = new Moves();
+				int invadeNumber = Config.MaxInvades;
 
 				for (int j = 0; j < n; j++)
 				{
@@ -278,6 +187,9 @@ namespace Bot
 					if ((i & (1 << j)) <= 0) continue;
 
 					MovesSet set = setList[j];
+
+					if (setList[j].AdviserName == "Invade") invadeNumber--;
+					if (invadeNumber < 0) break;
 
 					currentSetList.Add(set);
 
@@ -303,15 +215,7 @@ namespace Bot
 						}
 					}
 				}
-				bool isValid = true;
-				foreach (Move totalMove in totalMoves)
-				{
-					if (!Context.IsValid(totalMove))
-					{
-						isValid = false;
-						break;
-					}
-				}
+				bool isValid = totalMoves.All(totalMove => Context.IsValid(totalMove));
 
 				if (!isValid) continue;
 				sets.Add(currentSetList);
@@ -365,6 +269,7 @@ namespace Bot
 							if (line.Equals("go"))
 							{
 								turn++;
+								Config.CurrentTurn = turn;
 								PlanetWars pw = new PlanetWars(message);
 #if LOG
 								Logger.Log("");
