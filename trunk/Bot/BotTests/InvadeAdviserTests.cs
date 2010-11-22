@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Bot;
@@ -55,7 +54,7 @@ namespace BotTests
 			IAdviser adviser = new InvadeAdviser(planetWars);
 			Moves moves = adviser.Run(planetWars.GetPlanet(4));
 
-			int extraTurns = (int)Math.Ceiling(planetWars.GetPlanet(4).NumShips() / (double)planetWars.GetPlanet(4).GrowthRate());
+			//int extraTurns = (int)Math.Ceiling(planetWars.GetPlanet(4).NumShips() / (double)planetWars.GetPlanet(4).GrowthRate());
 
 			Assert.AreEqual(2, moves.Count);
 			Assert.AreEqual(21 + 100 + 5 * 2 + 1, moves[0].NumShips + moves[1].NumShips);
@@ -119,12 +118,10 @@ namespace BotTests
 				Moves moves = movesSet.GetMoves();
 				foreach (Move move in moves)
 				{
-					if (move.DestinationID == 0)
-					{
-						sended = true;
-						Assert.AreEqual(1, move.NumShips);
-						Assert.AreEqual(0, move.TurnsBefore);
-					}
+					if (move.DestinationID != 0) continue;
+					sended = true;
+					Assert.AreEqual(1, move.NumShips);
+					Assert.AreEqual(0, move.TurnsBefore);
 				}
 			}
 			Assert.IsTrue(sended);

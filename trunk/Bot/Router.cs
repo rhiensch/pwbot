@@ -83,8 +83,7 @@ namespace Bot
 				throw new NullReferenceException("Router was not initialized!");
 			if (planetID1 == planetID2) return 0;
 
-			if (distances[planetID1, planetID2] == 0) return CalcDistance(planetID1, planetID2);
-			return distances[planetID1, planetID2];
+			return distances[planetID1, planetID2] == 0 ? CalcDistance(planetID1, planetID2) : distances[planetID1, planetID2];
 		}
 
 		public static int Distance(Planet planet1, Planet planet2)

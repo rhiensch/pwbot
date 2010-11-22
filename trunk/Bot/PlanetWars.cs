@@ -29,9 +29,9 @@ namespace Bot
 			Planets allPlanets = Planets();
 			Router.Init(allPlanets);
 			planetHolders = new PlanetHolders(allPlanets.Count);
-			foreach (Planet planet in allPlanets)
+			foreach (PlanetHolder planetHolder in
+				allPlanets.Select(planet => new PlanetHolder(planet, FleetsGoingToPlanet(Fleets(), planet))))
 			{
-				PlanetHolder planetHolder = new PlanetHolder(planet, FleetsGoingToPlanet(Fleets(), planet));
 				planetHolders.Add(planetHolder);
 			}
 			//FillMyPlanetsFrontLevel();
@@ -48,21 +48,13 @@ namespace Bot
 		public Planet GetPlanet(int planetID)
 		{
 			Planets allPlanets = Planets();
-			foreach (Planet planet in allPlanets)
-			{
-				if (planet.PlanetID() == planetID) return planet;
-			}
-			return null;
+			return allPlanets.FirstOrDefault(planet => planet.PlanetID() == planetID);
 			//return planets[planetID];
 		}
 
 		public PlanetHolder GetPlanetHolder(int planetID)
 		{
-			foreach (PlanetHolder planetHolder in planetHolders)
-			{
-				if (planetHolder.GetPlanet().PlanetID() == planetID) return planetHolder;
-			}
-			return null;
+			return planetHolders.FirstOrDefault(planetHolder => planetHolder.GetPlanet().PlanetID() == planetID);
 			//return planetHolders[planetID];
 		}
 
@@ -101,13 +93,7 @@ namespace Bot
 		public Planets MyPlanets()
 		{
 			Planets myPlanets = new Planets(Config.MaxPlanets);
-			foreach (Planet p in planets)
-			{
-				if (p.Owner() == 1)
-				{
-					myPlanets.Add(p);
-				}
-			}
+			myPlanets.AddRange(planets.Where(p => p.Owner() == 1));
 			return myPlanets;
 		}
 
@@ -128,28 +114,14 @@ namespace Bot
 
 		public PlanetHolders PlanetHoldersWithGivenOwner(int owner)
 		{
-			PlanetHolders myPlanetHolders = new PlanetHolders();
-			foreach (PlanetHolder p in planetHolders)
-			{
-				if (p.Owner() == owner)
-				{
-					myPlanetHolders.Add(p);
-				}
-			}
-			return myPlanetHolders;
+			return planetHolders.Where(p => p.Owner() == owner).ToList();
 		}
 
 		// Return a list of all neutral planets.
 		public Planets NeutralPlanets()
 		{
 			Planets neutralPlanets = new Planets(Config.MaxPlanets);
-			foreach (Planet p in planets)
-			{
-				if (p.Owner() == 0)
-				{
-					neutralPlanets.Add(p);
-				}
-			}
+			neutralPlanets.AddRange(planets.Where(p => p.Owner() == 0));
 			return neutralPlanets;
 		}
 
@@ -158,53 +130,36 @@ namespace Bot
 		public Planets EnemyPlanets()
 		{
 			Planets enemyPlanets = new Planets(Config.MaxPlanets);
-			foreach (Planet p in planets)
-				if (p.Owner() >= 2) enemyPlanets.Add(p);
+			enemyPlanets.AddRange(planets.Where(p => p.Owner() >= 2));
 			return enemyPlanets;
 		}
 
 		public Planets EnemyPlanets(int turn)
 		{
 			Planets enemyPlanets = new Planets(Config.MaxPlanets);
-			foreach (Planet p in planets)
-			{
-				Planet futurePlanet = PlanetFutureStatus(p, turn);
-				if (futurePlanet.Owner() >= 2) enemyPlanets.Add(p);
-			}
+			enemyPlanets.AddRange(from p in planets
+			                      let futurePlanet = PlanetFutureStatus(p, turn)
+			                      where futurePlanet.Owner() >= 2
+			                      select p);
 			return enemyPlanets;
 		}
 
 		// Return a list of all the fleets.
 		public Fleets Fleets()
 		{
-			Fleets r = new Fleets();
-			foreach (Fleet f in fleets)
-				r.Add(f);
-			return r;
+			return fleets.ToList();
 		}
 
 		// Return a list of all the fleets owned by the current player.
 		public Fleets MyFleets()
 		{
-			Fleets r = new Fleets();
-			foreach (Fleet f in fleets)
-			{
-				if (f.Owner() == 1)
-					r.Add(f);
-			}
-			return r;
+			return fleets.Where(f => f.Owner() == 1).ToList();
 		}
 
 		// Return a list of all the fleets owned by enemy players.
 		public Fleets EnemyFleets()
 		{
-			Fleets r = new Fleets();
-			foreach (Fleet f in fleets)
-			{
-				if (f.Owner() != 1)
-					r.Add(f);
-			}
-			return r;
+			return fleets.Where(f => f.Owner() != 1).ToList();
 		}
 
 		// Returns the distance between two planets, rounded up to the next highest
@@ -238,14 +193,12 @@ namespace Bot
 		{
 			if (source.Owner() != 1) return false;
 			if (numShips > source.NumShips()) return false;
-			if (source.PlanetID() == dest.PlanetID()) return false;
-			return true;
+			return source.PlanetID() != dest.PlanetID();
 		}
 
 		public bool IsValid(Move move)
 		{
-			if (move.TurnsBefore > 0) return true;
-			return IsValid(move.SourceID, move.DestinationID, move.NumShips);
+			return move.TurnsBefore > 0 || IsValid(move.SourceID, move.DestinationID, move.NumShips);
 		}
 
 		public void IssueOrder(Move move)
@@ -375,11 +328,9 @@ namespace Bot
 												turnsRemaining));*/
 
 						bool found = false;
-						for (int index = 0; index < fleets.Count; index++)
+						foreach (Fleet fleet in
+							fleets.Where(fleet => (fleet.DestinationPlanet() == destination && fleet.TurnsRemaining() == turnsRemaining) && fleet.Owner() == owner))
 						{
-							Fleet fleet = fleets[index];
-							if (fleet.DestinationPlanet() != destination || fleet.TurnsRemaining() != turnsRemaining ||
-							    fleet.Owner() != owner) continue;
 							fleet.AddShips(numShips);
 							found = true;
 							break;
@@ -406,15 +357,7 @@ namespace Bot
 
 		public Fleets GetThisTurnFleets(int turn, IEnumerable<Fleet> thisPlanetFleets)
 		{
-			Fleets thisTurnFleets = new Fleets();
-			foreach (Fleet fleet in thisPlanetFleets)
-			{
-				if (fleet.TurnsRemaining() == turn)
-				{
-					thisTurnFleets.Add(fleet);
-				}
-			}
-			return thisTurnFleets;
+			return thisPlanetFleets.Where(fleet => fleet.TurnsRemaining() == turn).ToList();
 		}
 
 		/*private static void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
@@ -954,9 +897,7 @@ namespace Bot
 
 		public int CanSend(Planet planet)
 		{
-			if (planet.Owner() != 1) return 0;
-
-			return GetPlanetHolder(planet).CanSend();
+			return planet.Owner() != 1 ? 0 : GetPlanetHolder(planet).CanSend();
 		}
 
 		public int CanSend(Planet planet, int turn)
@@ -974,24 +915,20 @@ namespace Bot
 			int distance = Distance(planet, closestEnemyPlanet);
 			int safeCanSend = Math.Max(0, (planet.NumShips() - (closestEnemyPlanet.NumShips() - planet.GrowthRate() * distance)) / 2);
 			if (MyPlanets().Count == 1) return safeCanSend;
-			if (distance > 6) return CanSend(planet);
+			return distance > 6 ? CanSend(planet) : Math.Min(safeCanSend, CanSend(planet));
 				//GetEnemyAid(planet, safeTurns);)
-			return Math.Min(safeCanSend, CanSend(planet));
 		}
 
 		public int CanSendByPlanets(Planet source, Planet dest)
 		{
-			if (dest.GrowthRate() + 1 < source.GrowthRate()) return CanSendSafe(source);
-			return CanSend(source);
-			
+			return dest.GrowthRate() + 1 < source.GrowthRate() ? CanSendSafe(source) : CanSend(source);
 		}
 
 		public int CanSendByPlanets(Planet source, Planet dest, int turns)
 		{
 			if (dest.GrowthRate() > source.GrowthRate())
 			{
-				if (turns == 0) return CanSend(source);
-				return CanSend(source, turns);
+				return turns == 0 ? CanSend(source) : CanSend(source, turns);
 			}
 			return CanSendSafe(source);
 		}
@@ -1093,23 +1030,16 @@ namespace Bot
 			foreach (Planet eachPlanet in planetList)
 			{
 				int currentDistance = Distance(planet, eachPlanet);
-				if (distance > currentDistance)
-				{
-					distance = currentDistance;
-					closestPlanet = eachPlanet;
-				}
+				if (distance <= currentDistance) continue;
+				distance = currentDistance;
+				closestPlanet = eachPlanet;
 			}
 			return closestPlanet;
 		}
 
 		public int GetPlanetsShipNum(Planets planetList)
 		{
-			int num = 0;
-			foreach (Planet planet in planetList)
-			{
-				num += planet.NumShips();
-			}
-			return num;
+			return planetList.Sum(planet => planet.NumShips());
 		}
 
 		public Fleet MoveToFleet(int owner, Move move)
@@ -1258,13 +1188,11 @@ namespace Bot
 
 				foreach (Pair<Sectors, int> pair in pairs)
 				{
-					if (pair.First == sector)
-					{
-						if (pair.Second == -1) pair.Second = planet.PlanetID();
-						else if (Distance(planet, target) < Distance(pair.Second, target.PlanetID()))
-							pair.Second = planet.PlanetID();
-						break;
-					}
+					if (pair.First != sector) continue;
+					if (pair.Second == -1) pair.Second = planet.PlanetID();
+					else if (Distance(planet, target) < Distance(pair.Second, target.PlanetID()))
+						pair.Second = planet.PlanetID();
+					break;
 				}
 			}
 
@@ -1281,14 +1209,7 @@ namespace Bot
 			Planets sectorPlanets = new Planets(Config.MaxPlanets);
 			if (planetList.Count == 0) return sectorPlanets;
 
-			foreach (Planet planet in planetList)
-			{
-				if (planet == target) continue;
-				if (sector == GetSector(target, planet))
-				{
-					sectorPlanets.Add(planet);
-				}
-			}
+			sectorPlanets.AddRange(planetList.Where(planet => planet != target).Where(planet => sector == GetSector(target, planet)));
 			return sectorPlanets;
 		}
 
@@ -1313,13 +1234,10 @@ namespace Bot
 
 		public Planets GetPlanetsByLastOwner(IEnumerable<PlanetHolder> planetHoldersList, int owner)
 		{
-			Planets targetPlanets = new Planets();
-			foreach (PlanetHolder planetHolder in planetHoldersList)
-			{
-				int lastOwner = GetLastOwner(planetHolder);
-				if (lastOwner == owner) targetPlanets.Add(planetHolder.GetPlanet());
-			}
-			return targetPlanets;
+			return (from planetHolder in planetHoldersList
+			        let lastOwner = GetLastOwner(planetHolder)
+			        where lastOwner == owner
+			        select planetHolder.GetPlanet()).ToList();
 		}
 
 		private Planets frontPlanets;
@@ -1361,12 +1279,9 @@ namespace Bot
 						bool isCloseEnough = true;
 						for (int j = 0; j < i; j++)
 						{
-							if (Distance(closestPlanets[i], closestPlanets[j]) <
-								Distance(closestPlanets[i], targetPlanet))
-							{
-								isCloseEnough = false;
-								break;
-							}
+							if (Distance(closestPlanets[i], closestPlanets[j]) >= Distance(closestPlanets[i], targetPlanet)) continue;
+							isCloseEnough = false;
+							break;
 						}
 						if (isCloseEnough) frontPlanets.Add(closestPlanets[i]);
 
@@ -1378,12 +1293,7 @@ namespace Bot
 
 		public Fleets GetFleetsCloserThan(Fleets fleetList, int treshold)
 		{
-			Fleets closerFleets = new Fleets();
-			foreach (Fleet fleet in fleetList)
-			{
-				if (fleet.TurnsRemaining() <= treshold) closerFleets.Add(fleet);
-			}
-			return closerFleets;
+			return fleetList.Where(fleet => fleet.TurnsRemaining() <= treshold).ToList();
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 
@@ -45,16 +46,10 @@ namespace Bot
 		{
 			Planets myPlanets = Context.MyPlanets();
 
-			List<MovesSet> movesSet = new List<MovesSet>();
 			//if (Context.GetFrontPlanets().Count == 0) return movesSet;
-			foreach (Planet myPlanet in myPlanets)
-			{
-				Moves moves = Run(myPlanet);
-				if (moves.Count <= 0) continue;
-				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-				movesSet.Add(set);
-			}
-			return movesSet;
+			return (from myPlanet in myPlanets
+			        select Run(myPlanet)
+			        into moves where moves.Count > 0 select new MovesSet(moves, 0, GetAdviserName(), Context)).ToList();
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace BotTests
 	public class AttackAdviserTests
 	{
 		// Use TestInitialize to run code before running each test 
-		[TestInitialize()]
+		[TestInitialize]
 		public void MyTestInitialize()
 		{
 			CultureInfo myCulture = new CultureInfo("en-US");

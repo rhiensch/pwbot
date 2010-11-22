@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
 
@@ -37,11 +38,7 @@ namespace Bot
 		public bool IsNeutralToEnemySwith(int turn)
 		{
 			List<PlanetOwnerSwitch> switches = GetOwnerSwitchesFromNeutralToEnemy();
-			foreach (PlanetOwnerSwitch planetOwnerSwitch in switches)
-			{
-				if (planetOwnerSwitch.TurnsBefore == turn) return true;
-			}
-			return false;
+			return switches.Any(planetOwnerSwitch => planetOwnerSwitch.TurnsBefore == turn);
 		}
 
 		public List<PlanetOwnerSwitch> GetOwnerSwitchesFromNeutralToEnemy()
@@ -56,41 +53,17 @@ namespace Bot
 
 		public List<PlanetOwnerSwitch> GetOwnerSwitchesFromEnemyToMy()
 		{
-			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();
-			foreach (PlanetOwnerSwitch planetOwnerSwitch in OwnerSwitches)
-			{
-				if (planetOwnerSwitch.OldOwner > 1)
-				{
-					switches.Add(planetOwnerSwitch);
-				}
-			}
-			return switches;
+			return OwnerSwitches.Where(planetOwnerSwitch => planetOwnerSwitch.OldOwner > 1).ToList();
 		}
 
 		private List<PlanetOwnerSwitch> GetOwnerSwitchesToEnemy(int oldOwner)
 		{
-			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();
-			foreach (PlanetOwnerSwitch planetOwnerSwitch in OwnerSwitches)
-			{
-				if (planetOwnerSwitch.OldOwner == oldOwner && planetOwnerSwitch.NewOwner > 1)
-				{
-					switches.Add(planetOwnerSwitch);
-				}
-			}
-			return switches;
+			return OwnerSwitches.Where(planetOwnerSwitch => planetOwnerSwitch.OldOwner == oldOwner && planetOwnerSwitch.NewOwner > 1).ToList();
 		}
 
 		public List<PlanetOwnerSwitch> GetOwnerSwitchesToEnemy()
 		{
-			List<PlanetOwnerSwitch> switches = new List<PlanetOwnerSwitch>();
-			foreach (PlanetOwnerSwitch planetOwnerSwitch in OwnerSwitches)
-			{
-				if (planetOwnerSwitch.NewOwner > 1)
-				{
-					switches.Add(planetOwnerSwitch);
-				}
-			}
-			return switches;
+			return OwnerSwitches.Where(planetOwnerSwitch => planetOwnerSwitch.NewOwner > 1).ToList();
 		}
 
 		private int canSend;
@@ -134,11 +107,9 @@ namespace Bot
 
 		private void FillFutureStatesIfNeeded()
 		{
-			if (futureStates == null)
-			{
-				futureStates = new Planets(TurnsCount);
-				CalcFutureState();
-			}
+			if (futureStates != null) return;
+			futureStates = new Planets(TurnsCount);
+			CalcFutureState();
 		}
 
 		public void ResetFutureStates()
@@ -186,75 +157,63 @@ namespace Bot
 			// First is ownerID, second is number of ships
 			List<Pair<int, int>> ships = new List<Pair<int, int>>();
 
-			if (thisTurnFleets.Count > 0)
+			if (thisTurnFleets.Count <= 0) return;
+			const int owners = 2;
+
+			for (int id = 1; id <= owners; ++id)
 			{
-				const int owners = 2;
+				Fleets ownerFleets = PlanetWars.FleetsWithGivenOwner(thisTurnFleets, id);
+				Pair<int, int> ownerShips = new Pair<int, int>(id, 0);
 
-				for (int id = 1; id <= owners; ++id)
+				// Add up fleets with the same owner
+				foreach (Fleet ownerFleet in ownerFleets)
 				{
-					Fleets ownerFleets = PlanetWars.FleetsWithGivenOwner(thisTurnFleets, id);
-					Pair<int, int> ownerShips = new Pair<int, int>(id, 0);
-
-					// Add up fleets with the same owner
-					foreach (Fleet ownerFleet in ownerFleets)
-					{
-						ownerShips.Second += ownerFleet.NumShips();
-					}
-
-					// Add the ships from the planet to the corresponding fleet
-					if (planetInFuture.Owner() == id)
-					{
-						ownerShips.Second += planetInFuture.NumShips();
-					}
-
-					ships.Add(ownerShips);
+					ownerShips.Second += ownerFleet.NumShips();
 				}
 
-				// If the planet was neutral, it has it's own fleet
-				if (planetInFuture.Owner() == 0)
+				// Add the ships from the planet to the corresponding fleet
+				if (planetInFuture.Owner() == id)
 				{
-					ships.Add(new Pair<int, int>(0, planetInFuture.NumShips()));
+					ownerShips.Second += planetInFuture.NumShips();
 				}
 
-				BattleForPlanet(planetInFuture, ships);
+				ships.Add(ownerShips);
 			}
+
+			// If the planet was neutral, it has it's own fleet
+			if (planetInFuture.Owner() == 0)
+			{
+				ships.Add(new Pair<int, int>(0, planetInFuture.NumShips()));
+			}
+
+			BattleForPlanet(planetInFuture, ships);
 		}
 
 		private static void BattleForPlanet(Planet planetInFuture, List<Pair<int, int>> ships)
 		{
 			// Were there any fleets other than the one on the planet?
-			if (ships.Count > 1)
+			if (ships.Count <= 1) return;
+			// Sorts the fleets in descending order by the number of ships in the fleet
+			ships.Sort(Pair<int, int>.CompareSecondOfPair);
+
+			Pair<int, int> winner = ships[0];
+			Pair<int, int> secondToWinner = ships[1];
+
+			if (winner.Second == secondToWinner.Second)
 			{
-				// Sorts the fleets in descending order by the number of ships in the fleet
-				ships.Sort(Pair<int, int>.CompareSecondOfPair);
-
-				Pair<int, int> winner = ships[0];
-				Pair<int, int> secondToWinner = ships[1];
-
-				if (winner.Second == secondToWinner.Second)
-				{
-					//old owner stays
-					planetInFuture.NumShips(0);
-				}
-				else
-				{
-					planetInFuture.Owner(winner.First);
-					planetInFuture.NumShips(winner.Second - secondToWinner.Second);
-				}
+				//old owner stays
+				planetInFuture.NumShips(0);
+			}
+			else
+			{
+				planetInFuture.Owner(winner.First);
+				planetInFuture.NumShips(winner.Second - secondToWinner.Second);
 			}
 		}
 
 		private Fleets GetThisTurnFleets(int turn)
 		{
-			Fleets thisTurnFleets = new Fleets();
-			foreach (Fleet fleet in thisPlanetFleets)
-			{
-				if (fleet.TurnsRemaining() == turn)
-				{
-					thisTurnFleets.Add(fleet);
-				}
-			}
-			return thisTurnFleets;
+			return thisPlanetFleets.Where(fleet => fleet.TurnsRemaining() == turn).ToList();
 		}
 
 		private static void PlanetGrowth(Planet planetInFuture)

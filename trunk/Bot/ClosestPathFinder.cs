@@ -1,4 +1,5 @@
-﻿using Planets = System.Collections.Generic.List<Bot.Planet>;
+﻿using System.Linq;
+using Planets = System.Collections.Generic.List<Bot.Planet>;
 
 namespace Bot
 {
@@ -23,23 +24,14 @@ namespace Bot
 			Comparer comparer = new Comparer(Context) {TargetPlanet = source};
 			nearPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			foreach (Planet nearPlanet in nearPlanets)
-			{
-				if (nearPlanet.PlanetID() == source.PlanetID()) continue;
-				int distance = Context.Distance(nearPlanet, source);
-				Planet futurePlanet = Context.PlanetFutureStatus(nearPlanet, distance);
-
-				if (futurePlanet.Owner() != 1) continue;
-				int nearPlanetFrontLevel = Context.GetClosestPlanetDistance(nearPlanet, enemyPlanets);
-					
-				//Context.GetPlanetSummaryDistance(Context.EnemyPlanets(), nearPlanet););
-
-				if (nearPlanetFrontLevel < supplyPlanetFrontLevel)
-				{
-					return nearPlanet;
-				}
-			}
-			return null;
+			return (from nearPlanet in nearPlanets
+			        where nearPlanet.PlanetID() != source.PlanetID()
+			        let distance = Context.Distance(nearPlanet, source)
+			        let futurePlanet = Context.PlanetFutureStatus(nearPlanet, distance)
+			        where futurePlanet.Owner() == 1
+			        let nearPlanetFrontLevel = Context.GetClosestPlanetDistance(nearPlanet, enemyPlanets)
+			        where nearPlanetFrontLevel < supplyPlanetFrontLevel
+			        select nearPlanet).FirstOrDefault();
 		}
 	}
 }

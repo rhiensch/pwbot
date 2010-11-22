@@ -13,7 +13,7 @@ namespace BotTests
 	public class ComparerTests
 	{
 		// Use TestInitialize to run code before running each test 
-		[TestInitialize()]
+		[TestInitialize]
 		public void MyTestInitialize()
 		{
 			CultureInfo myCulture = new CultureInfo("en-US");
@@ -30,8 +30,7 @@ namespace BotTests
 				"P 4 4 1 100 5#3\n" +
 				"go\n");
 
-			Comparer comparer = new Comparer(planetWars);
-			comparer.TargetPlanet = planetWars.GetPlanet(0);
+			Comparer comparer = new Comparer(planetWars) {TargetPlanet = planetWars.GetPlanet(0)};
 			Planets planets = planetWars.MyPlanets();
 			planets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 

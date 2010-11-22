@@ -65,7 +65,7 @@ namespace Bot
 				InvadeAdviser invadeAdviser = new InvadeAdviser(Context);
 				AttackAdviser attackAdviser = new AttackAdviser(Context);
 				StealAdviser stealAdviser = new StealAdviser(Context);
-				AntiCrisisAdviser antiCrisisAdviser = new AntiCrisisAdviser(Context);
+				//AntiCrisisAdviser antiCrisisAdviser = new AntiCrisisAdviser(Context);
 
 				RunAdviser(defendAdviser);
 				if (!CheckTime()) return;
@@ -202,12 +202,10 @@ namespace Bot
 						bool found = false;
 						for (int k = 0; k < totalMoves.Count; k++)
 						{
-							if (totalMoves[k].SourceID == move.SourceID)
-							{
-								found = true;
-								totalMoves[k].AddShips(move.NumShips);
-								break;
-							}
+							if (totalMoves[k].SourceID != move.SourceID) continue;
+							found = true;
+							totalMoves[k].AddShips(move.NumShips);
+							break;
 						}
 						if (!found)
 						{

@@ -55,7 +55,6 @@
     <Compile Include="FirstMoveAdviser.cs" />
     <Compile Include="IPathFinder.cs" />
     <Compile Include="MovesSet.cs" />
-    <Compile Include="Perm.cs" />
     <Compile Include="PlanetHolder.cs" />
     <Compile Include="StealAdviser.cs" />
     <Compile Include="DefendAdviser.cs" />
