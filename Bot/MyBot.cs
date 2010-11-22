@@ -165,6 +165,7 @@ namespace Bot
 
 		private void SelectAndMakeMoves()
 		{
+			if (setList == null) return;
 			int n = setList.Count;
 
 			if (n == 0) return;

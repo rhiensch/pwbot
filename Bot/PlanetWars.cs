@@ -967,6 +967,10 @@ namespace Bot
 		public int CanSendSafe(Planet planet)
 		{
 			Planet closestEnemyPlanet = GetClosestPlanet(planet, EnemyPlanets());
+			if (closestEnemyPlanet == null)
+			{
+				return planet.NumShips();
+			}
 			int distance = Distance(planet, closestEnemyPlanet);
 			int safeCanSend = Math.Max(0, (planet.NumShips() - (closestEnemyPlanet.NumShips() - planet.GrowthRate() * distance)) / 2);
 			if (MyPlanets().Count == 1) return safeCanSend;
