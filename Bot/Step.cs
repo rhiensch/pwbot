@@ -4,9 +4,9 @@
 	{
 		public Step(int fromTurn, int toTurn, int numShips)
 		{
-			this.FromTurn = fromTurn;
-			this.ToTurn = toTurn;
-			this.NumShips = numShips;
+			FromTurn = fromTurn;
+			ToTurn = toTurn;
+			NumShips = numShips;
 		}
 
 		public int FromTurn { get; set; }

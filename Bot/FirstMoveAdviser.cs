@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
@@ -195,15 +196,7 @@ namespace Bot
 
 			Planets neutralPlanets = Context.NeutralPlanets();
 			Planets planets = new Planets(Config.MaxPlanets);
-			foreach (Planet neutralPlanet in neutralPlanets)
-			{
-				if ((Context.Distance(myPlanet, neutralPlanet) <
-					Context.Distance(enemyPlanet, neutralPlanet)) &&
-					neutralPlanet.GrowthRate() > 0)
-				{
-					planets.Add(neutralPlanet);
-				}
-			}
+			planets.AddRange(neutralPlanets.Where(neutralPlanet => (Context.Distance(myPlanet, neutralPlanet) < Context.Distance(enemyPlanet, neutralPlanet)) && neutralPlanet.GrowthRate() > 0));
 
 			setList.Add(BruteForce(planets, canSend));
 			return setList;

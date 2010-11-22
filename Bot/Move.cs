@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Bot
+﻿namespace Bot
 {
 	public class Move
 	{

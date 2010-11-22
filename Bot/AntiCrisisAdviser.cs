@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 
@@ -57,17 +58,15 @@ namespace Bot
 			Comparer comparer = new Comparer(Context) {TargetPlanet = targetPlanet};
 			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			foreach (Planet myPlanet in myPlanets)
+			foreach (Moves moves in from myPlanet in myPlanets
+			                        where myPlanet.GrowthRate() < targetPlanet.GrowthRate()
+			                        select new Moves(1)
+			                               	{
+			                               		new Move(myPlanet, targetPlanet, Context.CanSend(myPlanet))
+			                               	})
 			{
-				if (myPlanet.GrowthRate() < targetPlanet.GrowthRate())
-				{
-					Moves moves = new Moves(1)
-					              	{
-					              		new Move(myPlanet, targetPlanet, Context.CanSend(myPlanet))
-					              	};
-					movesSet.Add(new MovesSet(moves, 99999, GetAdviserName(), Context));
-					break;
-				}
+				movesSet.Add(new MovesSet(moves, 99999, GetAdviserName(), Context));
+				break;
 			}
 
 			return movesSet;
@@ -86,18 +85,11 @@ namespace Bot
 			int canSend = Context.CanSend(myStrongestPlanet);
 
 			Planets targetFuturePlanets = new Planets(Config.MaxPlanets);
-			foreach (Planet eachPlanet in Context.Planets())
-			{
-				if (eachPlanet.GrowthRate() == 0) continue;
-
-				int distance = Context.Distance(myStrongestPlanet, eachPlanet);
-				Planet futurePlanet = Context.PlanetFutureStatus(eachPlanet, distance);
-
-				if (futurePlanet.Owner() == 0 && canSend > futurePlanet.NumShips() + 1)
-				{
-					targetFuturePlanets.Add(futurePlanet);
-				}
-			}
+			targetFuturePlanets.AddRange(from eachPlanet in Context.Planets()
+			                             where eachPlanet.GrowthRate() != 0
+			                             let distance = Context.Distance(myStrongestPlanet, eachPlanet)
+			                             select Context.PlanetFutureStatus(eachPlanet, distance)
+			                             into futurePlanet where futurePlanet.Owner() == 0 && canSend > futurePlanet.NumShips() + 1 select futurePlanet);
 
 			if (targetFuturePlanets.Count == 0) return movesSet;
 
@@ -116,8 +108,7 @@ namespace Bot
 
 		public override List<MovesSet> RunAll()
 		{
-			if (Attack) return AttackAction();
-			return InvadeAction();
+			return Attack ? AttackAction() : InvadeAction();
 		}
 	}
 }

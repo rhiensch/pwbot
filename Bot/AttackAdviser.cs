@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Moves = System.Collections.Generic.List<Bot.Move>;
 using Planets = System.Collections.Generic.List<Bot.Planet>;
 using Fleets = System.Collections.Generic.List<Bot.Fleet>;
@@ -48,10 +49,7 @@ namespace Bot
 				if (Config.AttackSendMoreThanEnemyCanDefend)
 					needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
 
-				foreach (Move eachMove in moves)
-				{
-					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID));
-				}
+				needToSend = moves.Aggregate(needToSend, (current, eachMove) => current - Context.CanSend(Context.GetPlanet(eachMove.SourceID)));
 				//delay closer moves
 				/*foreach (Move eachMove in moves)
 				{

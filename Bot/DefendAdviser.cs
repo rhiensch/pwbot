@@ -26,9 +26,9 @@ namespace Bot
 
 			if (saveSteps.Count == 0) return moves;
 
-			for (int i = 0; i < saveSteps.Count; i++)
+			foreach (Step t in saveSteps)
 			{
-				Planets planetsCanHelp = Context.MyPlanetsWithinProximityToPlanet(planet, saveSteps[i].ToTurn);
+				Planets planetsCanHelp = Context.MyPlanetsWithinProximityToPlanet(planet, t.ToTurn);
 
 				Comparer comparer = new Comparer(Context) {TargetPlanet = planet};
 				planetsCanHelp.Sort(comparer.CompareDistanceToTargetPlanetLT);
@@ -36,23 +36,23 @@ namespace Bot
 				int sendedShipsNum = 0;
 				foreach (Planet nearPlanet in planetsCanHelp)
 				{
-					int canSend = Math.Min(saveSteps[i].NumShips - sendedShipsNum, Context.CanSendByPlanets(nearPlanet, planet));
+					int canSend = Math.Min(t.NumShips - sendedShipsNum, Context.CanSendByPlanets(nearPlanet, planet));
 					if (canSend <= 0) continue;
 
 					int distance = Context.Distance(planet, nearPlanet);
 					Move move = new Move(nearPlanet.PlanetID(), planet.PlanetID(), canSend);
-					if (distance < saveSteps[i].ToTurn)
+					if (distance < t.ToTurn)
 					{
 						//delay move
-						move.TurnsBefore = saveSteps[i].ToTurn - distance;
+						move.TurnsBefore = t.ToTurn - distance;
 						//move = new Move(nearPlanet.PlanetID(), planet.PlanetID(), Context.CanSend(nearPlanet, move.TurnsBefore));
 					}
 					moves.Add(move);
 					sendedShipsNum += canSend;
 				}
-				if (sendedShipsNum < saveSteps[i].NumShips)
+				if (sendedShipsNum < t.NumShips)
 				{
-					loseTurn = saveSteps[i].NumShips;
+					loseTurn = t.NumShips;
 				}
 			}
 
