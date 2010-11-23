@@ -26,7 +26,7 @@
 		public static int ScoreTurns { get; set; }
 		public static int IdleTurns { get; set; }
 		public static int MaxInvades { get; set; }
-		public static int CriticalTimeInMilliseconds { get { return 500; } }
+		public static int CriticalTimeInMilliseconds { get { return 800; } }
 
 		public static double DoInvadeKoef { get; set; }
 

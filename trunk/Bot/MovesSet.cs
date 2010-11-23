@@ -31,7 +31,7 @@ namespace Bot
 			if (newDistance > MaxDistance) MaxDistance = newDistance;
 			if (newDistance < MinDistance) MinDistance = newDistance;
 			SumDistance += newDistance;
-			NumShipsByTurns += newMove.NumShips * newMove.TurnsBefore;
+			NumShipsByTurns += (newMove.NumShips * newDistance) / 10;
 			
 			moves.Add(newMove);
 
@@ -51,7 +51,7 @@ namespace Bot
 			AverageDistance = 0;
 			SummaryNumShips = 0;
 			NumShipsByTurns = 0;
-
+			
 			moves = new Moves();
 			foreach (Move move in movesSet)
 			{

@@ -93,7 +93,6 @@ namespace Bot
 				averageDistance2 += movesSet.AverageDistance;
 				if (minDistance2 > movesSet.MinDistance) minDistance2 = movesSet.MinDistance;
 			}
-			
 
 			int result = Math.Sign(score2 - score1);
 			if (result == 0)
