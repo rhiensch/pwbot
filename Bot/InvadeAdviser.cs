@@ -1,4 +1,4 @@
-﻿#undef LOG
+﻿#define LOG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +58,7 @@ namespace Bot
 						(Context.MyTotalShipCount <= Context.EnemyTotalShipCount)) extraTurns = 0;
 					needToSend += Context.GetEnemyAid(targetPlanet, distance + extraTurns);
 				}
-
+				
 				needToSend = moves.Aggregate(needToSend, (current, eachMove) => current - Context.CanSendByPlanets(Context.GetPlanet(eachMove.SourceID), Context.GetPlanet(eachMove.DestinationID)));
 				/*
 				//delay closer moves
@@ -111,6 +111,8 @@ namespace Bot
 					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));*/
 				double score = planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns - planet.NumShips();
 				set.Score = score;
+
+				Logger.Log("planet: " + planet + " score " + score + " set.NumShipsByTurns" + set.NumShipsByTurns);
 
 				movesSet.Add(set);
 			}
