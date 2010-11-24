@@ -4,9 +4,9 @@
 	{
 		static Config()
 		{
-			DoInvadeKoef = 1.2;
+			//DoInvadeKoef = 1.2;
 			IdleTurns = 15;
-			ScoreTurns = 30;
+			ScoreTurns = 15;
 			MaxInvades = 3;
 			InvadeSendMoreThanEnemyCanDefend = false;
 			AttackSendMoreThanEnemyCanDefend = true;
@@ -30,7 +30,7 @@
 		public static bool UseSectorsForFront { get; set; }
 		public static int CriticalTimeInMilliseconds { get { return 800; } }
 
-		public static double DoInvadeKoef { get; set; }
+		//public static double DoInvadeKoef { get; set; }
 
 		public static bool InvadeSendMoreThanEnemyCanDefend { get; set; }
 		public static bool AttackSendMoreThanEnemyCanDefend { get; set; }
