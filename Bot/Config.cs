@@ -11,6 +11,7 @@
 			InvadeSendMoreThanEnemyCanDefend = false;
 			AttackSendMoreThanEnemyCanDefend = true;
 			MaxTurns = 200;
+			UseSectorsForFront = true;
 		}
 
 		public static int MinShipsOnPlanetsAfterDefend { get { return 0; } }
@@ -26,6 +27,7 @@
 		public static int ScoreTurns { get; set; }
 		public static int IdleTurns { get; set; }
 		public static int MaxInvades { get; set; }
+		public static bool UseSectorsForFront { get; set; }
 		public static int CriticalTimeInMilliseconds { get { return 800; } }
 
 		public static double DoInvadeKoef { get; set; }

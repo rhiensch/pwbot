@@ -106,9 +106,33 @@ namespace Bot
 			return movesSet;
 		}
 
+		//From my strongest to closest suitable enemy
+		public List<MovesSet> ReFrontAction()
+		{
+			List<MovesSet> movesSet = new List<MovesSet>();
+
+			Planets frontPlanets = Context.GetFrontPlanets();
+			if (frontPlanets == null) return movesSet;
+			if (frontPlanets.Count < 2) return movesSet;
+
+			Moves moves = new Moves(frontPlanets.Count - 1);
+			
+			frontPlanets.Sort(new Comparer(Context).CompareGrowsRateGT);
+			Planet target = frontPlanets[0];
+			foreach (Planet frontPlanet in frontPlanets)
+			{
+				if (frontPlanet.PlanetID() == target.PlanetID()) continue;
+				moves.Add(new Move(frontPlanet, target, Context.CanSendSafe(frontPlanet)));
+			}
+			movesSet.Add(new MovesSet(moves, 9999, GetAdviserName(), Context));
+
+			return movesSet;
+		}
+
 		public override List<MovesSet> RunAll()
 		{
-			return Attack ? AttackAction() : InvadeAction();
+			//return Attack ? AttackAction() : InvadeAction();
+			return ReFrontAction();
 		}
 	}
 }

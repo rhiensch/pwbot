@@ -1,4 +1,4 @@
-﻿#define  LOG
+﻿#undef  LOG
 
 using System;
 using System.Collections.Generic;
@@ -92,7 +92,7 @@ namespace Bot
 				if (moves.Count <= 0) continue;
 				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
 				//double score = enemyPlanet.GrowthRate() / Context.AverageMovesDistance(moves);
-				double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
+				double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns / set.AverageDistance;
 				set.Score = score;
 
 				movesSet.Add(set);
