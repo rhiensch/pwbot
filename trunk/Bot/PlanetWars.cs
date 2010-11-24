@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -218,12 +218,6 @@ namespace Bot
 
 		public int Distance(Planet source, Planet destination)
 		{
-			/*double dx = source.X() - destination.X();
-			double dy = source.Y() - destination.Y();
-			double squared = dx * dx + dy * dy;
-			double rooted = Math.Sqrt(squared);
-			int result = (int)Math.Ceiling(rooted);
-			return result;*/
 			return Router.Distance(source, destination);
 		}
 
@@ -236,16 +230,32 @@ namespace Bot
 
 		public bool IsValid(Planet source, Planet dest, int numShips)
 		{
-			if (source.Owner() != 1) return false;
-			if (numShips > source.NumShips()) return false;
-			if (source.PlanetID() == dest.PlanetID()) return false;
+			if (source.Owner() != 1)
+			{
+				//Logger.Log("InValid : not my planet: source = " + source + "    Move: dest = " + dest + " num = " + numShips);
+				return false;
+			}
+			if (source.PlanetID() == dest.PlanetID())
+			{
+				//Logger.Log("InValid : source = dest: source = " + source + "    Move: dest = " + dest + " num = " + numShips);
+				return false;
+			}
+			if (numShips > source.NumShips())
+			{
+				//Logger.Log("InValid : > numShips: source = " + source + "    Move: dest = " + dest + " num = " + numShips);
+				return false;
+			}
+			if (numShips > CanSend(source))
+			{
+				//Logger.Log("InValid : > canSend: source = " + source + "    Move: dest = " + dest + " num = " + numShips + " canSend = "  +CanSend(source));
+				return false;
+			}
 			return true;
 		}
 
 		public bool IsValid(Move move)
 		{
-			if (move.TurnsBefore > 0) return true;
-			return IsValid(move.SourceID, move.DestinationID, move.NumShips);
+			return move.TurnsBefore > 0 || IsValid(move.SourceID, move.DestinationID, move.NumShips);
 		}
 
 		public void IssueOrder(Move move)
@@ -275,7 +285,10 @@ namespace Bot
 			if (move.TurnsBefore == 0)
 			{
 				fleets.Add(MoveToFleet(1, move));
+				//Logger.Log("planet:" + GetPlanet(move.SourceID) + " cansend: " + CanSend(GetPlanet(move.SourceID)) + " safecansend: " + CanSendSafe(GetPlanet(move.SourceID)) + " move: " +move);
 				GetPlanet(move.SourceID).RemoveShips(move.NumShips);
+				GetPlanetHolder(move.SourceID).ResetFutureStates();
+				//Logger.Log("planet after:" + GetPlanet(move.SourceID) + " cansend after: " + CanSend(GetPlanet(move.SourceID)));
 			}
 			else
 			{
@@ -972,8 +985,8 @@ namespace Bot
 				return planet.NumShips();
 			}
 			int distance = Distance(planet, closestEnemyPlanet);
-			int safeCanSend = Math.Max(0, (planet.NumShips() - (closestEnemyPlanet.NumShips() - planet.GrowthRate() * distance)) / 2);
-			Logger.Log("Safe: " + safeCanSend + "  notSafe:" + CanSend(planet));
+			int safeCanSend = Math.Max(0, (planet.NumShips() - (closestEnemyPlanet.NumShips() - planet.GrowthRate() * distance)));
+			//Logger.Log("Safe: " + safeCanSend + "  notSafe:" + CanSend(planet));
 			//if (MyPlanets().Count == 1) return safeCanSend;
 			//if (distance > 6) return CanSend(planet);
 				//GetEnemyAid(planet, safeTurns);));
@@ -982,7 +995,7 @@ namespace Bot
 
 		public int CanSendByPlanets(Planet source, Planet dest)
 		{
-			if (dest.GrowthRate() + 1 < source.GrowthRate()) return CanSendSafe(source);
+			if (dest.GrowthRate() < source.GrowthRate()) return CanSendSafe(source);
 			return CanSend(source);
 			
 		}
@@ -1336,23 +1349,17 @@ namespace Bot
 				Planets myPlanets = GetPlanetsByLastOwner(PlanetHolders(), 1);
 				foreach (Planet targetPlanet in targetPlanets)
 				{
-					Planets closestPlanets = //new Planets(Config.MaxPlanets);
-						GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);
+					Planets closestPlanets = new Planets(Config.MaxPlanets);
+
+					if (Config.UseSectorsForFront) closestPlanets = GetClosestPlanetsToTargetBySectors(targetPlanet, myPlanets);
+					else
+					{
+						Planet closestPlanet = GetClosestPlanet(targetPlanet, myPlanets);
+						if (closestPlanet != null) closestPlanets.Add(closestPlanet);
+					}
 
 					Comparer comparer = new Comparer(this) {TargetPlanet = targetPlanet};
 
-					/*foreach (Sectors value in Enum.GetValues(typeof(Sectors)))
-					{
-						if (value == Sectors.None) continue;
-
-						Planets sectorPlanets = GetSectorPlanetsFromTarget(targetPlanet, value, myPlanets);
-						if (sectorPlanets.Count <= 1) continue;
-						
-						sectorPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
-
-						closestPlanets.Add(sectorPlanets[0]);
-					}*/
-					
 					closestPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
 					for (int i = 0; i < closestPlanets.Count; i++)

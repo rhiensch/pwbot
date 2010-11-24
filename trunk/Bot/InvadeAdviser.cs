@@ -1,4 +1,4 @@
-﻿#define LOG
+﻿#undef LOG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,9 +60,9 @@ namespace Bot
 				}
 				
 				needToSend = moves.Aggregate(needToSend, (current, eachMove) => current - Context.CanSendByPlanets(Context.GetPlanet(eachMove.SourceID), Context.GetPlanet(eachMove.DestinationID)));
-				/*
+				
 				//delay closer moves
-				foreach (Move eachMove in moves)
+				/*foreach (Move eachMove in moves)
 				{
 					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
 					int turns = distance - moveDistance;
@@ -109,10 +109,10 @@ namespace Bot
 					double risk = 2.0;
 					if (enemyAid != 0) risk = set.SummaryNumShips / (double)enemyAid;
 					double score = Config.ScoreKoef * risk * (planet.GrowthRate() / (set.MaxDistance * 100.0 + planet.NumShips()));*/
-				double score = planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns - planet.NumShips();
+				double score = planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns / set.AverageDistance - planet.NumShips();
 				set.Score = score;
 
-				Logger.Log("planet: " + planet + " score " + score + " set.NumShipsByTurns" + set.NumShipsByTurns);
+				//Logger.Log("planet: " + planet + " score " + score + " set.NumShipsByTurns" + set.NumShipsByTurns);
 
 				movesSet.Add(set);
 			}

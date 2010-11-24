@@ -77,7 +77,7 @@ namespace Bot
 				Moves moves = Run(planet);
 				if (moves.Count <= 0) continue;
 				MovesSet set = new MovesSet(moves, 0, GetAdviserName(), Context);
-				double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns;
+				double score = 2 * planet.GrowthRate() * Config.ScoreTurns - set.NumShipsByTurns / set.AverageDistance;
 				set.Score = score;
 
 				movesSet.Add(set);

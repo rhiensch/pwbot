@@ -1,4 +1,4 @@
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -71,7 +71,8 @@ namespace Bot
 				if (!CheckTime()) return;
 
 				Config.AttackSendMoreThanEnemyCanDefend = true;
-				/*if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
+				Config.UseSectorsForFront = true;
+				if (Context.MyFutureProduction < Context.EnemyFutureProduction ||
 					((Context.MyFutureProduction == Context.EnemyFutureProduction) &&  
 					 (Context.MyTotalShipCount < Context.EnemyTotalShipCount)))
 				{
@@ -79,15 +80,16 @@ namespace Bot
 						turn - lastMove[invadeAdviser.GetAdviserName()] > Config.IdleTurns &&
 						turn - lastMove[stealAdviser.GetAdviserName()] > Config.IdleTurns)
 					{
+						//Config.UseSectorsForFront = false;
 						//Config.AttackSendMoreThanEnemyCanDefend = false;
 #if LOG
-					//Logger.Log("AttackSendMoreThanEnemyCanDefend = false");
+						Logger.Log("UseSectorsForFront = false");
 #endif
 						//antiCrisisAdviser.Attack = Context.MyTotalShipCount < Context.EnemyTotalShipCount;
 						//RunAdviser(antiCrisisAdviser);
 						//if (!CheckTime()) return;
 					}
-				}*/
+				}
 
 				RunAdviser(stealAdviser);
 				if (!CheckTime()) return;
@@ -106,7 +108,7 @@ namespace Bot
 					SelectAndMakeMoves();
 					if (CheckTime() && (turn > 1))
 					{
-						try
+						//try
 						{
 							SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
 							RunAdviser(supplyAdviser);
@@ -117,7 +119,7 @@ namespace Bot
 								setList.Clear();
 							}
 						}
-						catch(Exception e)
+						//catch
 						{
 							//Logger.Log("exception: " + e.Message);
 						}
@@ -200,11 +202,11 @@ namespace Bot
 						if (move.TurnsBefore > 0) continue;
 
 						bool found = false;
-						for (int k = 0; k < totalMoves.Count; k++)
+						foreach (Move t in totalMoves)
 						{
-							if (totalMoves[k].SourceID != move.SourceID) continue;
+							if (t.SourceID != move.SourceID) continue;
 							found = true;
-							totalMoves[k].AddShips(move.NumShips);
+							t.AddShips(move.NumShips);
 							break;
 						}
 						if (!found)
@@ -221,7 +223,6 @@ namespace Bot
 			}
 
 			setList.Clear();
-
 
 			if (sets.Count > 1)
 			{

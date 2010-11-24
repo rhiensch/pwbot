@@ -24,6 +24,7 @@ namespace Bot
 			if (frontPlanets.IndexOf(supplyPlanet) != -1) return moves;
 
 			IPathFinder pathFinder = new ClosestPathFinder(Context);
+				//new DirectPathFinder(Context);
 				//new DijkstraPathFinder(Context);
 			Planet dest = pathFinder.FindNextPlanetInPath(supplyPlanet);
 			if (dest != null)
