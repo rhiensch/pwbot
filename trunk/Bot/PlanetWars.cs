@@ -3,7 +3,7 @@
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
 
-#undef LOG
+#define LOG
 
 using System;
 using System.Collections.Generic;
@@ -245,7 +245,7 @@ namespace Bot
 				//Logger.Log("InValid : > numShips: source = " + source + "    Move: dest = " + dest + " num = " + numShips);
 				return false;
 			}
-			if (numShips > CanSend(source))
+			if (numShips > CanSendByPlanets(source, dest))
 			{
 				//Logger.Log("InValid : > canSend: source = " + source + "    Move: dest = " + dest + " num = " + numShips + " canSend = "  +CanSend(source));
 				return false;
@@ -985,7 +985,15 @@ namespace Bot
 				return planet.NumShips();
 			}
 			int distance = Distance(planet, closestEnemyPlanet);
-			int safeCanSend = Math.Max(0, (planet.NumShips() - (closestEnemyPlanet.NumShips() - planet.GrowthRate() * distance)));
+			Planets closePlanets = EnemyPlanetsWithinProximityToPlanet(planet, distance);
+
+			int ships = 0;
+			foreach (Planet closePlanet in closePlanets)
+			{
+				ships += closePlanet.NumShips();
+			}
+
+			int safeCanSend = Math.Max(0, (planet.NumShips() - (ships - planet.GrowthRate() * distance)));
 			//Logger.Log("Safe: " + safeCanSend + "  notSafe:" + CanSend(planet));
 			//if (MyPlanets().Count == 1) return safeCanSend;
 			//if (distance > 6) return CanSend(planet);

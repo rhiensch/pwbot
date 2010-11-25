@@ -1,4 +1,4 @@
-﻿#undef LOG
+﻿#define LOG
 using System;
 using System.Collections.Generic;
 using System.Linq;

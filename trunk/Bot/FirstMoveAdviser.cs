@@ -20,59 +20,9 @@ namespace Bot
 
 		public CheckTime CheckTimeFunc;
 
-		/*public Planets Knapsack01(List<Planet> planets, int maxWeight)
-		{
-			List<int> weights = new List<int>();
-			List<int> values = new List<int>();
-
-			// solve 0-1 knapsack problem  
-			foreach (Planet p in planets)
-			{
-				// here weights and values are numShips and growthRate respectively 
-				// you can change this to something more complex if you like...
-
-				weights.Add(GetTargetWeight(p));
-
-				values.Add(GetTargetValue(p));
-			}
-
-			int[,] knapsack = new int[weights.Count + 1, maxWeight];
-
-			int i;
-			for (i = 0; i < maxWeight; i++)
-			{
-				knapsack[0, i] = 0;
-			}
-			for (int k = 1; k <= weights.Count; k++)
-			{
-				for (int y = 1; y <= maxWeight; y++)
-				{
-					if (y < weights[k - 1]) knapsack[k, y - 1] = knapsack[k - 1, y - 1];
-					else if (y > weights[k - 1]) knapsack[k, y - 1] = Math.Max(knapsack[k - 1, y - 1], knapsack[k - 1, y - 1 - weights[k - 1]] + values[k - 1]);
-					else knapsack[k, y - 1] = Math.Max(knapsack[k - 1, y - 1], values[k - 1]);
-				}
-			}
-
-			// get the planets in the solution
-			i = weights.Count;
-			int currentW = maxWeight - 1;
-			Planets markedPlanets = new Planets(Config.MaxPlanets);
-
-			while ((i > 0) && (currentW >= 0))
-			{
-				if (((i == 0) && (knapsack[i, currentW] > 0)) || (knapsack[i, currentW] != knapsack[i - 1, currentW]))
-				{
-					markedPlanets.Add(planets[i - 1]);
-					currentW = currentW - weights[i - 1];
-				}
-				i--;
-			}
-			return markedPlanets;
-		}*/
-
 		public MovesSet BruteForce(Planets planets, int canSend)
 		{
-			int scoreTurns = Context.Distance(myPlanet, enemyPlanet);
+			int scoreTurns = Config.ScoreTurns;//Context.Distance(myPlanet, enemyPlanet);
 
 			int n = planets.Count;
 			//int secondMoveCanSend = myPlanet.NumShips() - canSend + myPlanet.GrowthRate();
@@ -168,10 +118,10 @@ namespace Bot
 			{
 				sets.Sort(new Comparer(null).CompareSetScoreGT);
 			}
-			/*foreach (MovesSet movesSet in sets)
+			foreach (MovesSet movesSet in sets)
 			{
 				Logger.Log("score: " + movesSet.Score + "  " + movesSet);
-			}*/
+			}
 			return sets[0];
 		}
 

@@ -72,8 +72,14 @@ namespace Bot
 				double score = 2 * planet.GrowthRate() * (loseTurn > 0 ? loseTurn : Config.ScoreTurns) - set.NumShipsByTurns / set.AverageDistance;
 				set.Score = score;
 
-				if (loseTurn == 0) 
+				if (loseTurn == 0)
+				{
 					movesSet.Add(set);
+				}
+				else
+				{
+					//todo delete bigger then target
+				}
 			}
 			return movesSet;
 		}
