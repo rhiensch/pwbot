@@ -9,11 +9,12 @@ $my_bot = "bot.exe"
 
 #$bots = Get-ChildItem ("bot_exe") | where {$_.extension -eq ".exe"}
 $bots = @()
-$bots += "bot_exe\bot9.exe"
-$bots += "bot_exe\bot8.exe"
-$bots += "bot_exe\bot7.exe"
+#$bots += "bot_exe\bot10.exe"
+#$bots += "bot_exe\bot9.exe"
+#$bots += "bot_exe\bot8.exe"
+#$bots += "bot_exe\bot7.exe"
 $bots += "bot_exe\HazardBot_18.exe"
-$bots += "bot_exe\HazardBot_12.exe"
+#$bots += "bot_exe\HazardBot_12.exe"
 #$bots += "bot_exe\untitled.exe"
 #$bots += '"java -jar example_bots/RageBot.jar"'
 #$bots += "bot_exe\mubot.exe"

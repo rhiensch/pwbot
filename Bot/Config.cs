@@ -6,7 +6,7 @@
 		{
 			//DoInvadeKoef = 1.2;
 			IdleTurns = 15;
-			ScoreTurns = 15;
+			ScoreTurns = 30;
 			MaxInvades = 3;
 			InvadeSendMoreThanEnemyCanDefend = false;
 			AttackSendMoreThanEnemyCanDefend = true;

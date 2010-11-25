@@ -12,8 +12,27 @@
 [15:34] <Error323_>  * to this planet, f_e(p) are the amount of enemy fleets send to this
 [15:34] <Error323_>  * planet and g(p) is the planet's growth rate.
 
-[15:38] <Error323_> well the idea is this
-[15:39] <Error323_> if I win a planet by sending e.g. 1000 ships to it while the enemy just sends 1 ship its netto gain is (1 / 1000) * growth(p)
-[15:39] <Error323_> which isn't good
-[15:39] <Error323_> but if I send less ships then the enemy it score goes up
-[15:39] <Error323_> and vise versa for planets i've lost
+Bot9
+Bot: bot_exe\HazardBot_18.exe
+3 - lose
+4 - lose
+5 - lose
+6 - lose
+9 - lose
+15 - lose
+22 - lose
+24 - lose
+29 - lose
+30 - lose
+31 - lose
+34 - lose
+35 - lose
+36 - lose
+38 - lose
+39 - lose
+40 - lose
+43 - lose
+45 - lose
+49 - lose
+    won  : 30/50
+    lost : 20/50
