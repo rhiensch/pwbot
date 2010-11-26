@@ -27,8 +27,6 @@ namespace Bot
 			Comparer comparer = new Comparer(Context) {TargetPlanet = targetPlanet};
 			myPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
 
-			//Fleets myFleetsGoingToPlanet = Context.MyFleetsGoingToPlanet(targetPlanet);
-			//int farestFleet = PlanetWars.GetFarestFleetDistance(myFleetsGoingToPlanet);
 			PlanetHolder holder = Context.GetPlanetHolder(targetPlanet);
 
 			foreach (Planet myPlanet in myPlanets)
@@ -41,23 +39,11 @@ namespace Bot
 				if (futurePlanet.Owner() != 2) continue;
 				if (holder.IsNeutralToEnemySwith(targetDistance)) continue;
 
-				//int myFleetsShipNum = Context.GetFleetsShipNumFarerThan(myFleetsGoingToPlanet, targetDistance);
-				//targetDistance = Math.Max(targetDistance, farestFleet);
-
 				int needToSend = 1 + futurePlanet.NumShips();
-				//needToSend -= myFleetsShipNum;
 				if (Config.AttackSendMoreThanEnemyCanDefend)
 					needToSend += Context.GetEnemyAid(targetPlanet, targetDistance);
 
 				needToSend = moves.Aggregate(needToSend, (current, eachMove) => current - Context.CanSend(Context.GetPlanet(eachMove.SourceID)));
-				//delay closer moves
-				/*foreach (Move eachMove in moves)
-				{
-					int moveDistance = Context.Distance(eachMove.DestinationID, eachMove.SourceID);
-					int turns = targetDistance - moveDistance;
-					eachMove.TurnsBefore = turns;
-					needToSend -= Context.CanSend(Context.GetPlanet(eachMove.SourceID), turns);
-				}*/
 
 				if (needToSend <= 0) return moves;
 

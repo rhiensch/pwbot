@@ -105,25 +105,35 @@ namespace Bot
 			{
 				try
 				{
-					SelectAndMakeMoves();
-					if (CheckTime() && (turn > 1))
+					if (turn == 1)
 					{
-						//try
+						MakeMoves(setList);
+						setList.Clear();
+					}
+					else
+					{
+						SelectAndMakeMoves();
+						if (CheckTime())
 						{
-							SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
-							RunAdviser(supplyAdviser);
-
-							if (CheckTime())
+							//try
 							{
-								MakeMoves(setList);
-								setList.Clear();
+								SupplyAdviser supplyAdviser = new SupplyAdviser(Context);
+								RunAdviser(supplyAdviser);
+
+								if (CheckTime())
+								{
+									MakeMoves(setList);
+									setList.Clear();
+								}
+							}
+							//catch
+							{
+								//Logger.Log("exception: " + e.Message);
 							}
 						}
-						//catch
-						{
-							//Logger.Log("exception: " + e.Message);
-						}
 					}
+						
+					
 
 				}
 				finally
@@ -181,7 +191,7 @@ namespace Bot
 
 				List<MovesSet> currentSetList = new List<MovesSet>();
 				Moves totalMoves = new Moves();
-				int invadeNumber = Config.MaxInvades;
+				//int invadeNumber = Config.MaxInvades;
 
 				for (int j = 0; j < n; j++)
 				{
@@ -191,8 +201,10 @@ namespace Bot
 
 					MovesSet set = setList[j];
 
-					if (setList[j].AdviserName == "Invade") invadeNumber--;
-					if (invadeNumber < 0) break;
+					//if (setList[j].AdviserName == "Invade") invadeNumber--;
+					//if (invadeNumber < 0) break;
+
+					Logger.Log("set" + set);
 
 					currentSetList.Add(set);
 
@@ -212,11 +224,19 @@ namespace Bot
 						if (!found)
 						{
 							totalMoves.Add(new Move(move));
-
 						}
 					}
 				}
 				bool isValid = totalMoves.All(totalMove => Context.IsValid(totalMove));
+				if (!isValid)
+					foreach (Move totalMove in totalMoves)
+					{
+						if (!Context.IsValid(totalMove))
+						{
+							Logger.Log("InValid: " + totalMove);
+							break;
+						}
+					} 
 
 				if (!isValid) continue;
 				sets.Add(currentSetList);

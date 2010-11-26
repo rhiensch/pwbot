@@ -79,6 +79,17 @@ namespace Bot
 				else
 				{
 					//todo delete bigger then target
+					Moves newMoves = new Moves();
+					foreach (Move move in set.GetMoves())
+					{
+						if (Context.GetPlanet(move.SourceID).NumShips() < Context.GetPlanet(move.DestinationID).NumShips())
+							newMoves.Add(new Move(move));
+					}
+					if (newMoves.Count > 0)
+					{
+						set = new MovesSet(newMoves, 0, GetAdviserName(), Context);
+						movesSet.Add(set);
+					}
 				}
 			}
 			return movesSet;
