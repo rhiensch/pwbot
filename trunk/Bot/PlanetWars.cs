@@ -1005,7 +1005,62 @@ namespace Bot
 		{
 			if (dest.GrowthRate() < source.GrowthRate()) return CanSendSafe(source);
 			return CanSend(source);
-			
+
+
+			/*Moves moves = new Moves();
+
+			Planets enemyPlanets = EnemyPlanets();
+			if (enemyPlanets.Count == 0) return 0;
+
+			Comparer comparer = new Comparer(this) { TargetPlanet = source };
+			enemyPlanets.Sort(comparer.CompareDistanceToTargetPlanetLT);
+
+			PlanetHolder holder = GetPlanetHolder(source);
+
+			foreach (Planet enemyPlanet in enemyPlanets)
+			{
+				int targetDistance = Distance(enemyPlanet, source);
+
+				int numShips = enemyPlanet.NumShips();
+
+				//enemyCanSend
+				PlanetHolder enemyHolder = GetPlanetHolder(enemyPlanet.PlanetID());
+				if (enemyHolder.GetOwnerSwitchesFromEnemyToMy().Count > 0)
+				{
+					numShips = 0;
+				}
+				else
+				{
+					int turnsCount = enemyHolder.TurnsCount;
+					for (int turn = 1; turn < turnsCount; turn++)
+					{
+						Planet futurePlanet = PlanetFutureStatus(enemyPlanet, turn);
+						if (futurePlanet.NumShips() < numShips) numShips = futurePlanet.NumShips();
+					}
+				}
+
+				int enemyCanSend = numShips;
+				if (enemyCanSend == 0) continue;
+
+				Planet futureSourcePlanet = PlanetFutureStatus(source, targetDistance);
+				if (futureSourcePlanet.Owner() != 1) continue;
+
+				int needToSend = 1 + futureSourcePlanet.NumShips();
+				needToSend += GetEnemyAid(source, targetDistance);
+
+				needToSend = moves.Aggregate(needToSend, (current, eachMove) => current - CanSend(GetPlanet(eachMove.SourceID)));
+
+				if (needToSend <= 0) return 0;
+
+				int canSend = Math.Min(needToSend, enemyCanSend);
+				needToSend -= canSend;
+				Move move = new Move(enemyPlanet, source, canSend);
+				moves.Add(move);
+
+				if (needToSend <= 0) return 0;
+			}
+
+			return 0;*/
 		}
 
 		public int CanSendByPlanets(Planet source, Planet dest, int turns)

@@ -22,6 +22,7 @@ namespace Bot
 
 		public MovesSet BruteForce(Planets planets, int canSend)
 		{
+			Logger.Log("CanSend " + canSend);
 			int scoreTurns = Config.ScoreTurns;//Context.Distance(myPlanet, enemyPlanet);
 
 			int n = planets.Count;
@@ -92,19 +93,20 @@ namespace Bot
 				foreach (Planet additionalPlanet in planets)
 				{
 					if (targetPlanets.Contains(additionalPlanet)) continue;
-					if (firstMoveCanSend + secondMoveCanSend < additionalPlanet.NumShips() + 1) continue;
-					//this planet we can invade in another set: this set + this planet
-					if (firstMoveCanSend >= additionalPlanet.NumShips() + 1) continue;
 
 					int needShips = additionalPlanet.NumShips() + 1;
 					if (Context.Distance(myPlanet, additionalPlanet) >= Context.Distance(enemyPlanet, additionalPlanet))
 						needShips += 1;
 
+					if (firstMoveCanSend + secondMoveCanSend < needShips) continue;
+					//this planet we can invade in another set: this set + this planet
+					if (firstMoveCanSend >= needShips) continue;
+
 					MovesSet additionalSet = new MovesSet(set, Context);
 					if (firstMoveCanSend > 0)
 						additionalSet.AddMove(new Move(myPlanet, additionalPlanet, firstMoveCanSend));
 
-					additionalSet.AddMove(new Move(myPlanet, additionalPlanet, additionalPlanet.NumShips() + 1 - firstMoveCanSend) { TurnsBefore = 1 });
+					additionalSet.AddMove(new Move(myPlanet, additionalPlanet, needShips - firstMoveCanSend) { TurnsBefore = 1 });
 
 					int growTurns = Math.Max(0, scoreTurns - Context.Distance(myPlanet.PlanetID(), additionalPlanet.PlanetID()));
 					additionalSet.Score += (growTurns - 1) * additionalPlanet.GrowthRate() - needShips;
