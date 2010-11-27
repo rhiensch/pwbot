@@ -1,4 +1,4 @@
-#define LOG
+#undef LOG
 
 using System;
 using System.Collections.Generic;
@@ -204,8 +204,6 @@ namespace Bot
 					//if (setList[j].AdviserName == "Invade") invadeNumber--;
 					//if (invadeNumber < 0) break;
 
-					Logger.Log("set" + set);
-
 					currentSetList.Add(set);
 
 					Moves moves = set.GetMoves();
@@ -228,7 +226,7 @@ namespace Bot
 					}
 				}
 				bool isValid = totalMoves.All(totalMove => Context.IsValid(totalMove));
-				if (!isValid)
+				/*if (!isValid)
 					foreach (Move totalMove in totalMoves)
 					{
 						if (!Context.IsValid(totalMove))
@@ -236,7 +234,7 @@ namespace Bot
 							Logger.Log("InValid: " + totalMove);
 							break;
 						}
-					} 
+					} */
 
 				if (!isValid) continue;
 				sets.Add(currentSetList);
