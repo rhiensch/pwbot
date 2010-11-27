@@ -22,7 +22,6 @@ namespace Bot
 
 		public MovesSet BruteForce(Planets planets, int canSend)
 		{
-			Logger.Log("CanSend " + canSend);
 			int scoreTurns = Config.ScoreTurns;//Context.Distance(myPlanet, enemyPlanet);
 
 			int n = planets.Count;
@@ -120,10 +119,10 @@ namespace Bot
 			{
 				sets.Sort(new Comparer(null).CompareSetScoreGT);
 			}
-			foreach (MovesSet movesSet in sets)
+			/*foreach (MovesSet movesSet in sets)
 			{
 				Logger.Log("score: " + movesSet.Score + "  " + movesSet);
-			}
+			}*/
 			return sets[0];
 		}
 
