@@ -1,0 +1,1 @@
+Bot for Google Planet Wars contest
